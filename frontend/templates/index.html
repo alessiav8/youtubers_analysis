@@ -24,8 +24,8 @@
   </div>
 
   <script>
-    const yourData = {{ scatter_data|tojson|safe }};
-    yourData.forEach(d => {
+    const Data = {{ scatter_data|tojson|safe }};
+    Data.forEach(d => {
       d.x = +d.x;
       d.y = +d.y;
     });
@@ -35,28 +35,27 @@
     const height = 400 - margin.top - margin.bottom;
 
     const svg = d3.select('#GraphContainer')
-    .append('svg')
-    .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom)
-    .append('g')
-    .attr('transform', `translate(${margin.left},${margin.top})`);
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Set up scales for x and y axes
     const xScale = d3.scaleLinear()
-    .domain([0, d3.max(yourData, d => d.x)])
-    .range([0, width]);
+      .domain([d3.min(Data, d => d.x), d3.max(Data, d => d.x)])
+      .range([0, width]);
 
     const yScale = d3.scaleLinear()
-    .domain([0, d3.max(yourData, d => d.y)])
-    .range([height, 0]);
+      .domain([d3.min(Data, d => d.y), d3.max(Data, d => d.y)])
+      .range([height, 0]);
 
     svg.selectAll('circle')
-    .data(yourData)
-    .enter()
-    .append('circle')
-    .attr('cx', d => xScale(d.x))
-    .attr('cy', d => yScale(d.y))
-    .attr('r', 5); 
+      .data(Data)
+      .enter()
+      .append('circle')
+      .attr('cx', d => xScale(d.x))
+      .attr('cy', d => yScale(d.y))
+      .attr('r', 5); 
 
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale);
