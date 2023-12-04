@@ -1,38 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scatter Plot</title>
-    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scatterplot with D3.js</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+  </style>
 </head>
-
 <body>
-    <style>
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            color: #3498db;
-        }
-
-        div {
-            text-align: center;
-        }
-    </style>
-
-    <header>
-        <h1>Find Your Youtuber!</h1>
-    </header>
-    <div style="text-align: center;">
-        <h2>Scatter Plot</h2>
-        <!--img src="data:image/png;base64,{{ scatter_plot }}" alt="Scatter Plot"-->
+  <div class="container">
+    <div class="row" style="align-text:center">
+      <h1>Find your Youtuber!</h1>
     </div>
-</body>
+    <div class="row" id="GraphContainer"></div>
+  </div>
 
+  <script>
+    const yourData = {{ scatter_data|tojson|safe }};
+    yourData.forEach(d => {
+      d.x = +d.x;
+      d.y = +d.y;
+    });
+
+    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+
+    const svg = d3.select('#GraphContainer')
+    .append('svg')
+    .attr('width', width + margin.left + margin.right)
+    .attr('height', height + margin.top + margin.bottom)
+    .append('g')
+    .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Set up scales for x and y axes
+    const xScale = d3.scaleLinear()
+    .domain([0, d3.max(yourData, d => d.x)])
+    .range([0, width]);
+
+    const yScale = d3.scaleLinear()
+    .domain([0, d3.max(yourData, d => d.y)])
+    .range([height, 0]);
+
+    svg.selectAll('circle')
+    .data(yourData)
+    .enter()
+    .append('circle')
+    .attr('cx', d => xScale(d.x))
+    .attr('cy', d => yScale(d.y))
+    .attr('r', 5); 
+
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
+    svg.append('g')
+    .attr('transform', `translate(0, ${height})`)
+    .call(xAxis);
+
+    svg.append('g')
+    .call(yAxis);
+
+  </script>
+</body>
 </html>
