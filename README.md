@@ -12,4 +12,3 @@ pip install -r requirements.txt
 #Run
 npm install
 npm run start
-npm run start:frontend
