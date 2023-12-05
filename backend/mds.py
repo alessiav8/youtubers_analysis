@@ -53,7 +53,7 @@ def create_scatter_plot(csv_path):
     pos1 = mds.fit(dissM).embedding_
     stress=mds.fit(dissM).stress_
 
-    print(pos)
+    #print(pos)
     s = 30
     plt.scatter(pos1[:, 0], pos1[:, 1], color='red', s=s, lw=0, label='d[i]-d[j]')
 
@@ -70,6 +70,6 @@ def create_scatter_plot(csv_path):
         for key, value in annotation.items():
             if isinstance(value, np.float64):
                 annotation[key] = float(value)
-                print(annotation)
+                #print(annotation)
     return annotations
 
