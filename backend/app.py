@@ -16,6 +16,7 @@ def index():
         # Call the function to get the data
         scatter_data = create_scatter_plot(csv_path)
         #print(scatter_data)
+        #test
         # Pass the data to the template
         return render_template(template_name, scatter_data=scatter_data)
 
