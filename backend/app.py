@@ -19,8 +19,9 @@ def perform_mds():
 
 
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return "Error: Failed "
+        error_message = f"An error occurred: {e}\n"
+        error_message += traceback.format_exc()  # Add the traceback information
+        return f"Error: {error_message}"
 
 if __name__ == '__main__':
     app.run(port=5000)
