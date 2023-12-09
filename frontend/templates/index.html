@@ -1,108 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scatterplot with D3.js</title>
-  <script src="https://d3js.org/d3.v5.min.js"></script>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="row" style="align-text:center">
-      <h1>Find your Youtuber!</h1>
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scatterplot with D3.js</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="../js/index.js"></script>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+  
+      #loadingMessage {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row" id="loadingMessage">Loading data...</div>
+      <div class="row" id="GraphContainer">
+        <div class="row" style="align-text:center">
+          <h1>Find your Youtuber!</h1>
+        </div>
+      </div>
     </div>
-    <div class="row" id="GraphContainer"></div>
-  </div>
-
-  <script>
-    const Data = {{ scatter_data|tojson|safe }};
-    Data.forEach(d => {
-      d.x = +d.x;
-      d.y = +d.y;
-    });
-
-    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-    const width = 500 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
-
-    const svg = d3.select('#GraphContainer')
-      .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
-
-      const xExtent = d3.extent(Data, d => d.x);
-      const yExtent = d3.extent(Data, d => d.y);
-      
-      const maxExtent = [
-        Math.min(xExtent[0], yExtent[0]),
-        Math.max(xExtent[1], yExtent[1])
-      ];
-      
-      const xScale = d3.scaleLinear()
-        .domain(maxExtent)
-        .range([0, width]);
-      
-      const yScale = d3.scaleLinear()
-        .domain(maxExtent)
-        .range([height, 0]);
-
-      //div for the label to show when the mouse is on the point
-    const tooltip = d3.select('#GraphContainer').append('div')
-        .attr('class', 'tooltip')
-        .style('opacity', 0)
-        .style('position', 'absolute');
-
-    const circles = svg.selectAll('circle')
-      .data(Data)
-      .enter()
-      .append('circle')
-      .attr('cx', d => xScale(d.x))
-      .attr('cy', d => yScale(d.y))
-      .attr('r', 5)
-      .attr("fill","red"); 
-
-    circles.on('mouseover', (event, d) => {
-        console.log(`Puntatore su punto `,event.label);
-        const xPosition = xScale(d.x) + margin.left; 
-        const yPosition = yScale(d.y) + margin.top; 
-    
-        tooltip.transition()
-          .duration(200)
-          .style('opacity', .9)
-          .style('left', xPosition + 'px')
-          .style('top', yPosition + 'px');
-
-        tooltip.html(`<strong>${event.label}</strong>`);
-      });
-        
-      circles.on('mouseout', () => {
-          // Hide the label when the mouse leaves the point
-          tooltip.transition()
-            .duration(500)
-            .style('opacity', 0);
-        });
-
-    const xAxis = d3.axisBottom(xScale);
-    const yAxis = d3.axisLeft(yScale);
-
-    svg.append('g')
-    .attr('transform', `translate(0, ${height})`)
-    .call(xAxis);
-
-    svg.append('g')
-    .call(yAxis);
-
-  </script>
 </body>
 </html>

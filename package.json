@@ -4,10 +4,14 @@
   "description": "This project, created by Alessia Volpi and Matteo Simonetti, serves as the final project for the \"Visual Analytics\" course instructed by Giuseppe Santucci in the Master's program for Computer Science Engineering at Sapienza University. The project aims to assist a hypothetical user or organization in search of an individual for sponsorship. It leverages visual analytics techniques to facilitate the identification and selection process for potential sponsorship candidates.",
   "main": "index.js",
   "scripts": {
-    "start": "python3 backend/app.py",
-    "start:frontend": "cd frontend && npm start"
+    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
+    "start-backend": "python backend/app.py || python3 backend/app.py ",
+    "start-frontend": "cd frontend && cd js && node server.js"
   },
   "keywords": [],
   "author": "Matteo Simonetti and Alessia Volpi",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
