@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .style('left', xPosition + 'px')
         .style('top', yPosition + 'px');
 
-      tooltip.html(`<strong>${d.label}</strong>`);
+      tooltip.html(`<strong>${event.label}</strong>`);
     });
 
     circles.on('mouseout', () => {

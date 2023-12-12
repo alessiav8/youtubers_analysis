@@ -16,6 +16,10 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).sendFile(path.join(__dirname,'../', 'templates', 'error.html'));
 });
+
+
+
+
 //to handle wrong url
 app.all('*', (req, res) => {
   res.status(404).sendFile(path.join(__dirname, '../', 'templates','error.html'));

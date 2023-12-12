@@ -26,10 +26,10 @@ def create_scatter_plot(csv_path):
    
     # Read the Excel file, specifying header=1 because the title is in the first row
     df = pd.read_excel(csv_path, header=1)
-    
     df.replace("N/A'", pd.NA, inplace=True)
     # Drop rows where any column has NaN
     df = df.dropna()
+    
     
     y_channel = df['Youtube channel'].values
 
@@ -46,6 +46,7 @@ def create_scatter_plot(csv_path):
         for j in range(len(features_scaled)):
             dissM[i, j] = np.linalg.norm(features_scaled[i] - features_scaled[j])
             #print("Diss of ",i,j,"\n",dissM[i,j],"\n")
+
 
     # Multidimensional Scaling (MDS)
     mds = MDS(n_components=2, max_iter=300, dissimilarity="precomputed", random_state=42)
