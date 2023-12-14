@@ -13,7 +13,7 @@ def perform_mds():
 
     try:
         script_directory = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(script_directory, 'june2022.xlsx')
+        csv_path = os.path.join(script_directory, '..', 'datasets', 'june.xlsx')
         scatter_data = create_scatter_plot(csv_path)
         return jsonify(scatter_data)
 
@@ -23,6 +23,20 @@ def perform_mds():
         error_message += traceback.format_exc()  # Add the traceback information
         return f"Error: {error_message}"
     
+
+@app.route('/user', methods=['GET'])
+def get_data():
+    try:
+        script_directory = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(script_directory, '..', 'datasets', 'june.xlsx')
+        scatter_data = create_scatter_plot(csv_path)
+        return jsonify(scatter_data)
+
+
+    except Exception as e:
+        error_message = f"An error occurred: {e}\n"
+        error_message += traceback.format_exc()  # Add the traceback information
+        return f"Error: {error_message}"
 
 
 if __name__ == '__main__':

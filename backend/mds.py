@@ -25,7 +25,7 @@ def convert_to_int(value):
 def create_scatter_plot(csv_path):
    
     # Read the Excel file, specifying header=1 because the title is in the first row
-    df = pd.read_excel(csv_path, header=1)
+    df = pd.read_excel(csv_path, header=0)
     df.replace("N/A'", pd.NA, inplace=True)
     # Drop rows where any column has NaN
     df = df.dropna()

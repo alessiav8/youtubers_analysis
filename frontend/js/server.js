@@ -11,6 +11,12 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname,'../', 'templates', 'index.html'));
 });
 
+// Routing for the /{username} path
+app.get('/:username', (req, res) => {
+  const username = req.params.username;
+  res.sendFile(path.join(__dirname, '../', 'templates', 'userPage.html'));
+});
+
 //to handle error
 app.use((err, req, res, next) => {
   console.error(err.stack);
