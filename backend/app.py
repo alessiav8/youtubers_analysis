@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request
 import os
 from mds import create_scatter_plot
 from flask_cors import CORS
+import pandas as pd
+import traceback
 
 
 app = Flask(__name__, template_folder="../frontend/templates")
@@ -28,9 +30,18 @@ def perform_mds():
 def get_data():
     try:
         script_directory = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(script_directory, '..', 'datasets', 'june.xlsx')
-        scatter_data = create_scatter_plot(csv_path)
-        return jsonify(scatter_data)
+        csv_path1 = os.path.join(script_directory, '..', 'datasets', 'june.xlsx')
+        csv_path2 = os.path.join(script_directory, '..', 'datasets', 'september.xlsx')
+        csv_path3 = os.path.join(script_directory, '..', 'datasets', 'november.xlsx')
+        csv_path4 = os.path.join(script_directory, '..', 'datasets', 'december.xlsx')
+
+        df = pd.read_excel(csv_path, header=0)
+        df.replace("N/A", pd.NA, inplace=True)
+        df.replace("", pd.NA, inplace=True)
+        # Drop rows where any column has NaN
+        df = df.dropna()
+        
+        return jsonify()
 
 
     except Exception as e:
