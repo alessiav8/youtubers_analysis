@@ -24,31 +24,6 @@ def perform_mds():
         error_message = f"An error occurred: {e}\n"
         error_message += traceback.format_exc()  # Add the traceback information
         return f"Error: {error_message}"
-    
-
-@app.route('/user', methods=['GET'])
-def get_data():
-    try:
-        script_directory = os.path.dirname(os.path.abspath(__file__))
-        csv_path1 = os.path.join(script_directory, '..', 'datasets', 'june.xlsx')
-        csv_path2 = os.path.join(script_directory, '..', 'datasets', 'september.xlsx')
-        csv_path3 = os.path.join(script_directory, '..', 'datasets', 'november.xlsx')
-        csv_path4 = os.path.join(script_directory, '..', 'datasets', 'december.xlsx')
-
-        df = pd.read_excel(csv_path, header=0)
-        df.replace("N/A", pd.NA, inplace=True)
-        df.replace("", pd.NA, inplace=True)
-        # Drop rows where any column has NaN
-        df = df.dropna()
-        
-        return jsonify()
-
-
-    except Exception as e:
-        error_message = f"An error occurred: {e}\n"
-        error_message += traceback.format_exc()  # Add the traceback information
-        return f"Error: {error_message}"
-
 
 if __name__ == '__main__':
     app.run(port=5000)

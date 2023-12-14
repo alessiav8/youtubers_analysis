@@ -1,44 +1,83 @@
-// Load the Excel data
-const likesData = d3.csv("./likes.csv");
-const commentsData = d3.csv("./comments.csv");
-const viewsData = d3.csv("./views.csv");
-const followersData = d3.csv("./followers.csv");
+const username = window.location.pathname.split('/').pop();
 
-// Select the scatterplot elements
-const scatterplots = d3.selectAll(".scatterplot");
+let youtuberData; // Declare youtuberData outside of the fetch block
 
-// Create a function to draw a scatterplot
-function drawScatterplot(data, scatterplot) {
-  // Create the SVG element
-  const svg = d3.select(scatterplot)
-    .append("svg")
-    .attr("width", "100%")
-    .attr("height", "100%");
+// Make an AJAX request to the server to get data
+fetch(`/getData/${username}`)
+  .then(response => response.json())
+  .then(data => {
+    // Process data and create D3 visualizations here
+    youtuberData = data;
+    console.log(youtuberData)
 
-  // Create the scatterplot
-  svg.selectAll("circle")
-    .data(data)
-    .enter()
-    .append("circle")
-    .attr("cx", function(d) { return d.x; })
-    .attr("cy", function(d) { return d.y; })
-    .attr("r", function(d) { return d.size; })
-    .attr("fill", function(d) { return d.color; });
-}
 
-// Draw the scatterplots
-likesData.then(function(data) {
-  drawScatterplot(data, scatterplots[0]);
-});
 
-commentsData.then(function(data) {
-  drawScatterplot(data, scatterplots[1]);
-});
+    // Create a line chart to show the YouTuber's follower growth over time
+  var margin = { top: 20, right: 20, bottom: 30, left: 50 };
+  var width = 500 - margin.left - margin.right;
+  var height = 300 - margin.top - margin.bottom;
 
-viewsData.then(function(data) {
-  drawScatterplot(data, scatterplots[2]);
-});
+  var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-followersData.then(function(data) {
-  drawScatterplot(data, scatterplots[3]);
-});
+  var xScale = d3.scaleLinear()
+    .domain([d3.min(youtuberData, function(d) { return new Date(d["Date"]); }), d3.max(youtuberData, function(d) { return new Date(d["Date"]); })])
+    .range([0, width]);
+
+  var yScale = d3.scaleLinear()
+    .domain([0, d3.max(youtuberData, function(d) { return +d["Followers"]; })])
+    .range([height, 0]);
+
+  var line = d3.line()
+    .x(function(d) { return xScale(new Date(d["Date"])); })
+    .y(function(d) { return yScale(d["Followers"]); });
+
+  svg.append("path")
+    .datum(youtuberData)
+    .attr("class", "line")
+    .attr("d", line);
+
+  // Add text labels to the chart
+  svg.append("text")
+    .attr("class", "title")
+    .attr("x", width / 2)
+    .attr("y", margin.top)
+    .text(youtuberData[0]["Youtube channel"]);
+
+  svg.append("text")
+    .attr("class", "country")
+    .attr("x", margin.left)
+    .attr("y", margin.top + 20)
+    .text("Country: " + youtuberData[0]["Country"]);
+
+  svg.append("text")
+    .attr("class", "avg-views")
+    .attr("x", margin.left)
+    .attr("y", margin.top + 40)
+    .text("Average views: " + youtuberData[0]["Avg. views"]);
+
+  svg.append("text")
+    .attr("class", "avg-likes")
+    .attr("x", margin.left)
+    .attr("y", margin.top + 60)
+    .text("Average likes: " + youtuberData[0]["Avg. likes"]);
+
+  svg.append("text")
+    .attr("class", "avg-comments")
+    .attr("x", margin.left)
+    .attr("y", margin.top + 80)
+    .text("Average comments: " + youtuberData[0]["Avg. comments"]);
+
+
+
+    // Rest of the D3.js code can be outside the fetch block
+  })
+  .catch(error => console.error('Error fetching data:', error));
+
+  
+
+  
+  
