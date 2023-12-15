@@ -52,6 +52,7 @@ fetch(`/getData/${username}`)
     createScatterPlot(views, 'Views',"#container2");
 
     console.log(followers)
+    console.log(likes)
 
   })
   .catch(error => console.error('Error fetching data:', error));
@@ -94,7 +95,73 @@ fetch(`/getData/${username}`)
       .attr('cy', d => yScale(d))
       .attr('r', 5)
       .style('display', d => (typeof d === 'undefined' ? 'none' : ''));
-  
+
+      // Add lines connecting the points
+      svg.selectAll('line')
+  .data(data)
+  .enter()
+  .append('line')
+  .attr('x1', (d, i) => {
+    const xValue = ["June", "September", "November", "December"][i];
+    return typeof d !== 'undefined' ? xScale(xValue) + xScale.bandwidth() / 2 : null;
+  })
+  .attr('y1', d => typeof d !== 'undefined' ? yScale(d) : null)
+  .attr('x2', (d, i, nodes) => {
+    const currentPointVisible = typeof d !== 'undefined' && nodes[i].style.display !== 'none';
+
+    if (currentPointVisible) {
+      // Find the next visible point
+      let j = i + 1;
+      while (j < data.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
+        j++;
+      }
+
+      if (j < data.length) {
+        const nextXValue = ["June", "September", "November", "December"][j];
+        return xScale(nextXValue) + xScale.bandwidth() / 2;
+      }
+    }
+
+    return null;
+  })
+  .attr('y2', (d, i, nodes) => {
+    const currentPointVisible = typeof d !== 'undefined' && nodes[i].style.display !== 'none';
+
+    if (currentPointVisible) {
+      // Find the next visible point
+      let j = i + 1;
+      while (j < data.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
+        j++;
+      }
+
+      if (j < data.length) {
+        return yScale(data[j]);
+      }
+    }
+
+    return null;
+  })
+  .style('stroke', 'blue') // Set the color of the lines (adjust as needed)
+  .style('display', (d, i, nodes) => {
+    const currentPointVisible = typeof d !== 'undefined' && nodes[i].style.display !== 'none';
+
+    if (currentPointVisible) {
+      // Find the next visible point
+      let j = i + 1;
+      while (j < data.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
+        j++;
+      }
+
+      if (j < data.length) {
+        return null;
+      }
+    }
+
+    return 'none';
+  });
+
+
+
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
       .call(d3.axisBottom(xScale));
