@@ -2,6 +2,20 @@ const username = window.location.pathname.split('/').pop();
 
 let youtuberData; // Declare youtuberData outside of the fetch block
 
+function convertToInt(value) {
+  if (typeof value === 'string') {
+      if (value.includes('M')) {
+          return parseInt(parseFloat(value.replace('M', '')) * 1e6);
+      } else if (value.includes('K')) {
+          return parseInt(parseFloat(value.replace('K', '')) * 1e3);
+      } else {
+          return parseInt(value);
+      }
+  } else {
+      return value;
+  }
+}
+
 // Make an AJAX request to the server to get data
 fetch(`/getData/${username}`)
   .then(response => response.json())
@@ -10,72 +24,99 @@ fetch(`/getData/${username}`)
     youtuberData = data;
     console.log(youtuberData)
 
+  const june=youtuberData[0]
+  const september=youtuberData[1]
+  const november=youtuberData[2]
+  const december=youtuberData[3]
 
+  const followers = [];
+    for (let i = 0; i < youtuberData.length; i++) {
+      followers.push(convertToInt(youtuberData[i]["Followers"]));
+    }
+    const likes = [];
+    for (let i = 0; i < youtuberData.length; i++) {
+      likes.push(convertToInt(youtuberData[i]["Avg. likes"]));
+    }
+    const comments = [];
+    for (let i = 0; i < youtuberData.length; i++) {
+      comments.push(convertToInt(youtuberData[i]["Avg. comments"]));
+    }
+    const views = [];
+    for (let i = 0; i < youtuberData.length; i++) {
+      views.push(convertToInt(youtuberData[i]["Avg. views"]));
+    }
 
-    // Create a line chart to show the YouTuber's follower growth over time
-  var margin = { top: 20, right: 20, bottom: 30, left: 50 };
-  var width = 500 - margin.left - margin.right;
-  var height = 300 - margin.top - margin.bottom;
+    createScatterPlot(followers, 'Followers', "#container1");
+    createScatterPlot(likes, 'Likes', "#container1");
+    createScatterPlot(comments, 'Comments', "#container2");
+    createScatterPlot(views, 'Views',"#container2");
 
-  var svg = d3.select("#chart").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    console.log(followers)
 
-  var xScale = d3.scaleLinear()
-    .domain([d3.min(youtuberData, function(d) { return new Date(d["Date"]); }), d3.max(youtuberData, function(d) { return new Date(d["Date"]); })])
-    .range([0, width]);
-
-  var yScale = d3.scaleLinear()
-    .domain([0, d3.max(youtuberData, function(d) { return +d["Followers"]; })])
-    .range([height, 0]);
-
-  var line = d3.line()
-    .x(function(d) { return xScale(new Date(d["Date"])); })
-    .y(function(d) { return yScale(d["Followers"]); });
-
-  svg.append("path")
-    .datum(youtuberData)
-    .attr("class", "line")
-    .attr("d", line);
-
-  // Add text labels to the chart
-  svg.append("text")
-    .attr("class", "title")
-    .attr("x", width / 2)
-    .attr("y", margin.top)
-    .text(youtuberData[0]["Youtube channel"]);
-
-  svg.append("text")
-    .attr("class", "country")
-    .attr("x", margin.left)
-    .attr("y", margin.top + 20)
-    .text("Country: " + youtuberData[0]["Country"]);
-
-  svg.append("text")
-    .attr("class", "avg-views")
-    .attr("x", margin.left)
-    .attr("y", margin.top + 40)
-    .text("Average views: " + youtuberData[0]["Avg. views"]);
-
-  svg.append("text")
-    .attr("class", "avg-likes")
-    .attr("x", margin.left)
-    .attr("y", margin.top + 60)
-    .text("Average likes: " + youtuberData[0]["Avg. likes"]);
-
-  svg.append("text")
-    .attr("class", "avg-comments")
-    .attr("x", margin.left)
-    .attr("y", margin.top + 80)
-    .text("Average comments: " + youtuberData[0]["Avg. comments"]);
-
-
-
-    // Rest of the D3.js code can be outside the fetch block
   })
   .catch(error => console.error('Error fetching data:', error));
+
+
+  
+
+
+
+
+  function createScatterPlot(data, label, container) {
+    const margin = { top: 20, right: 20, bottom: 70, left: 70 };
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+  
+    const months = ["June", "September", "November", "December"];
+
+    const xScale = d3.scaleBand()
+      .domain(months)
+      .range([0, width])
+      .paddingInner(0)
+      .paddingOuter(0); // Remove inner and outer padding
+  
+    const yScale = d3.scaleLinear().domain([0, d3.max(data)]).range([height, 0]);
+  
+    const formatAxisLabel = d3.format(".2s");
+  
+    const svg = d3.select(container)
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
+  
+      svg.selectAll('dot')
+      .data(data)
+      .enter()
+      .append('circle')
+      .attr('cx', (d, i) => xScale(["June", "September", "November", "December"][i]) + xScale.bandwidth() / 2)
+      .attr('cy', d => yScale(d))
+      .attr('r', 5)
+      .style('display', d => (typeof d === 'undefined' ? 'none' : ''));
+  
+    svg.append('g')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(xScale));
+  
+    svg.append('g')
+      .call(d3.axisLeft(yScale).tickFormat(formatAxisLabel));
+  
+    svg.append('text')
+      .attr('transform', `translate(${width / 2},${height + margin.top + 20})`)
+      .style('text-anchor', 'middle')
+      .text(label);
+  
+    svg.append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', 0 - margin.left)
+      .attr('x', 0 - height / 2)
+      .attr('dy', '1em')
+      .style('text-anchor', 'middle')
+      .text('Count');
+  }
+  
+  
 
   
 
