@@ -16,6 +16,23 @@ function convertToInt(value) {
   }
 }
 
+function formatNumber(value) {
+  if (typeof value !== 'number') {
+    throw new Error('Input must be a number');
+  }
+
+  if (value >= 1e6) {
+    // Convert to millions with one decimal place
+    return (value / 1e6).toFixed(1) + 'M';
+  } else if (value >= 1e3) {
+    // Convert to thousands with no decimal places
+    return Math.round(value / 1e3) + 'K';
+  } else {
+    // Leave small values as is
+    return value.toString();
+  }
+}
+
 // Make an AJAX request to the server to get data
 fetch(`/getData/${username}`)
   .then(response => response.json())
@@ -23,11 +40,6 @@ fetch(`/getData/${username}`)
     // Process data and create D3 visualizations here
     youtuberData = data;
     console.log(youtuberData)
-
-  const june=youtuberData[0]
-  const september=youtuberData[1]
-  const november=youtuberData[2]
-  const december=youtuberData[3]
 
   const followers = [];
     for (let i = 0; i < youtuberData.length; i++) {
@@ -87,43 +99,47 @@ fetch(`/getData/${username}`)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
   
-      svg.selectAll('dot')
+      svg.selectAll('circle')
       .data(data)
       .enter()
       .append('circle')
       .attr('cx', (d, i) => xScale(["June", "September", "November", "December"][i]) + xScale.bandwidth() / 2)
       .attr('cy', d => yScale(d))
       .attr('r', 5)
-      .style('display', d => (typeof d === 'undefined' ? 'none' : ''));
+      .style('display', d => (typeof d === 'undefined' ? 'none' : ''))
+      .on('mouseover', (d, i) => handleMouseOver(d,i,label,data))  // Add mouseover event listener
+      .on('mouseout', handleMouseOut);  // Add mouseout event listener
 
-      // Add lines connecting the points
-      svg.selectAll('line')
-  .data(data)
-  .enter()
-  .append('line')
-  .attr('x1', (d, i) => {
-    const xValue = ["June", "September", "November", "December"][i];
-    return typeof d !== 'undefined' ? xScale(xValue) + xScale.bandwidth() / 2 : null;
-  })
-  .attr('y1', d => typeof d !== 'undefined' ? yScale(d) : null)
-  .attr('x2', (d, i, nodes) => {
-    const currentPointVisible = typeof d !== 'undefined' && nodes[i].style.display !== 'none';
 
-    if (currentPointVisible) {
-      // Find the next visible point
-      let j = i + 1;
-      while (j < data.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
-        j++;
-      }
 
-      if (j < data.length) {
-        const nextXValue = ["June", "September", "November", "December"][j];
-        return xScale(nextXValue) + xScale.bandwidth() / 2;
-      }
-    }
+      // start line
+    svg.selectAll('line')
+      .data(data)
+      .enter()
+      .append('line')
+      .attr('x1', (d, i) => {
+        const xValue = ["June", "September", "November", "December"][i];
+        return typeof d !== 'undefined' ? xScale(xValue) + xScale.bandwidth() / 2 : null;
+      })
+      .attr('y1', d => typeof d !== 'undefined' ? yScale(d) : null)
+      .attr('x2', (d, i, nodes) => {
+        const currentPointVisible = typeof d !== 'undefined' && nodes[i].style.display !== 'none';
 
-    return null;
-  })
+        if (currentPointVisible) {
+          // Find the next visible point
+          let j = i + 1;
+          while (j < data.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
+            j++;
+          }
+
+          if (j < data.length) {
+            const nextXValue = ["June", "September", "November", "December"][j];
+            return xScale(nextXValue) + xScale.bandwidth() / 2;
+          }
+        }
+
+        return null;
+      })
   .attr('y2', (d, i, nodes) => {
     const currentPointVisible = typeof d !== 'undefined' && nodes[i].style.display !== 'none';
 
@@ -159,7 +175,7 @@ fetch(`/getData/${username}`)
 
     return 'none';
   });
-
+  //end line
 
 
     svg.append('g')
@@ -183,6 +199,46 @@ fetch(`/getData/${username}`)
       .text('Count');
   }
   
+  function handleMouseOver(d, i, label, data) {
+    const xValue = ["June", "September", "November", "December"][i];
+    const yValue = formatNumber(d);
+  
+    // Check if the next point is higher
+    const nextIndex = i + 1;
+    const nextYValue = nextIndex < data.length ? formatNumber(data[nextIndex]) : null;
+    const isNextPointHigher = nextYValue !== null && parseFloat(nextYValue) > parseFloat(yValue);
+  
+    // Calculate tooltip position
+    const left = `${d3.event.pageX}px`;
+    const top = isNextPointHigher ? `${d3.event.pageY + 28}px` : `${d3.event.pageY - 28}px`;
+  
+    // Show tooltip with data value
+    d3.select('#tooltip')
+      .style('opacity', 1)
+      .html(`<strong>${label}:</strong> ${yValue}`)
+      .style('left', left)
+      .style('top', top);
+  }
+
+  // Define the mouseout event handler
+  function handleMouseOut() {
+    // Hide the tooltip
+    d3.select('#tooltip').style('opacity', 0);
+    const tooltip = d3.select('#tooltip');
+
+    // Move the tooltip to the bottom-right corner
+    const bodyWidth = document.body.clientWidth;
+    const bodyHeight = document.body.clientHeight;
+    const tooltipWidth = parseFloat(tooltip.style('width'));
+    const tooltipHeight = parseFloat(tooltip.style('height'));
+  
+    const left = bodyWidth - tooltipWidth;
+    const top = bodyHeight - tooltipHeight;
+  
+    tooltip
+      .style('left', left + 'px')
+      .style('top', top + 'px');
+  }
   
 
   
