@@ -18,10 +18,50 @@ fetch(`/getXlsx/${file}`)
     dataset_g = jsonData;
     localStorage.setItem("dataset", JSON.stringify(jsonData));
     
+    const h= new Histogram(formatData(dataset_g),"isto_like","#IstoLikes");
+    h.renderIsto()
+    
   })
   .catch(error => {
     console.error('Errore durante la richiesta:', error.message);
   });
+
+//
+
+
+//From the dataset get back the frequency-something for the histogram
+function parseKMBtoNumber(str) {
+  if (typeof str !== 'string') return parseFloat(str);
+  const numericPart = parseFloat(str.replace(/[^\d.]/g, ''));
+
+  if (isNaN(numericPart)) return null; 
+  const multiplier = str.match(/[KMB]/);
+  if (multiplier) {
+    const multiplierValue = { K: 1e3, M: 1e6, B: 1e9 }[multiplier[0]];
+    return numericPart * multiplierValue;
+  }
+
+  return numericPart;
+}
+
+//For now just likes
+function formatData(data){
+  const likesData = data
+  .filter(d => !isNaN(parseKMBtoNumber(d["Avg. likes"])))
+  .map(d => parseKMBtoNumber(d["Avg. likes"]));
+const maxLikes = d3.max(likesData);
+const numBins = 10;
+const histogram = d3.histogram()
+  .domain([0, maxLikes]) 
+  .thresholds(d3.range(0, maxLikes, maxLikes / numBins))(likesData);
+
+const formattedData = histogram.map(bin => ({
+  intervallo: bin.x0,
+  frequenza: bin.length,
+}));
+
+return formattedData;
+}
 
 //
 
@@ -218,8 +258,7 @@ document.addEventListener("DOMContentLoaded", function () {
     { intervallo: "20-30", frequenza: 15 },
   ];
   
-  //const h= new Histogram(datiIstogramma,"isto_like","#IstoLikes");
-  //h.renderIsto()
+  
 
 
 
