@@ -1,7 +1,6 @@
  class Histogram{
 
     constructor(data,id,container,label){
-      console.log("Construct",data,id,container,label)
         this.data=data;
         this.id=id;
         this.container=container;
@@ -18,10 +17,13 @@
         this.yScaleIsto = d3
             .scaleLinear()
             .domain([0, this.max])
-            .range([this.height_isto, 10]);
+            .range([this.height_isto, 0]);
             
         this.xAxisIsto = d3.axisBottom(this.xScaleIsto).tickValues([]).tickSize(0);
         this.yAxisIsto = d3.axisLeft(this.yScaleIsto);
+        this.max_value=sessionStorage.getItem(this.label);
+        console.log("Construct",this.data,this.id,this.container,this.label,this.max_value)
+
         
     }
 
@@ -90,7 +92,6 @@
             .attr("y", (d) => this.yScaleIsto(d.frequenza))  
             .attr("height", (d) => this.height_isto - this.yScaleIsto(d.frequenza)); 
 
-        //labels
             isto_likes
             .selectAll(".bar-label")
             .data(this.data)
@@ -104,7 +105,7 @@
             .attr("dy", "0.5em")
             .attr("font-size", "8px");
       
-        //Axies labels
+          //Axies label
           isto_likes
             .append("text")
             .attr("transform", "rotate(-90)")
@@ -135,6 +136,7 @@
             .call(brushX);
 
             function formatLabel(label) {
+              //console.log("formatLabel",label)
               const absNum = Math.abs(label);
             
               if (absNum >= 1e9) {

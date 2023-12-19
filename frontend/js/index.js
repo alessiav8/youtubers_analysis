@@ -26,10 +26,10 @@ fetch(`/getXlsx/${file}`)
     const h_views= new Histogram(views,"isto_view","#IstoViews","Views");
     h_views.renderIsto()
 
-    const h_comments= new Histogram(views,"isto_comment","#IstoComments","Comments");
+    const h_comments= new Histogram(comments,"isto_comment","#IstoComments","Comments");
     h_comments.renderIsto()
 
-    const h_followers= new Histogram(views,"isto_follower","#IstoFollowers","Followers");
+    const h_followers= new Histogram(followers,"isto_follower","#IstoFollowers","Followers");
     h_followers.renderIsto()
     
   })
@@ -62,7 +62,9 @@ function formatData(data){
     .map(d => parseKMBtoNumber(d["Avg. likes"]));
 
   const maxLikes = d3.max(likesData);
-  const numBins = 10;
+  sessionStorage.setItem('Likes',maxLikes)
+
+  const numBins = 5;
 
   const histogram_likes = d3.histogram()
     .domain([0, maxLikes]) 
@@ -78,6 +80,8 @@ function formatData(data){
     .map(d => parseKMBtoNumber(d["Avg. views"]));
   
   const maxViews = d3.max(viewsData);
+  sessionStorage.setItem('Views',maxViews)
+
   const histogram_views = d3.histogram()
     .domain([0, maxViews]) 
     .thresholds(d3.range(0, maxViews, maxViews / numBins))(viewsData);
@@ -92,6 +96,8 @@ function formatData(data){
     .map(d => parseKMBtoNumber(d["Avg. comments"]));
   
   const maxComments = d3.max(commentsData);
+  sessionStorage.setItem('Comments',maxComments)
+
   const histogram_comments = d3.histogram()
     .domain([0, maxComments]) 
     .thresholds(d3.range(0, maxComments, maxComments / numBins))(commentsData);
@@ -102,10 +108,12 @@ function formatData(data){
     }));
 
   const followersData = data
-    .filter(d => !isNaN(parseKMBtoNumber(d["Avg. followers"])))
-    .map(d => parseKMBtoNumber(d["Avg. followers"]));
+    .filter(d => !isNaN(parseKMBtoNumber(d["Followers"])))
+    .map(d => parseKMBtoNumber(d["Followers"]));
   
   const maxFollowers = d3.max(followersData);
+  sessionStorage.setItem("Followers", maxFollowers);
+
   const histogram_followers = d3.histogram()
     .domain([0, maxFollowers]) 
     .thresholds(d3.range(0, maxFollowers, maxFollowers / numBins))(followersData);
@@ -114,7 +122,7 @@ function formatData(data){
       intervallo: bin.x0,
       frequenza: bin.length,
     }));
-  //console.log(formattedDataLikes,formattedDataViews);
+  //console.log(formattedDataLikes,formattedDataViews,formattedDataComments,formattedDataFollowers);
   return {likes: formattedDataLikes, views: formattedDataViews,comments: formattedDataComments, followers: formattedDataFollowers};
 }
 
