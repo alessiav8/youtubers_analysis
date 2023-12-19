@@ -2,8 +2,9 @@ import Histogram from "./histogram.js"
 
 const reset_button=document.getElementById("reset_button");
 let dataset_g;
+
 // Leggi dataset
-//TODO: da modificare con il filtro sulla data
+//TODO: da modificare con il filtro sulla data & spostare dopo il caricamento dello scatter plot, non lo faccio adesso perchè ci mette troppo tempo
 const file = 'june.xlsx';
 
 fetch(`/getXlsx/${file}`)
@@ -17,9 +18,19 @@ fetch(`/getXlsx/${file}`)
     console.log("JSON",jsonData);
     dataset_g = jsonData;
     localStorage.setItem("dataset", JSON.stringify(jsonData));
-    
-    const h= new Histogram(formatData(dataset_g),"isto_like","#IstoLikes");
-    h.renderIsto()
+    const { likes, views, comments, followers } = formatData(dataset_g);
+
+    const h_likes= new Histogram(likes,"isto_like","#IstoLikes","Likes");
+    h_likes.renderIsto()
+
+    const h_views= new Histogram(views,"isto_view","#IstoViews","Views");
+    h_views.renderIsto()
+
+    const h_comments= new Histogram(views,"isto_comment","#IstoComments","Comments");
+    h_comments.renderIsto()
+
+    const h_followers= new Histogram(views,"isto_follower","#IstoFollowers","Followers");
+    h_followers.renderIsto()
     
   })
   .catch(error => {
@@ -47,20 +58,64 @@ function parseKMBtoNumber(str) {
 //For now just likes
 function formatData(data){
   const likesData = data
-  .filter(d => !isNaN(parseKMBtoNumber(d["Avg. likes"])))
-  .map(d => parseKMBtoNumber(d["Avg. likes"]));
-const maxLikes = d3.max(likesData);
-const numBins = 10;
-const histogram = d3.histogram()
-  .domain([0, maxLikes]) 
-  .thresholds(d3.range(0, maxLikes, maxLikes / numBins))(likesData);
+    .filter(d => !isNaN(parseKMBtoNumber(d["Avg. likes"])))
+    .map(d => parseKMBtoNumber(d["Avg. likes"]));
 
-const formattedData = histogram.map(bin => ({
-  intervallo: bin.x0,
-  frequenza: bin.length,
-}));
+  const maxLikes = d3.max(likesData);
+  const numBins = 10;
 
-return formattedData;
+  const histogram_likes = d3.histogram()
+    .domain([0, maxLikes]) 
+    .thresholds(d3.range(0, maxLikes, maxLikes / numBins))(likesData);
+
+  const formattedDataLikes = histogram_likes.map(bin => ({
+    intervallo: bin.x0,
+    frequenza: bin.length,
+  }));
+
+  const viewsData = data
+    .filter(d => !isNaN(parseKMBtoNumber(d["Avg. views"])))
+    .map(d => parseKMBtoNumber(d["Avg. views"]));
+  
+  const maxViews = d3.max(viewsData);
+  const histogram_views = d3.histogram()
+    .domain([0, maxViews]) 
+    .thresholds(d3.range(0, maxViews, maxViews / numBins))(viewsData);
+
+  const formattedDataViews = histogram_views.map(bin => ({
+      intervallo: bin.x0,
+      frequenza: bin.length,
+    }));
+
+  const commentsData = data
+    .filter(d => !isNaN(parseKMBtoNumber(d["Avg. comments"])))
+    .map(d => parseKMBtoNumber(d["Avg. comments"]));
+  
+  const maxComments = d3.max(commentsData);
+  const histogram_comments = d3.histogram()
+    .domain([0, maxComments]) 
+    .thresholds(d3.range(0, maxComments, maxComments / numBins))(commentsData);
+
+  const formattedDataComments = histogram_comments.map(bin => ({
+      intervallo: bin.x0,
+      frequenza: bin.length,
+    }));
+
+  const followersData = data
+    .filter(d => !isNaN(parseKMBtoNumber(d["Avg. followers"])))
+    .map(d => parseKMBtoNumber(d["Avg. followers"]));
+  
+  const maxFollowers = d3.max(followersData);
+  const histogram_followers = d3.histogram()
+    .domain([0, maxFollowers]) 
+    .thresholds(d3.range(0, maxFollowers, maxFollowers / numBins))(followersData);
+
+  const formattedDataFollowers = histogram_followers.map(bin => ({
+      intervallo: bin.x0,
+      frequenza: bin.length,
+    }));
+  //console.log(formattedDataLikes,formattedDataViews);
+  return {likes: formattedDataLikes, views: formattedDataViews,comments: formattedDataComments, followers: formattedDataFollowers};
 }
 
 //
@@ -240,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const circle = d3.select(this);
 
       //TODO: modifica
-      colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
+      //colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
       //h.colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
 
       return selectedData.length > 0
@@ -251,17 +306,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
   }
-      
+     
+  /*
   let datiIstogramma = [
     { intervallo: "0-10", frequenza: 5 },
     { intervallo: "10-20", frequenza: 10 },
     { intervallo: "20-30", frequenza: 15 },
   ];
-  
-  
-
-
-
+ 
   function renderIsto(){  
     
   let datiIstogramma = [
@@ -448,3 +500,4 @@ function colorIsto(component, data) {
 }
 
 
+*/

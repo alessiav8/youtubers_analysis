@@ -1,12 +1,14 @@
  class Histogram{
 
-    constructor(data,id,container){
+    constructor(data,id,container,label){
+      console.log("Construct",data,id,container,label)
         this.data=data;
         this.id=id;
         this.container=container;
-        this.margin = { top: 20, right: 20, bottom: 30, left: 60 };
-        this.width_isto = 400 - this.margin.left - this.margin.right;
-        this.height_isto = 300 - this.margin.top - this.margin.bottom;
+        this.label=label;
+        this.margin = { top: 10, right: 20, bottom: 50, left: 60 };
+        this.width_isto = 350 - this.margin.left - this.margin.right;
+        this.height_isto = 250 - this.margin.top - this.margin.bottom;
         this.max = d3.max(this.data, (d) => d.frequenza);
         this.xScaleIsto = d3
             .scaleLinear()
@@ -16,10 +18,8 @@
         this.yScaleIsto = d3
             .scaleLinear()
             .domain([0, this.max])
-            .range([this.height_isto, 0]);
-
-        
-
+            .range([this.height_isto, 10]);
+            
         this.xAxisIsto = d3.axisBottom(this.xScaleIsto).tickValues([]).tickSize(0);
         this.yAxisIsto = d3.axisLeft(this.yScaleIsto);
         
@@ -28,17 +28,10 @@
     brushedend_insto_likes = () => {
         if (d3.event.selection) {
           const [x0, x1] = d3.event.selection;
-      
           const startIndex = Math.floor(this.xScaleIsto.invert(x0));
-          console.log("start", startIndex);
           const endIndex = Math.ceil(this.xScaleIsto.invert(x1));
-          console.log("end", endIndex);
-  
           const selectedData = this.data.slice(startIndex, endIndex );
-  
-      
           this.colorIsto(d3.select("#"+this.id), selectedData);
-  
           console.log("Selected Data:", selectedData);
         }
       }
@@ -80,7 +73,11 @@
             .attr("transform", `translate(0, ${this.height_isto})`)
             .call(this.xAxisIsto);
       
-          isto_likes.append("g").call(this.yAxisIsto);
+
+          isto_likes.append("g").call(this.yAxisIsto)
+          .selectAll("text")  
+          .style("font-family", "Arial")
+          .style("font-size", "8px");
       
           isto_likes
             .selectAll("rect")
@@ -93,6 +90,7 @@
             .attr("y", (d) => this.yScaleIsto(d.frequenza))  
             .attr("height", (d) => this.height_isto - this.yScaleIsto(d.frequenza)); 
 
+        //labels
             isto_likes
             .selectAll(".bar-label")
             .data(this.data)
@@ -104,8 +102,9 @@
             .attr("y", this.height_isto + this.margin.top)
             .attr("text-anchor", "middle")
             .attr("dy", "0.5em")
-            .attr("font-size", "10px");
+            .attr("font-size", "8px");
       
+        //Axies labels
           isto_likes
             .append("text")
             .attr("transform", "rotate(-90)")
@@ -113,17 +112,17 @@
             .attr("x", 0 - this.height_isto / 2)
             .attr("dy", "1em")
             .style("text-anchor", "middle")
+            .style("font-size", "12px")
             .text("Frequency");
+            
       
-          d3.select("#IstoLikes")
+          isto_likes
             .append("text")
-            .text("Likes")
-            .attr("x", this.width_isto / 2)
-            .attr("y", this.height_isto + this.margin.top + this.margin.bottom)
-            .attr("dy", "2em")
+            .attr("transform", `translate(${this.width_isto / 2},${this.height_isto + this.margin.top + this.margin.bottom - 20})`)
             .style("text-anchor", "middle")
-            .style("font-size", "14px")
-            .style("fill", "black");
+            .style("font-size", "12px")
+            .text(this.label);
+          //
       
           
           const brushX = d3.brushX()

@@ -11,6 +11,8 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, '..')));
 
+app.use('/bootstrap', express.static(path.join(__dirname, '../../node_modules/bootstrap/dist')));
+
 console.log('Server started!');
 
 //routing here
