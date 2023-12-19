@@ -6,6 +6,8 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>    
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
     <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 
     <script type="module" src="../js/index.js"></script>
     <style>
@@ -29,31 +31,148 @@
     </style>
   </head>
   <body>
-    <div class="container ">
+    <div class="container">
         <div class="row">
           <h3 class="mt-3 mb-3">Find your Youtuber!</h3>
         </div>
-        <div class="row" id="loadingMessage">Loading data...</div>
-        <div class="row" id="ScatterPlotContainer">
+
+      <div class="row my-5 text-center" id="monthSelector">
+        <div class="col">
+          <label class="radio-inline">
+              <input type="radio" name="monthOption" value="option1"> Option 1
+          </label>
+        </div>
+        <div class="col">
+            <label class="radio-inline">
+                <input type="radio" name="monthOption" value="option2"> Option 2
+            </label>
+        </div>
+        <div class="col">
+            <label class="radio-inline">
+                <input type="radio" name="monthOption" value="option3"> Option 3
+            </label>
+        </div>
+        <div class="col">
+            <label class="radio-inline">
+                <input type="radio" name="monthOption" value="option4"> Option 4
+            </label>
+        </div>
       </div>
-      <div class="row mt-3 " id="IstoContainer" style="margin-left:10%">
-        <div class="col" id="IstoLikes">
+
+      <div class="row my-5 text-center" id="loadingMessage">Loading data...</div>
+
+      <div class="row my-5">
+        <div class="col-2" id="Filters">
+
+          <div class="my-3" id="category">
+            <div class="form-group">
+              <label for="scrollableCheckboxes">Select Category</label>
+              <div id="scrollableCheckboxes" style="height: 150px; overflow-y: auto;">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option1">
+                  <label class="custom-control-label" for="option1">Option 1</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option2">
+                  <label class="custom-control-label" for="option2">Option 2</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option3">
+                  <label class="custom-control-label" for="option3">Option 3</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option1">
+                  <label class="custom-control-label" for="option1">Option 1</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option2">
+                  <label class="custom-control-label" for="option2">Option 2</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option3">
+                  <label class="custom-control-label" for="option3">Option 3</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option1">
+                  <label class="custom-control-label" for="option1">Option 1</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option2">
+                  <label class="custom-control-label" for="option2">Option 2</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option3">
+                  <label class="custom-control-label" for="option3">Option 3</label>
+                </div>
+                <!-- Add more checkboxes as needed -->
+              </div>
+            </div>
+          </div>
+
+          <div class="my-3" id="country">
+            <div class="form-group">
+              <label for="scrollableCheckboxes">Select Country</label>
+              <div id="scrollableCheckboxes" style="height: 150px; overflow-y: auto;">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option1">
+                  <label class="custom-control-label" for="option1">Option 1</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option2">
+                  <label class="custom-control-label" for="option2">Option 2</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option3">
+                  <label class="custom-control-label" for="option3">Option 3</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option1">
+                  <label class="custom-control-label" for="option1">Option 1</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option2">
+                  <label class="custom-control-label" for="option2">Option 2</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option3">
+                  <label class="custom-control-label" for="option3">Option 3</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option1">
+                  <label class="custom-control-label" for="option1">Option 1</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option2">
+                  <label class="custom-control-label" for="option2">Option 2</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" class="custom-control-input" id="option3">
+                  <label class="custom-control-label" for="option3">Option 3</label>
+                </div>
+                <!-- Add more checkboxes as needed -->
+              </div>
+            </div>
+          </div>
+
         </div>
-        <div class="col" id="IstoComments">
-        </div>
+
+        <div class="col-10" id="ScatterPlotContainer"></div>
       </div>
-      <div class="row mt-3" id="IstoContainer2"  style="margin-left:10%">
-        <div class="col" id="IstoViews">
+
+      <div class="row mt-5 " id="IstoContainer">
+        <div class="col-3" id="IstoLikes">
         </div>
-        <div class="col" id="IstoFollowers">
+        <div class="col-3" id="IstoComments">
+        </div>
+        <div class="col-3" id="IstoViews">
+        </div>
+        <div class="col-3" id="IstoFollowers">
         </div>
       </div>
       <div class="row mt-4 mb-4 justify-content-center align-items-center ">
         <button type="button" id="reset_button" class="btn btn-primary" style="width:10%">Reset</button>
       </div>
       </div>
-
-
     </div>
 </body>
 </html>
