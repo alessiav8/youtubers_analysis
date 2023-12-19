@@ -22,7 +22,7 @@
         this.xAxisIsto = d3.axisBottom(this.xScaleIsto).tickValues([]).tickSize(0);
         this.yAxisIsto = d3.axisLeft(this.yScaleIsto);
         this.max_value=sessionStorage.getItem(this.label);
-        console.log("Construct",this.data,this.id,this.container,this.label,this.max_value)
+        //console.log("Construct",this.data,this.id,this.container,this.label,this.max_value)
 
         
     }
@@ -98,7 +98,7 @@
             .enter()
             .append("text")
             .attr("class", "bar-label")
-            .text((d) => formatLabel(d.intervallo))  
+            .text((d,i) => formatLabel(d.intervallo, this.data[i+1] ? 0 : parseInt(this.max_value) ))  
             .attr("x", (d, i) => this.xScaleIsto(i) + (this.width_isto / this.data.length - 1) / 2)
             .attr("y", this.height_isto + this.margin.top)
             .attr("text-anchor", "middle")
@@ -135,20 +135,41 @@
             .attr("class", "brush")
             .call(brushX);
 
-            function formatLabel(label) {
-              //console.log("formatLabel",label)
+            function formatLabel(label,next) {
+              console.log("formatLabel",label,"next",next)
               const absNum = Math.abs(label);
+              const absNum2 = Math.abs(next);
+              let start="";
+              let end="";
             
               if (absNum >= 1e9) {
-                return (label / 1e9).toFixed(1) + "B";
+                 start= (label / 1e9).toFixed(1) + "B";
               } else if (absNum >= 1e6) {
-                return (label / 1e6).toFixed(1) + "M";
+                start= (label / 1e6).toFixed(1) + "M";
               } else if (absNum >= 1e3) {
-                return (label / 1e3).toFixed(1) + "k";
+                start= (label / 1e3).toFixed(1) + "k";
+              }
+              else {
+                start= label.toString();
+              }
+
+              if (next!=0) {
+                if (absNum2 >= 1e9) {
+                    end= ((next-1) / 1e9).toFixed(1) + "B";
+                } else if (absNum2 >= 1e6) {
+                  end= ((next-1) / 1e6).toFixed(1) + "M";
+                } else if (absNum2 >= 1e3) {
+                  end= ((next-1) / 1e3).toFixed(1) + "k";
+                }
+                else {
+                  end= (next-1).toString();
+                }
+                return start + " - " + end;
+              } 
+
+              return start;
               }
             
-              return label.toString();
-            }
             
           
       
