@@ -39,33 +39,31 @@
       <div class="row my-5 text-center" id="monthSelector">
         <div class="col">
           <label class="radio-inline">
-              <input type="radio" name="monthOption" value="option1"> Option 1
+              <input type="radio" name="monthOption" value="option1" checked> June
           </label>
         </div>
         <div class="col">
             <label class="radio-inline">
-                <input type="radio" name="monthOption" value="option2"> Option 2
+                <input type="radio" name="monthOption" value="option2"> September
             </label>
         </div>
         <div class="col">
             <label class="radio-inline">
-                <input type="radio" name="monthOption" value="option3"> Option 3
+                <input type="radio" name="monthOption" value="option3"> November
             </label>
         </div>
         <div class="col">
             <label class="radio-inline">
-                <input type="radio" name="monthOption" value="option4"> Option 4
+                <input type="radio" name="monthOption" value="option4"> December
             </label>
         </div>
       </div>
-
-      <div class="row my-5 text-center" id="loadingMessage">Loading data...</div>
 
       <div class="row my-5">
         <div class="col-2" id="Filters">
 
           <div class="my-3" id="category">
-            <div class="form-group">
+            <div class="form-group border p-3">
               <label for="scrollableCheckboxes">Select Category</label>
               <div id="scrollableCheckboxes" style="height: 150px; overflow-y: auto;">
                 <div class="custom-control custom-checkbox">
@@ -110,7 +108,7 @@
           </div>
 
           <div class="my-3" id="country">
-            <div class="form-group">
+            <div class="form-group border p-3">
               <label for="scrollableCheckboxes">Select Country</label>
               <div id="scrollableCheckboxes" style="height: 150px; overflow-y: auto;">
                 <div class="custom-control custom-checkbox">
@@ -156,7 +154,9 @@
 
         </div>
 
-        <div class="col-10" id="ScatterPlotContainer"></div>
+        <div class="col-10" id="ScatterPlotContainer">
+          <div class="row my-5 text-center" id="loadingMessage">Loading data...</div>
+        </div>
       </div>
 
       <div class="row mt-5 " id="IstoContainer">
