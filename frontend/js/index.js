@@ -1,5 +1,29 @@
 import Histogram from "./histogram.js"
+
 const reset_button=document.getElementById("reset_button");
+let dataset_g;
+// Leggi dataset
+//TODO: da modificare con il filtro sulla data
+const file = 'june.xlsx';
+
+fetch(`/getXlsx/${file}`)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Errore HTTP: ${response.status} - ${response.statusText}`);
+    }
+    return response.json();
+  })
+  .then(jsonData => {
+    console.log("JSON",jsonData);
+    dataset_g = jsonData;
+    localStorage.setItem("dataset", JSON.stringify(jsonData));
+    
+  })
+  .catch(error => {
+    console.error('Errore durante la richiesta:', error.message);
+  });
+
+//
 
 reset_button.addEventListener("click",function(){
   location.reload();
@@ -17,7 +41,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   //holds the actual dataset considered
-  let dataset;
   getDataAndRenderGraph();
 
   function getDataAndRenderGraph() {
@@ -31,13 +54,13 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch("http://127.0.0.1:5000/data", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        dataset = data;
+        //console.log(data);
         hideLoadingMessage();
         renderScatterPlot(data);
       })
       .catch((error) => {
         hideLoadingMessage();
-        console.error("Error:", error);
+        //console.error("Error:", error);
       });
   }
 });
@@ -49,8 +72,8 @@ document.addEventListener("DOMContentLoaded", function () {
     colorIsto(data)
   }
 
-  renderScatterPlot([{ x: 2, y: 5 },{ x: 7, y: 8 }]);
-  renderIsto();
+  //renderScatterPlot([{ x: 2, y: 5 },{ x: 7, y: 8 }]);
+  //renderIsto();
 
   function renderScatterPlot(data) {
     //data = [{ x: 2, y: 5 }];
