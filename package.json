@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
-    "start-backend": "python3 backend/app.py || python backend/app.py ",
-    "start-frontend": "cd frontend && cd js && node server.js"
+    "start-mac": "concurrently \"npm run start-backend-mac\" \"npm run start-frontend\"",
+    "start-backend": "python backend/app.py",
+    "start-frontend": "cd frontend && cd js && node server.js",
+    "start-backend-mac": "python3 backend/app.py "
   },
   "keywords": [],
   "author": "Matteo Simonetti and Alessia Volpi",

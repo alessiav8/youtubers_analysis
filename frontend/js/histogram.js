@@ -8,7 +8,6 @@ class Histogram {
     this.width_isto = 350 - this.margin.left - this.margin.right;
     this.height_isto = 250 - this.margin.top - this.margin.bottom;
     this.max = d3.max(this.data, (d) => d.frequenza);
-    console.log("max", this.max);
     this.max_value = sessionStorage.getItem(this.label);
 
     this.xScaleIsto = d3
@@ -17,16 +16,26 @@ class Histogram {
       .range([0, this.width_isto]);
 
     this.yScaleIsto = d3
-      .scaleLog()  
-      .domain([1, this.max])  
+      .scaleLog()
+      .domain([0.1, this.max])
       .range([this.height_isto, 0]);
 
     this.xAxisIsto = d3.axisBottom(this.xScaleIsto).tickValues([]).tickSize(0);
-    let maxApprossimato = Math.ceil(this.max);
     this.yAxisIsto = d3.axisLeft(this.yScaleIsto)
-      .tickValues([0, 10, 100, maxApprossimato])
       .tickFormat(d3.format(",.0f"))
       .tickPadding(10);
+
+    const maxTick = calculateMaxTick(this.max);
+    this.yAxisIsto.tickValues(d3.range(1, maxTick + 10,  300));
+
+    function calculateMaxTick(maxValue) {
+      const exponent = Math.floor(Math.log10(maxValue));
+      const power = Math.pow(10, exponent);
+      const roundedMax = Math.ceil(maxValue / power) * power;
+      console.log(roundedMax);
+      return roundedMax;maxTick
+    }
+        
   }
 
   brushedend_insto_likes = () => {
@@ -161,7 +170,12 @@ class Histogram {
       .on("brush", this.brushed_insto_likes)
       .on("end", this.brushedend_insto_likes);
 
-    isto_likes.append("g").attr("class", "brush").call(brushX);
+    isto_likes
+      .append("g")
+      .attr("class", "brush")
+      .call(brushX)
+      .selectAll("rect")
+      .attr("height", this.height_isto);
 
     function formatLabel(label, next) {
       const absNum = Math.abs(label);
@@ -195,3 +209,4 @@ class Histogram {
 }
 
 export default Histogram;
+
