@@ -23,8 +23,8 @@ function handleRadioButtonChange() {
   showLoadingMessage();
   disableRadioButtons();
   getDataAndRenderGraph();
-  removeSVGElements();
   saveLocalStorageAndRenderHisto();
+  removeSVGElements();
 }
 radioButtons.forEach((radio) => {
   radio.addEventListener('change', handleRadioButtonChange);
@@ -160,9 +160,9 @@ reset_button.addEventListener("click",function(){
 
 function removeSVGElements() {
   // Select and remove SVG elements with ID "mds"
-  const svgElementsWithIdMds = document.querySelectorAll('svg');
-  svgElementsWithIdMds.forEach((svgElement) => {
-    svgElement.parentNode.removeChild(svgElement);
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach((svgElem) => {
+    svgElem.parentNode.removeChild(svgElem);
   });
 }
 function getDataAndRenderGraph() {
