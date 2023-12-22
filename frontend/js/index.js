@@ -7,6 +7,15 @@ let dataset_g;
 //TODO: da modificare con il filtro sulla data & spostare dopo il caricamento dello scatter plot, non lo faccio adesso perchè ci mette troppo tempo
 var selectedMonth = "june"
 var radioButtons = document.querySelectorAll('input[name="monthOption"]');
+
+document.addEventListener("DOMContentLoaded", function () {
+  showLoadingMessage();
+  //holds the actual dataset considered
+  disableRadioButtons();
+  getDataAndRenderGraph();
+  saveLocalStorageAndRenderHisto();
+});
+
 function handleRadioButtonChange() {
   var checkedRadioButton = document.querySelector('input[name="monthOption"]:checked');
   selectedMonth = checkedRadioButton.value;
@@ -15,46 +24,45 @@ function handleRadioButtonChange() {
   disableRadioButtons();
   getDataAndRenderGraph();
   removeSVGElements();
+  saveLocalStorageAndRenderHisto();
 }
 radioButtons.forEach((radio) => {
   radio.addEventListener('change', handleRadioButtonChange);
 });
 
+function saveLocalStorageAndRenderHisto(){
+  //QUESTA PARTE è per salvare la selection in storage
+  var file = selectedMonth+".xlsx";
+  fetch(`/getXlsx/${file}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Errore HTTP: ${response.status} - ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then(jsonData => {
+      console.log("JSON",jsonData);
+      dataset_g = jsonData;
+      localStorage.setItem("dataset", JSON.stringify(jsonData));
+      const { likes, views, comments, followers } = formatData(dataset_g);
 
-var file = selectedMonth+".xlsx";
+      const h_likes= new Histogram(likes,"isto_like","#IstoLikes","Likes");
+      h_likes.renderIsto()
 
-//QUESTA PARTE è per salvare la selection in storage
-fetch(`/getXlsx/${file}`)
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Errore HTTP: ${response.status} - ${response.statusText}`);
-    }
-    return response.json();
-  })
-  .then(jsonData => {
-    console.log("JSON",jsonData);
-    dataset_g = jsonData;
-    localStorage.setItem("dataset", JSON.stringify(jsonData));
-    const { likes, views, comments, followers } = formatData(dataset_g);
+      const h_views= new Histogram(views,"isto_view","#IstoViews","Views");
+      h_views.renderIsto()
 
-    const h_likes= new Histogram(likes,"isto_like","#IstoLikes","Likes");
-    h_likes.renderIsto()
+      const h_comments= new Histogram(comments,"isto_comment","#IstoComments","Comments");
+      h_comments.renderIsto()
 
-    const h_views= new Histogram(views,"isto_view","#IstoViews","Views");
-    h_views.renderIsto()
-
-    const h_comments= new Histogram(comments,"isto_comment","#IstoComments","Comments");
-    h_comments.renderIsto()
-
-    const h_followers= new Histogram(followers,"isto_follower","#IstoFollowers","Followers");
-    h_followers.renderIsto()
-    
-  })
-  .catch(error => {
-    console.error('Errore durante la richiesta:', error.message);
-  });
-
-//
+      const h_followers= new Histogram(followers,"isto_follower","#IstoFollowers","Followers");
+      h_followers.renderIsto()
+      
+    })
+    .catch(error => {
+      console.error('Errore durante la richiesta:', error.message);
+    });
+  }
 
 
 //From the dataset get back the frequency-something for the histogram
@@ -152,7 +160,7 @@ reset_button.addEventListener("click",function(){
 
 function removeSVGElements() {
   // Select and remove SVG elements with ID "mds"
-  const svgElementsWithIdMds = document.querySelectorAll('svg#mds');
+  const svgElementsWithIdMds = document.querySelectorAll('svg');
   svgElementsWithIdMds.forEach((svgElement) => {
     svgElement.parentNode.removeChild(svgElement);
   });
@@ -199,13 +207,6 @@ function enableRadioButtons() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  showLoadingMessage();
-  //holds the actual dataset considered
-  disableRadioButtons();
-  getDataAndRenderGraph();
-
-});
 
   //TODO: servirà qualche funzione di conversione dei dati sicuramente
   //l'idea è di triggerare questa funzione quando viene selezionato qualcosa, in modo da triggerare il cambiamento in ogni grafico
