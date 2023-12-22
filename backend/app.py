@@ -11,11 +11,11 @@ CORS(app, resources={r"/data": {"origins": "http://127.0.0.1:8080"}})
 
 @app.route('/data', methods=['GET'])
 def perform_mds():
-    month = request.headers.get('Variable1')
+    month = request.headers.get('month')
 
     try:
         script_directory = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(script_directory, '..', 'datasets', 'june.xlsx')
+        csv_path = os.path.join(script_directory, '..', 'datasets', f'{month}.xlsx')
         scatter_data = create_scatter_plot(csv_path)
         return jsonify(scatter_data)
 

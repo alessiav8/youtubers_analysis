@@ -5,7 +5,9 @@ class Histogram {
     this.container = container;
     this.label = label;
     this.margin = { top: 10, right: 20, bottom: 50, left: 60 };
-    this.width_isto = 350 - this.margin.left - this.margin.right;
+    const parentDiv = document.getElementById("mainContainer");
+    const parentDivRect = parentDiv.getBoundingClientRect();
+    this.width_isto = parentDivRect.width/4 - this.margin.left - this.margin.right;
     this.height_isto = 250 - this.margin.top - this.margin.bottom;
     this.max = d3.max(this.data, (d) => d.frequenza);
     this.max_value = sessionStorage.getItem(this.label);

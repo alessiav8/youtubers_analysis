@@ -5,8 +5,25 @@ let dataset_g;
 
 // Leggi dataset
 //TODO: da modificare con il filtro sulla data & spostare dopo il caricamento dello scatter plot, non lo faccio adesso perchè ci mette troppo tempo
-const file = 'june.xlsx';
+var selectedMonth = "june"
+var radioButtons = document.querySelectorAll('input[name="monthOption"]');
+function handleRadioButtonChange() {
+  var checkedRadioButton = document.querySelector('input[name="monthOption"]:checked');
+  selectedMonth = checkedRadioButton.value;
+  console.log(selectedMonth)
+  showLoadingMessage();
+  disableRadioButtons();
+  getDataAndRenderGraph();
+  removeSVGElements();
+}
+radioButtons.forEach((radio) => {
+  radio.addEventListener('change', handleRadioButtonChange);
+});
 
+
+var file = selectedMonth+".xlsx";
+
+//QUESTA PARTE è per salvare la selection in storage
 fetch(`/getXlsx/${file}`)
   .then(response => {
     if (!response.ok) {
@@ -132,40 +149,62 @@ reset_button.addEventListener("click",function(){
   location.reload();
 })
 
+
+function removeSVGElements() {
+  // Select and remove SVG elements with ID "mds"
+  const svgElementsWithIdMds = document.querySelectorAll('svg#mds');
+  svgElementsWithIdMds.forEach((svgElement) => {
+    svgElement.parentNode.removeChild(svgElement);
+  });
+}
+function getDataAndRenderGraph() {
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      month: selectedMonth,
+    },
+  };
+
+  fetch("http://127.0.0.1:5000/data", requestOptions)
+    .then((response) => response.json())
+    .then((data) => {
+      //console.log(data);
+      hideLoadingMessage();
+      renderScatterPlot(data);
+      enableRadioButtons();
+
+    })
+    .catch((error) => {
+      hideLoadingMessage();
+      enableRadioButtons();
+      //console.error("Error:", error);
+    });
+}
+function showLoadingMessage() {
+  document.getElementById("loadingMessage").style.display = "block";
+}
+function hideLoadingMessage() {
+  document.getElementById("loadingMessage").style.display = "none";
+}
+function disableRadioButtons() {
+  // Disable all radio buttons
+  radioButtons.forEach((radio) => {
+    radio.disabled = true;
+  });
+}
+function enableRadioButtons() {
+  // Enable all radio buttons
+  radioButtons.forEach((radio) => {
+    radio.disabled = false;
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   showLoadingMessage();
-
-  function showLoadingMessage() {
-    document.getElementById("loadingMessage").style.display = "block";
-  }
-
-  function hideLoadingMessage() {
-    document.getElementById("loadingMessage").style.display = "none";
-  }
-
   //holds the actual dataset considered
+  disableRadioButtons();
   getDataAndRenderGraph();
 
-  function getDataAndRenderGraph() {
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        month: "june",
-      },
-    };
-
-    fetch("http://127.0.0.1:5000/data", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        //console.log(data);
-        hideLoadingMessage();
-        renderScatterPlot(data);
-      })
-      .catch((error) => {
-        hideLoadingMessage();
-        //console.error("Error:", error);
-      });
-  }
 });
 
   //TODO: servirà qualche funzione di conversione dei dati sicuramente
@@ -185,15 +224,19 @@ document.addEventListener("DOMContentLoaded", function () {
       d.y = +d.y;
     });
 
+    const parentDiv = document.getElementById("ScatterPlotContainer");
+    const parentDivRect = parentDiv.getBoundingClientRect();
+  
     const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-    const width = 400 - margin.left - margin.right;
-    const height = 200 - margin.top - margin.bottom;
+    const width = parentDivRect.width - margin.left - margin.right;
+    const height = parentDivRect.height - margin.top - margin.bottom;
 
     const scatter_plot = d3
       .select("#ScatterPlotContainer")
       .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
+      .attr("id", "mds")
       .append("g")
       .attr("id","scatterplot")
       .attr("transform", `translate(${margin.left},${margin.top})`);
