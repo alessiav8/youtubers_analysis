@@ -1,3 +1,5 @@
+import {parseKMBtoNumber, colorScatterPlot} from "./index.js";
+
 class Histogram {
   constructor(data, id, container, label) {
     this.data = data;
@@ -11,6 +13,7 @@ class Histogram {
     this.height_isto = 250 - this.margin.top - this.margin.bottom;
     this.max = d3.max(this.data, (d) => d.frequenza);
     this.max_value = sessionStorage.getItem(this.label);
+    this.dataset = sessionStorage.getItem("dataset");
 
     this.xScaleIsto = d3
       .scaleLinear()
@@ -18,26 +21,14 @@ class Histogram {
       .range([0, this.width_isto]);
 
     this.yScaleIsto = d3
-      .scaleLog()
-      .domain([0.1, this.max])
+      .scaleLinear() 
+      .domain([0, this.max])
       .range([this.height_isto, 0]);
 
     this.xAxisIsto = d3.axisBottom(this.xScaleIsto).tickValues([]).tickSize(0);
     this.yAxisIsto = d3.axisLeft(this.yScaleIsto)
       .tickFormat(d3.format(",.0f"))
       .tickPadding(10);
-
-    const maxTick = calculateMaxTick(this.max);
-    this.yAxisIsto.tickValues(d3.range(1, maxTick + 10,  300));
-
-    function calculateMaxTick(maxValue) {
-      const exponent = Math.floor(Math.log10(maxValue));
-      const power = Math.pow(10, exponent);
-      const roundedMax = Math.ceil(maxValue / power) * power;
-      console.log(roundedMax);
-      return roundedMax;maxTick
-    }
-        
   }
 
   brushedend_insto_likes = () => {
@@ -76,7 +67,91 @@ class Histogram {
         const y = this.yScaleIsto(d.frequenza);
         return isNaN(y) ? 0 : this.height_isto - y;
       });
+      this.getYoutubersInInterval(datas)
   };
+
+
+  getMaxRange=(interval)=>{
+    let start= interval[0].start;
+    let end = 0;
+    interval.forEach( (i)=>{
+      if(parseFloat(i.start)<start){
+        start=i.start;
+      }
+      if(parseFloat(i.end)>end){
+        end=i.end;
+      }
+    })
+    return {start:start,end:end};
+  }
+
+
+  //TODO:modificare la gestione del db per inserire e rimuovere intervalli.
+  getYoutubersInInterval = (interval) =>{
+    const db = JSON.parse(localStorage.getItem("dataset"));
+    console.log("consideredDB",db)
+    let find;
+    if(this.label=="Likes"){
+      find="Avg. likes";
+    }else if(this.label=="Comments"){
+      find="Avg. comments";
+    }else if (this.label=="Views"){
+      find="Avg. views";
+    }else if(this.label=="Followers"){
+      find="Followers"
+    }
+
+    const {start, end} = this.getMaxRange(interval)
+
+    const youtubersInInterval = db
+      .filter((data) => {
+        const likes =parseKMBtoNumber(data[find]);
+        return likes >= start && likes <= end;
+      })
+      .map((data) => data["youtuber name"]);
+
+      const subsetData = db.filter((data) => {
+        const likes = parseKMBtoNumber(data["Avg. likes"]);
+        return likes >= start && likes <= end;
+      });
+
+      localStorage.setItem("dataset",JSON.stringify(subsetData))
+
+      this.colorScatterP(youtubersInInterval)
+
+  
+    return youtubersInInterval;
+  }
+
+  isPointInsideSelection = (d, youtubers) => {
+    const targetYoutuber = String(d.label).toLowerCase();
+    for (const i in youtubers) {
+      const comparisonName = String(youtubers[i]).toLowerCase();
+      if (targetYoutuber === comparisonName) {
+        console.log("yes");
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  
+  colorScatterP = (youtubers) => {
+    // TODO: this must wait for the scatterplot to load
+    const scatterplotContainer = d3.select(`#ScatterPlotContainer`);
+    const scatterplot = scatterplotContainer.select('svg');
+    const scatterplotGroup = scatterplot.select('g');
+    const circles = scatterplotGroup.selectAll("circle");
+  
+    circles.attr("fill", (d) => {
+      return youtubers.length > 0
+        ? this.isPointInsideSelection(d, youtubers)
+          ? "blue"
+          : "rgba(255, 0, 0, 0.1)"
+        : "red";
+    });
+  }
+  
 
   renderIsto() {
     const isto_likes = d3
@@ -205,10 +280,13 @@ class Histogram {
       } else {
         end = previous.toString();
       }
-      return start + " - " + end;
+      return start + "-" + end;
     }
   }
+
+
+  
+  
 }
 
 export default Histogram;
-

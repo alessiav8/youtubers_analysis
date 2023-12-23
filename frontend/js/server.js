@@ -9,6 +9,13 @@ const port = 8080;
 
 app.use(cors());
 
+//disable the cache 
+app.use((req, res, next) => {
+  res.header('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+});
+
+
 app.use(express.static(path.join(__dirname, '..')));
 
 app.use('/bootstrap', express.static(path.join(__dirname, '../../node_modules/bootstrap/dist')));
