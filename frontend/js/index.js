@@ -50,7 +50,10 @@ function saveLocalStorageAndRenderHistoAndFilters(){
       var countries = extractCountries(dataset_g);
       renderFilters(countries,"scrollableCountry")
 
-      const { likes, views, comments, followers } = formatData(dataset_g);
+      const likes= formatData(dataset_g,"likes");
+      const views= formatData(dataset_g,"views");
+      const comments= formatData(dataset_g,"comments");
+      const followers = formatData(dataset_g,"followers");
 
       const h_likes= new Histogram(likes,"isto_like","#IstoLikes","Likes");
       h_likes.renderIsto()
@@ -336,32 +339,6 @@ function enableRadioButtons() {
 }
 
 
-function showLoadingMessage() {
-  document.getElementById("loadingMessage").style.display = "block";
-}
-
-
-function hideLoadingMessage() {
-  document.getElementById("loadingMessage").style.display = "none";
-}
-
-
-function disableRadioButtons() {
-  // Disable all radio buttons
-  radioButtons.forEach((radio) => {
-    radio.disabled = true;
-  });
-}
-
-
-function enableRadioButtons() {
-  // Enable all radio buttons
-  radioButtons.forEach((radio) => {
-    radio.disabled = false;
-  });
-}
-
-
   //TODO: servirà qualche funzione di conversione dei dati sicuramente
   //l'idea è di triggerare questa funzione quando viene selezionato qualcosa, in modo da triggerare il cambiamento in ogni grafico
   function changeHighlight(data){
@@ -382,8 +359,7 @@ function enableRadioButtons() {
     const width = parentDivRect.width - margin.left - margin.right;
     const height = parentDivRect.height - margin.top - margin.bottom;
 
-    const scatter_plot = d3
-      .select("#ScatterPlotContainer")
+
     const scatter_plot = d3
       .select("#ScatterPlotContainer")
       .append("svg")
@@ -413,7 +389,6 @@ function enableRadioButtons() {
       .style("opacity", 0)
       .style("position", "absolute");
 
-    const circles = scatter_plot
     const circles = scatter_plot
       .append("g")
       .selectAll("circle")
@@ -466,17 +441,9 @@ function enableRadioButtons() {
       ])
       .on("brush", brushed_scatter_plot)
       .on("end", brushedend_scatter_plot);
-    const brush = d3
-      .brush()
-      .extent([
-        [-20, -20],
-        [width + 20, height + 20],
-      ])
-      .on("brush", brushed_scatter_plot)
-      .on("end", brushedend_scatter_plot);
+    
 
     function brushed_scatter_plot() {
-      const event = d3.event;
       const event = d3.event;
       if (event && event.selection) {
         const selection = event.selection;
@@ -484,18 +451,11 @@ function enableRadioButtons() {
     }
     function brushedend_scatter_plot() {
       const event = d3.event;
-      const event = d3.event;
       if (event && event.selection) {
         const selection = event.selection;
         //qui vengono mappati i dati selezionati e ti restituisce l'array con
         //qui vengono mappati i dati selezionati e ti restituisce l'array con
         //le label e la posizione dei punti selezionati
-        const selectedData = data.filter(
-          (d) =>
-            xScale(d.x) >= selection[0][0] &&
-            xScale(d.x) <= selection[1][0] &&
-            yScale(d.y) >= selection[0][1] &&
-            yScale(d.y) <= selection[1][1])
 
         const selectedData = data.filter(
           (d) =>
@@ -512,39 +472,6 @@ function enableRadioButtons() {
     scatter_plot.call(brush);
   }
 
-  function isPointInsideSelection(point, selection) {
-    for (const i in selection) {
-      if (point.x === selection[i].x && point.y === selection[i].y) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function mapFromLabelToData(type, selected){
-
-  }
-  //TODO: edit the color 
-  function colorScatterPlot(component, selectedData, color) {
-    console.log(selectedData);
-    component.attr("fill", function (d) {
-      const circle = d3.select(this);
-
-      //TODO: modifica
-      //colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
-      //h.colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
-      return selectedData.length > 0
-        ? isPointInsideSelection(d, selectedData)
-          ? color
-          : "red"
-        : "red";
-    });
-
-  
-    
-
-  }
-    scatter_plot.call(brush);
   
 
   function isPointInsideSelection(point, selection) {
