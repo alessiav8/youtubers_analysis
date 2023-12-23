@@ -4,17 +4,17 @@ const reset_button=document.getElementById("reset_button");
 let dataset_g;
 
 // Leggi dataset
-//TODO: da modificare con il filtro sulla data & spostare dopo il caricamento dello scatter plot, non lo faccio adesso perchè ci mette troppo tempo
 var selectedMonth = "june"
 var radioButtons = document.querySelectorAll('input[name="monthOption"]');
 
 document.addEventListener("DOMContentLoaded", function () {
   showLoadingMessage();
-  //holds the actual dataset considered
   disableRadioButtons();
   getDataAndRenderGraph();
-  saveLocalStorageAndRenderHisto();
+  saveLocalStorageAndRenderHistoAndFilters();
 });
+
+
 
 function handleRadioButtonChange() {
   var checkedRadioButton = document.querySelector('input[name="monthOption"]:checked');
@@ -23,7 +23,7 @@ function handleRadioButtonChange() {
   showLoadingMessage();
   disableRadioButtons();
   getDataAndRenderGraph();
-  saveLocalStorageAndRenderHisto();
+  saveLocalStorageAndRenderHistoAndFilters();
   removeSVGElements();
 }
 
@@ -31,8 +31,7 @@ radioButtons.forEach((radio) => {
   radio.addEventListener('change', handleRadioButtonChange);
 });
 
-function saveLocalStorageAndRenderHisto(){
-  //QUESTA PARTE è per salvare la selection in storage
+function saveLocalStorageAndRenderHistoAndFilters(){
   var file = selectedMonth+".xlsx";
   fetch(`/getXlsx/${file}`)
     .then(response => {
@@ -45,6 +44,12 @@ function saveLocalStorageAndRenderHisto(){
       console.log("JSON",jsonData);
       dataset_g = jsonData;
       localStorage.setItem("dataset", JSON.stringify(jsonData));
+
+      var categories = extractCategories(dataset_g);
+      renderFilters(categories,"scrollableCategory");
+      var countries = extractCountries(dataset_g);
+      renderFilters(countries,"scrollableCountry")
+
       const { likes, views, comments, followers } = formatData(dataset_g);
 
       const h_likes= new Histogram(likes,"isto_like","#IstoLikes","Likes");
@@ -78,6 +83,96 @@ function parseKMBtoNumber(str) {
   }
 
   return numericPart;
+}
+function extractCategories(data) {
+  // Assuming your category data is present in a "Category" column
+  const categoryColumn = "Category"; // Adjust this based on your actual column name
+
+  // Extract unique categories from the dataset
+  const uniqueCategories = [...new Set(data
+    .map(item => item[categoryColumn] || "Mixed") // Use "mixed" if category is empty or undefined
+  )].sort();
+
+  return uniqueCategories;
+}
+function extractCountries(data) {
+  // Assuming your category data is present in a "Category" column
+  const countryColumn = "Country"; // Adjust this based on your actual column name
+
+  // Extract unique categories from the dataset
+  const uniqueCountries = [...new Set(data
+    .map(item => item[countryColumn] || "No country") // Use "mixed" if category is empty or undefined
+  )].sort();
+
+  return uniqueCountries;
+}
+function renderFilters(categories,container) {
+  const checkboxesContainer = document.getElementById(container);
+
+  // Clear existing checkboxes
+  checkboxesContainer.innerHTML = "";
+
+  // Add "All" checkbox at the beginning
+  const allCheckboxDiv = document.createElement("div");
+  allCheckboxDiv.classList.add("custom-control", "custom-checkbox");
+  allCheckboxDiv.style.display = "flex"; // Use flexbox
+
+  const allCheckboxInput = document.createElement("input");
+  allCheckboxInput.type = "checkbox";
+  allCheckboxInput.classList.add("custom-control-input");
+  var idd="selectAll"+container;
+  allCheckboxInput.id = idd  // You may want to modify this based on your needs
+  // Add additional attributes if needed
+
+  const allCheckboxLabel = document.createElement("label");
+  allCheckboxLabel.classList.add("custom-control-label");
+  allCheckboxLabel.setAttribute("for", idd);
+  allCheckboxLabel.textContent = "All";
+  allCheckboxLabel.style.marginLeft = "5px"; // Adjust the spacing as needed
+
+  // Add event listener to toggle all other checkboxes
+  allCheckboxInput.addEventListener("change", function() {
+    const otherCheckboxes = checkboxesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAll)');
+    otherCheckboxes.forEach(checkbox => {
+      checkbox.checked = allCheckboxInput.checked;
+    });
+  });
+
+  allCheckboxDiv.appendChild(allCheckboxInput);
+  allCheckboxDiv.appendChild(allCheckboxLabel);
+
+  checkboxesContainer.appendChild(allCheckboxDiv);
+  const separator = document.createElement("hr");
+  checkboxesContainer.appendChild(separator);
+
+  // Add other checkboxes
+  categories.forEach(category => {
+    const checkboxDiv = document.createElement("div");
+    checkboxDiv.classList.add("custom-control", "custom-checkbox");
+    checkboxDiv.style.display = "flex"; // Use flexbox
+
+    const checkboxInput = document.createElement("input");
+    checkboxInput.type = "checkbox";
+    checkboxInput.classList.add("custom-control-input");
+    checkboxInput.id = category; // You may want to modify this based on your category data
+    // Add additional attributes if needed
+
+    const checkboxLabel = document.createElement("label");
+    checkboxLabel.classList.add("custom-control-label");
+    checkboxLabel.setAttribute("for", category); // Should match the checkbox ID
+    checkboxLabel.textContent = category; // You may want to modify this based on your category data
+    checkboxLabel.style.marginLeft = "5px"; // Adjust the spacing as needed
+
+    checkboxDiv.appendChild(checkboxInput);
+    checkboxDiv.appendChild(checkboxLabel);
+
+    checkboxesContainer.appendChild(checkboxDiv);
+  });
+
+  // Set all checkboxes to be selected by default
+  checkboxesContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.checked = true;
+  });
 }
 
 
