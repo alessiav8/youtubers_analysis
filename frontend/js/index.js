@@ -16,21 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
   saveLocalStorageAndRenderHisto();
 });
 
-fetch(`/getXlsx/${file}`)
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Errore HTTP: ${response.status} - ${response.statusText}`);
-    }
-    return response.json();
-  })
-  .then(jsonData => {
-    dataset_g = jsonData;
-    localStorage.setItem("dataset", JSON.stringify(jsonData));
-    const likes = formatData(dataset_g,"likes");
-    const views = formatData(dataset_g,"views");
-    const comments = formatData(dataset_g,"comments");
-    const followers = formatData(dataset_g,"followers");
-
 function handleRadioButtonChange() {
   var checkedRadioButton = document.querySelector('input[name="monthOption"]:checked');
   selectedMonth = checkedRadioButton.value;
@@ -41,6 +26,7 @@ function handleRadioButtonChange() {
   saveLocalStorageAndRenderHisto();
   removeSVGElements();
 }
+
 radioButtons.forEach((radio) => {
   radio.addEventListener('change', handleRadioButtonChange);
 });
@@ -79,7 +65,6 @@ function saveLocalStorageAndRenderHisto(){
     });
   }
 
-
 //From the dataset get back the frequency-something for the histogram
 function parseKMBtoNumber(str) {
   if (typeof str !== 'string') return parseFloat(str);
@@ -94,6 +79,8 @@ function parseKMBtoNumber(str) {
 
   return numericPart;
 }
+
+
 function formatData(data, type) {
   let formattedData;
   const numBins = 5;
@@ -186,12 +173,8 @@ function formatData(data, type) {
 
   return formattedData;
 }
-
-
-
-
-
 //
+
 
 reset_button.addEventListener("click",function(){
   location.reload();
@@ -205,6 +188,8 @@ function removeSVGElements() {
     svgElem.parentNode.removeChild(svgElem);
   });
 }
+
+
 function getDataAndRenderGraph() {
   const requestOptions = {
     method: "GET",
@@ -212,7 +197,7 @@ function getDataAndRenderGraph() {
       month: selectedMonth,
     },
   };
-
+  
   fetch("http://127.0.0.1:5000/data", requestOptions)
     .then((response) => response.json())
     .then((data) => {
@@ -228,18 +213,26 @@ function getDataAndRenderGraph() {
       //console.error("Error:", error);
     });
 }
+
+
 function showLoadingMessage() {
   document.getElementById("loadingMessage").style.display = "block";
 }
+
+
 function hideLoadingMessage() {
   document.getElementById("loadingMessage").style.display = "none";
 }
+
+
 function disableRadioButtons() {
   // Disable all radio buttons
   radioButtons.forEach((radio) => {
     radio.disabled = true;
   });
 }
+
+
 function enableRadioButtons() {
   // Enable all radio buttons
   radioButtons.forEach((radio) => {
@@ -247,59 +240,25 @@ function enableRadioButtons() {
   });
 }
 
-  function getDataAndRenderGraph() {
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        month: "june",
-      },
-    };
 
-    fetch("http://127.0.0.1:5000/data", requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        //console.log(data);
-        hideLoadingMessage();
-        renderScatterPlot(data);
-       // const intervalloSelezionato = [100000, 1000000000]; 
-        //const youtubersNellIntervallo = getYoutubersForInterval("Avg. views", intervalloSelezionato);
-        
-        //console.log(youtubersNellIntervallo);
-       
-      })
-      .catch((error) => {
-        hideLoadingMessage();
-        //console.error("Error:", error);
-      });
-  }
-});
-  fetch("http://127.0.0.1:5000/data", requestOptions)
-    .then((response) => response.json())
-    .then((data) => {
-      //console.log(data);
-      hideLoadingMessage();
-      renderScatterPlot(data);
-      enableRadioButtons();
-
-    })
-    .catch((error) => {
-      hideLoadingMessage();
-      enableRadioButtons();
-      //console.error("Error:", error);
-    });
-}
 function showLoadingMessage() {
   document.getElementById("loadingMessage").style.display = "block";
 }
+
+
 function hideLoadingMessage() {
   document.getElementById("loadingMessage").style.display = "none";
 }
+
+
 function disableRadioButtons() {
   // Disable all radio buttons
   radioButtons.forEach((radio) => {
     radio.disabled = true;
   });
 }
+
+
 function enableRadioButtons() {
   // Enable all radio buttons
   radioButtons.forEach((radio) => {
@@ -330,11 +289,14 @@ function enableRadioButtons() {
 
     const scatter_plot = d3
       .select("#ScatterPlotContainer")
+    const scatter_plot = d3
+      .select("#ScatterPlotContainer")
       .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .attr("id", "mds")
       .append("g")
+      .attr("id","scatterplot")
       .attr("id","scatterplot")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -356,6 +318,7 @@ function enableRadioButtons() {
       .style("opacity", 0)
       .style("position", "absolute");
 
+    const circles = scatter_plot
     const circles = scatter_plot
       .append("g")
       .selectAll("circle")
@@ -393,8 +356,21 @@ function enableRadioButtons() {
       .attr("transform", `translate(0, ${height})`)
       .call(xAxis);
     scatter_plot.append("g").call(yAxis);
+    scatter_plot
+      .append("g")
+      .attr("transform", `translate(0, ${height})`)
+      .call(xAxis);
+    scatter_plot.append("g").call(yAxis);
 
     //brush implementation scatterplot
+    const brush = d3
+      .brush()
+      .extent([
+        [-20, -20],
+        [width + 20, height + 20],
+      ])
+      .on("brush", brushed_scatter_plot)
+      .on("end", brushedend_scatter_plot);
     const brush = d3
       .brush()
       .extent([
@@ -406,16 +382,26 @@ function enableRadioButtons() {
 
     function brushed_scatter_plot() {
       const event = d3.event;
+      const event = d3.event;
       if (event && event.selection) {
         const selection = event.selection;
       }
     }
     function brushedend_scatter_plot() {
       const event = d3.event;
+      const event = d3.event;
       if (event && event.selection) {
         const selection = event.selection;
         //qui vengono mappati i dati selezionati e ti restituisce l'array con
+        //qui vengono mappati i dati selezionati e ti restituisce l'array con
         //le label e la posizione dei punti selezionati
+        const selectedData = data.filter(
+          (d) =>
+            xScale(d.x) >= selection[0][0] &&
+            xScale(d.x) <= selection[1][0] &&
+            yScale(d.y) >= selection[0][1] &&
+            yScale(d.y) <= selection[1][1])
+
         const selectedData = data.filter(
           (d) =>
             xScale(d.x) >= selection[0][0] &&
@@ -424,6 +410,7 @@ function enableRadioButtons() {
             yScale(d.y) <= selection[1][1]
         );
         console.log("Selected Data:", selectedData);
+        colorScatterPlot(circles,selectedData,"black")
         colorScatterPlot(circles,selectedData,"black")
       }
     }
@@ -462,5 +449,33 @@ function enableRadioButtons() {
     
 
   }
+    scatter_plot.call(brush);
+  
 
-export {colorScatterPlot, parseKMBtoNumber}
+  function isPointInsideSelection(point, selection) {
+    for (const i in selection) {
+      if (point.x === selection[i].x && point.y === selection[i].y) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  function colorScatterPlot(component, selectedData, color) {
+    component.attr("fill", function (d) {
+      const circle = d3.select(this);
+
+      //TODO: modifica
+      //colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
+      //h.colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
+
+      return selectedData.length > 0
+        ? isPointInsideSelection(d, selectedData)
+          ? color
+          : "red"
+        : "red";
+    });
+
+  }
+
+  export {colorScatterPlot, parseKMBtoNumber}
