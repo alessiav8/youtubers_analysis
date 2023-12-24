@@ -3,7 +3,7 @@ class Histogram {
     this.data = data;
     this.id = id;
     this.container = container;
-    this.margin = { top: 20, right: 20, bottom: 100, left: 40 };
+    this.margin = { top: 20, right: 40, bottom: 50, left: 40 };
     this.max = d3.max(this.data, (d) => d.frequenza);
     const parentDiv = document.getElementById("mainContainer");
     const parentDivRect = parentDiv.getBoundingClientRect();
@@ -198,23 +198,30 @@ class Histogram {
         return isNaN(y) ? 0 : this.height_isto - y;
       });
 
-    //labels for x ranges
+    // Etichetta all'inizio
     histo
-      .selectAll(".bar-label")
-      .data(this.data)
-      .enter()
-      .append("text")
-      .attr("class", "bar-label")
-      .text((d, i) => formatLabel(d, i))
-      .attr(
-        "x",
-        (d, i) =>
-          this.xScaleIsto(i) + (this.width_isto / this.data.length - 1) / 2
-      )
-      .attr("y", this.height_isto + this.margin.top)
-      .attr("text-anchor", "middle")
-      .attr("dy", "0.2em")
-      .attr("font-size", "7px");
+    .selectAll(".bar-label-start")
+    .data(this.data)
+    .enter()
+    .append("text")
+    .attr("class", "bar-label-start")
+    .text((d, i) => (i === 5 ? formatLabel(d.start, i) : formatLabel(d.start, i)))
+    .attr("x", (d, i) => i==0?  this.xScaleIsto(i)  + (this.width_isto / this.data.length - 1) / 500:this.xScaleIsto(i) -7 + (this.width_isto / this.data.length - 1) / 500)
+    .attr("y", this.height_isto + this.margin.top)
+    .attr("font-size", "8px");
+
+    // Etichetta alla fine
+    histo
+    .selectAll(".bar-label-end")
+    .data(this.data)
+    .enter()
+    .append("text")
+    .attr("class", "bar-label-end")
+    .text((d, i) => (i === 5 ? formatLabel(d.end, i) : ""))
+    .attr("x", (d, i) => (i === 5 ? (this.xScaleIsto(i)-10 + (this.width_isto / this.data.length - 1) ) : (this.xScaleIsto(i) + (this.width_isto / this.data.length - 1) / 2)))
+    .attr("y", (d, i) => this.height_isto + this.margin.top ) 
+    .attr("font-size", "8px");
+
 
     //label y
     histo
@@ -234,8 +241,8 @@ class Histogram {
       .style("text-anchor", "middle")
       .style("font-size", "9px")
       .text(this.label)
-      .attr("x", this.width_isto / 2)
-      .attr("y", this.height_isto + this.margin.top + this.margin.bottom - 80);
+      .attr("x", this.width_isto / 2-100)
+      .attr("y", this.height_isto + this.margin.top + this.margin.bottom - 30);
 
     const brushX = d3
       .brushX()
@@ -254,19 +261,19 @@ class Histogram {
       .attr("height", this.height_isto);
 
     function formatLabel(label, i) {
-      const absNum = Math.abs(label.start);
+      const absNum = Math.abs(label);
       let start = "";
       let end = "";
       if (absNum >= 1e9) {
-        start = (label.start / 1e9).toFixed(1) + "B";
+        start = (label / 1e9).toFixed(1) + "B";
       } else if (absNum >= 1e6) {
-        start = (label.start / 1e6).toFixed(1) + "M";
+        start = (label / 1e6).toFixed(1) + "M";
       } else if (absNum >= 1e3) {
-        start = (label.start / 1e3).toFixed(1) + "k";
+        start = (label / 1e3).toFixed(1) + "k";
       } else {
-        start = label.start.toString();
+        start = label.toString();
       }
-      if (i == 5) {
+      /*if (i == 5) {
         const absNum2 = Math.abs(label.end);
         if (absNum2 >= 1e9) {
           end = (label.end / 1e9).toFixed(1) + "B";
@@ -278,7 +285,7 @@ class Histogram {
           end = label.end.toString();
         }
         return start + "" + end;
-      }
+      }*/
 
       return start;
     }
