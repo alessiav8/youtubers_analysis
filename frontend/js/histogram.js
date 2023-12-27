@@ -1,3 +1,5 @@
+import {parseKMBtoNumber,colorScatterPlot} from "./index.js";
+
 class Histogram {
   constructor(data, id, container, label) {
     this.data = data;
@@ -28,16 +30,11 @@ class Histogram {
   brushedend_insto_likes = () => {
     if (d3.event.selection) {
       const [x0, x1] = d3.event.selection;
-
       const startIndex = Math.floor(this.xScaleIsto.invert(x0));
-      console.log("start", startIndex);
       const endIndex = Math.ceil(this.xScaleIsto.invert(x1));
-      console.log("end", endIndex);
-
       const selectedData = this.data.slice(startIndex, endIndex);
-
       this.colorIsto(d3.select("#" + this.id), selectedData);
-
+      this.getYoutubersInInterval(selectedData)
       console.log("Selected Data:", selectedData);
     }
   };
@@ -46,11 +43,6 @@ class Histogram {
 
   //this function handle the color of the selected parts of the histogram
   colorIsto = (component, datas) => {
-    console.log(
-      "color",
-      datas.includes(d) ||
-        datas.find((obj) => JSON.stringify(obj) === JSON.stringify(d))
-    );
     component
       .selectAll("rect")
       .data(this.data)
@@ -67,6 +59,7 @@ class Histogram {
       .attr("width", this.width_isto / this.data.length - 1)
       .attr("y", (d) => this.yScaleIsto(d.frequenza))
       .attr("height", (d) => this.height_isto - this.yScaleIsto(d.frequenza));
+    
   };
 
   //get a set of intervals return the minimum start and the maximum end of the interval
@@ -89,6 +82,7 @@ class Histogram {
   //the function generate the set of labels related to the interval youtubers(O) (we need it to color the related circles in the scatterplot)
   //and it produces the subset of the dataset containing the youtubers in that interval(O)
   getYoutubersInInterval = (interval) => {
+
     const db = JSON.parse(localStorage.getItem("dataset"));
     console.log("consideredDB", db);
     let find;
