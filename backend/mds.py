@@ -51,7 +51,7 @@ def create_scatter_plot(csv_path):
 
 
     # Multidimensional Scaling (MDS)
-    mds = MDS(n_components=2, max_iter=300, dissimilarity="precomputed", random_state=42)
+    mds = MDS(n_components=2, max_iter=300, dissimilarity="precomputed", random_state=42, normalized_stress='auto')
     pos = mds.fit_transform(dissM)
     pos1 = mds.fit(dissM).embedding_
     stress=mds.fit(dissM).stress_
