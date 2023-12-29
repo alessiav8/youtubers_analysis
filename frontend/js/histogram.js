@@ -126,13 +126,13 @@ class Histogram {
       const startIndex = Math.floor(this.xScaleIsto.invert(x0));
       const endIndex = Math.ceil(this.xScaleIsto.invert(x1));
       const selectedData = this.data.slice(startIndex, endIndex);
-      this.colorIsto(d3.select("#" + this.id), selectedData);
+      this.colorIsto(d3.select("#" + this.id), selectedData);      
       this.getYoutubersInInterval(selectedData)
-      console.log("Selected Data:", selectedData);
     }
   };
 
-  brushed_insto_likes = () => {};
+  brushed_insto_likes = () => {
+  };
 
   //this function handle the color of the selected parts of the histogram
   colorIsto = (component, datas) => {
@@ -203,7 +203,7 @@ class Histogram {
       return likes >= start && likes <= end;
     });
 
-    localStorage.setItem("dataset_updated", JSON.stringify(subsetData));
+    localStorage.setItem("dataset", JSON.stringify(subsetData));
 
     this.colorScatterP(youtubersInInterval);
 
@@ -220,7 +220,6 @@ class Histogram {
     for (const i in youtubers) {
       const comparisonName = String(youtubers[i]).toLowerCase();
       if (targetYoutuber === comparisonName) {
-        console.log("yes");
         return true;
       }
     }
@@ -238,9 +237,9 @@ class Histogram {
     circles.attr("fill", (d) => {
       return youtubers.length > 0
         ? this.isPointInsideSelection(d, youtubers)
-          ? "blue"
-          : "rgba(255, 0, 0, 0.1)"
-        : "red";
+          ? "green"
+          : "rgba(70, 130, 180, 0.1)"
+        : "steelblue";
     });
   };
 
@@ -366,6 +365,21 @@ class Histogram {
       
         return start;
       }
+
+
+      //this function handle the click on the histogram outside/inside.
+      const container_isto = document.getElementById('Isto' + this.label);
+      console.log("container", "Isto" + this.label);
+      
+      container_isto.addEventListener('click', function(event) {
+          const isClicInsideIstogramma = event.target.id === 'histo';
+      
+          if (isClicInsideIstogramma) {
+              console.log("inside");
+          } else {
+              console.log("outside");
+          }
+      });
       
 
 }

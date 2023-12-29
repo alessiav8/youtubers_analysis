@@ -77,7 +77,7 @@ function renderHistoAndFilters() {
   renderFilters(categories, "scrollableCategory");
   var countries = extractCountries(dataset_g);
   renderFilters(countries, "scrollableCountry")
-  
+
   const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
   h_likes.renderIsto()
 
@@ -402,7 +402,7 @@ function renderScatterPlot(data) {
     .attr("cx", (d) => xScale(d.x))
     .attr("cy", (d) => yScale(d.y))
     .attr("r", 4)
-    .attr("fill", "red");
+    .attr("fill", "steelblue");
 
 
   circles.on("mouseover", (event) => {
@@ -497,9 +497,9 @@ function colorScatterPlot(component, selectedData, color) {
 
     return selectedData.length > 0
       ? isPointInsideSelection(d, selectedData)
-        ? color
-        : "red"
-      : "red";
+        ? "green"
+        : "steelblue"
+      : "steelblue";
   });
 
 }
