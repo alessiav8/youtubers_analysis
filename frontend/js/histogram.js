@@ -1,8 +1,101 @@
 import {parseKMBtoNumber,colorScatterPlot} from "./index.js";
 
+function formatData(data, type) {
+  let formattedData;
+  const numBins = 5;
+
+  if (type === "Likes") {
+    // Likes
+    const likesData = data
+      .filter((d) => !isNaN(parseKMBtoNumber(d["Avg. likes"])))
+      .map((d) => parseKMBtoNumber(d["Avg. likes"]));
+    const maxLikes = d3.max(likesData);
+    sessionStorage.setItem('Likes', maxLikes);
+    const logScaleLikes = d3.scaleLog()
+      .domain([1, maxLikes])
+      .range([0, maxLikes / 10]);
+    const histogramLikes = d3.histogram()
+      .domain([0, maxLikes])
+      .thresholds(d3.range(1, numBins + 2).map(d => logScaleLikes(d)))
+      (likesData);
+    formattedData = histogramLikes.map(bin => ({
+      intervallo: bin.x0,
+      frequenza: bin.length,
+      start: `${bin.x0}`,
+      end: `${bin.x1}`,
+    }));
+  }
+  else if (type === "Views") {
+    // Views
+    const viewsData = data
+      .filter((d) => !isNaN(parseKMBtoNumber(d["Avg. views"])))
+      .map((d) => parseKMBtoNumber(d["Avg. views"]));
+    const maxViews = d3.max(viewsData);
+    sessionStorage.setItem('Views', maxViews)
+    const logScaleViews = d3.scaleLog()
+      .domain([1, maxViews])
+      .range([0, maxViews / 10]);
+    const histogramViews = d3.histogram()
+      .domain([0, maxViews])
+      .thresholds(d3.range(1, numBins + 2).map(d => logScaleViews(d)))
+      (viewsData);
+    formattedData = histogramViews.map(bin => ({
+      intervallo: bin.x0,
+      frequenza: bin.length,
+      start: `${bin.x0}`,
+      end: `${bin.x1}`,
+    }));
+  }
+  else if (type === "Comments") {
+    // Comments
+    const commentsData = data
+      .filter((d) => !isNaN(parseKMBtoNumber(d["Avg. comments"])))
+      .map((d) => parseKMBtoNumber(d["Avg. comments"]));
+    const maxComments = d3.max(commentsData);
+    sessionStorage.setItem('Comments', maxComments)
+    const logScaleComments = d3.scaleLog()
+      .domain([1, maxComments])
+      .range([0, maxComments / 10]);
+    const histogramComments = d3.histogram()
+      .domain([0, maxComments])
+      .thresholds(d3.range(1, numBins + 2).map(d => logScaleComments(d)))
+      (commentsData);
+    formattedData = histogramComments.map(bin => ({
+      intervallo: bin.x0,
+      frequenza: bin.length,
+      start: `${bin.x0}`,
+      end: `${bin.x1}`,
+    }));
+  }
+  else if (type === "Followers") {
+    // Followers
+    const followersData = data
+      .filter((d) => !isNaN(parseKMBtoNumber(d["Followers"])))
+      .map((d) => parseKMBtoNumber(d["Followers"]));
+    const maxFollowers = d3.max(followersData);
+    sessionStorage.setItem("Followers", maxFollowers);
+    const logScaleFollowers = d3.scaleLog()
+      .domain([1, maxFollowers])
+      .range([0, maxFollowers / 1]);
+    const histogramFollowers = d3.histogram()
+      .domain([0, maxFollowers])
+      .thresholds(d3.range(1, numBins + 2).map(d => logScaleFollowers(d)))
+      (followersData);
+    formattedData = histogramFollowers.map(bin => ({
+      intervallo: bin.x0,
+      frequenza: bin.length,
+      start: `${bin.x0}`,
+      end: `${bin.x1}`,
+    }));
+    const minFollowers = d3.min(followersData);
+  }
+
+  return formattedData;
+}
+
 class Histogram {
   constructor(data, id, container, label) {
-    this.data = data;
+    this.data = formatData(data, label);
     this.id = id;
     this.container = container;
     this.margin = { top: 20, right: 40, bottom: 50, left: 40 };
@@ -200,7 +293,7 @@ class Histogram {
     .append("text")
     .attr("class", "bar-label-start")
     .text((d, i) => (i === 5 ? formatLabel(d.start, i) : formatLabel(d.start, i)))
-    .attr("x", (d, i) => i==0?  this.xScaleIsto(i)  + (this.width_isto / this.data.length - 1) / 500:this.xScaleIsto(i) -7 + (this.width_isto / this.data.length - 1) / 500)
+    .attr("x", (d, i) => i==0?  this.xScaleIsto(i)  + (this.width_isto / this.data.length - 1) / 500 : this.xScaleIsto(i) -7 + (this.width_isto / this.data.length - 1) / 500)
     .attr("y", this.height_isto + this.margin.top)
     .attr("font-size", "8px");
 
@@ -254,36 +347,28 @@ class Histogram {
       .selectAll("rect")
       .attr("height", this.height_isto);
 
-    function formatLabel(label, i) {
-      const absNum = Math.abs(label);
-      let start = "";
-      let end = "";
-      if (absNum >= 1e9) {
-        start = (label / 1e9).toFixed(1) + "B";
-      } else if (absNum >= 1e6) {
-        start = (label / 1e6).toFixed(1) + "M";
-      } else if (absNum >= 1e3) {
-        start = (label / 1e3).toFixed(1) + "k";
-      } else {
-        start = label.toString();
-      }
-      /*if (i == 5) {
-        const absNum2 = Math.abs(label.end);
-        if (absNum2 >= 1e9) {
-          end = (label.end / 1e9).toFixed(1) + "B";
-        } else if (absNum2 >= 1e6) {
-          end = (label.end / 1e6).toFixed(1) + "M";
-        } else if (absNum2 >= 1e3) {
-          end = (label.end / 1e3).toFixed(1) + "k";
+      function formatLabel(label, i) {
+        const absNum = Math.abs(label);
+        let start = "";
+        let end = "";
+      
+        const roundedValue = Math.floor(label);
+      
+        if (absNum >= 1e9) {
+          start = (roundedValue / 1e9).toFixed(1) + "B";
+        } else if (absNum >= 1e6) {
+          start = (roundedValue / 1e6).toFixed(1) + "M";
+        } else if (absNum >= 1e3) {
+          start = (roundedValue / 1e3).toFixed(1) + "k";
         } else {
-          end = label.end.toString();
+          start = roundedValue.toString();
         }
-        return start + "" + end;
-      }*/
+      
+        return start;
+      }
+      
 
-      return start;
-    }
-  }
+}
 }
 
 export default Histogram;

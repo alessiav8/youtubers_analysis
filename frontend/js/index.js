@@ -70,51 +70,40 @@ function saveLocalStorageStart() {
 
 function renderHistoAndFilters() {
   //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
-  dataset_g = JSON.parse(localStorage.getItem("dataset"));
+  let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
   dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
 
   var categories = extractCategories(dataset_full);
   renderFilters(categories, "scrollableCategory");
   var countries = extractCountries(dataset_g);
   renderFilters(countries, "scrollableCountry")
-
-  const likes = formatData(dataset_g, "likes");
-  const views = formatData(dataset_g, "views");
-  const comments = formatData(dataset_g, "comments");
-  const followers = formatData(dataset_g, "followers");
-
-  const h_likes = new Histogram(likes, "isto_like", "#IstoLikes", "Likes");
+  
+  const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
   h_likes.renderIsto()
 
-  const h_views = new Histogram(views, "isto_view", "#IstoViews", "Views");
+  const h_views = new Histogram(dataset, "isto_view", "#IstoViews", "Views");
   h_views.renderIsto()
 
-  const h_comments = new Histogram(comments, "isto_comment", "#IstoComments", "Comments");
+  const h_comments = new Histogram(dataset, "isto_comment", "#IstoComments", "Comments");
   h_comments.renderIsto()
 
-  const h_followers = new Histogram(followers, "isto_follower", "#IstoFollowers", "Followers");
+  const h_followers = new Histogram(dataset, "isto_follower", "#IstoFollowers", "Followers");
   h_followers.renderIsto()
 }
 function renderHisto() {
   //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
-  dataset_g = JSON.parse(localStorage.getItem("dataset"));
+  let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
   dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
-
-  const likes = formatData(dataset_g, "likes");
-  const views = formatData(dataset_g, "views");
-  const comments = formatData(dataset_g, "comments");
-  const followers = formatData(dataset_g, "followers");
-
-  const h_likes = new Histogram(likes, "isto_like", "#IstoLikes", "Likes");
+  const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
   h_likes.renderIsto()
 
-  const h_views = new Histogram(views, "isto_view", "#IstoViews", "Views");
+  const h_views = new Histogram(dataset, "isto_view", "#IstoViews", "Views");
   h_views.renderIsto()
 
-  const h_comments = new Histogram(comments, "isto_comment", "#IstoComments", "Comments");
+  const h_comments = new Histogram(dataset, "isto_comment", "#IstoComments", "Comments");
   h_comments.renderIsto()
 
-  const h_followers = new Histogram(followers, "isto_follower", "#IstoFollowers", "Followers");
+  const h_followers = new Histogram(dataset, "isto_follower", "#IstoFollowers", "Followers");
   h_followers.renderIsto()
 }
 
@@ -175,6 +164,7 @@ function confirmFilters() {
   renderHisto();
   //TODO: re-render scatter
 }
+
 //From the dataset get back the frequency-something for the histogram
 function parseKMBtoNumber(str) {
   if (typeof str !== 'string') return parseFloat(str);
@@ -279,101 +269,6 @@ function renderFilters(categories, container) {
     checkbox.checked = true;
   });
 }
-
-
-function formatData(data, type) {
-  let formattedData;
-  const numBins = 5;
-
-  if (type === "likes") {
-    // Likes
-    const likesData = data
-      .filter((d) => !isNaN(parseKMBtoNumber(d["Avg. likes"])))
-      .map((d) => parseKMBtoNumber(d["Avg. likes"]));
-    const maxLikes = d3.max(likesData);
-    sessionStorage.setItem('Likes', maxLikes);
-    const logScaleLikes = d3.scaleLog()
-      .domain([1, maxLikes])
-      .range([0, maxLikes / 10]);
-    const histogramLikes = d3.histogram()
-      .domain([0, maxLikes])
-      .thresholds(d3.range(1, numBins + 2).map(d => logScaleLikes(d)))
-      (likesData);
-    formattedData = histogramLikes.map(bin => ({
-      intervallo: bin.x0,
-      frequenza: bin.length,
-      start: `${bin.x0}`,
-      end: `${bin.x1}`,
-    }));
-  }
-  else if (type === "views") {
-    // Views
-    const viewsData = data
-      .filter((d) => !isNaN(parseKMBtoNumber(d["Avg. views"])))
-      .map((d) => parseKMBtoNumber(d["Avg. views"]));
-    const maxViews = d3.max(viewsData);
-    sessionStorage.setItem('Views', maxViews)
-    const logScaleViews = d3.scaleLog()
-      .domain([1, maxViews])
-      .range([0, maxViews / 10]);
-    const histogramViews = d3.histogram()
-      .domain([0, maxViews])
-      .thresholds(d3.range(1, numBins + 2).map(d => logScaleViews(d)))
-      (viewsData);
-    formattedData = histogramViews.map(bin => ({
-      intervallo: bin.x0,
-      frequenza: bin.length,
-      start: `${bin.x0}`,
-      end: `${bin.x1}`,
-    }));
-  }
-  else if (type === "comments") {
-    // Comments
-    const commentsData = data
-      .filter((d) => !isNaN(parseKMBtoNumber(d["Avg. comments"])))
-      .map((d) => parseKMBtoNumber(d["Avg. comments"]));
-    const maxComments = d3.max(commentsData);
-    sessionStorage.setItem('Comments', maxComments)
-    const logScaleComments = d3.scaleLog()
-      .domain([1, maxComments])
-      .range([0, maxComments / 10]);
-    const histogramComments = d3.histogram()
-      .domain([0, maxComments])
-      .thresholds(d3.range(1, numBins + 2).map(d => logScaleComments(d)))
-      (commentsData);
-    formattedData = histogramComments.map(bin => ({
-      intervallo: bin.x0,
-      frequenza: bin.length,
-      start: `${bin.x0}`,
-      end: `${bin.x1}`,
-    }));
-  }
-  else if (type === "followers") {
-    // Followers
-    const followersData = data
-      .filter((d) => !isNaN(parseKMBtoNumber(d["Followers"])))
-      .map((d) => parseKMBtoNumber(d["Followers"]));
-    const maxFollowers = d3.max(followersData);
-    sessionStorage.setItem("Followers", maxFollowers);
-    const logScaleFollowers = d3.scaleLog()
-      .domain([1, maxFollowers])
-      .range([0, maxFollowers / 1]);
-    const histogramFollowers = d3.histogram()
-      .domain([0, maxFollowers])
-      .thresholds(d3.range(1, numBins + 2).map(d => logScaleFollowers(d)))
-      (followersData);
-    formattedData = histogramFollowers.map(bin => ({
-      intervallo: bin.x0,
-      frequenza: bin.length,
-      start: `${bin.x0}`,
-      end: `${bin.x1}`,
-    }));
-    const minFollowers = d3.min(followersData);
-  }
-
-  return formattedData;
-}
-//
 
 
 reset_button.addEventListener("click", function () {
