@@ -3,7 +3,12 @@ const username = window.location.pathname.split('/').pop();
 let youtuberData; // Declare youtuberData outside of the fetch block
 
 function convertToInt(value) {
+  console.log(value)
+
   if (typeof value === 'string') {
+      if (value==="N/A'"||value==="N/A") {
+        return -1;
+      }
       if (value.includes('M')) {
           return parseInt(parseFloat(value.replace('M', '')) * 1e6);
       } else if (value.includes('K')) {
@@ -12,8 +17,8 @@ function convertToInt(value) {
           return parseInt(value);
       }
   } else {
-      return value;
-  }
+    return value;
+}
 }
 
 function formatNumber(value) {
@@ -52,6 +57,7 @@ fetch(`/getData/${username}`)
     const comments = [];
     for (let i = 0; i < youtuberData.length; i++) {
       comments.push(convertToInt(youtuberData[i]["Avg. comments"]));
+      console.log(youtuberData[i]["Avg. comments"])
     }
     const views = [];
     for (let i = 0; i < youtuberData.length; i++) {
@@ -65,6 +71,7 @@ fetch(`/getData/${username}`)
 
     console.log(followers)
     console.log(likes)
+    console.log(comments)
 
   })
   .catch(error => console.error('Error fetching data:', error));
@@ -201,7 +208,8 @@ fetch(`/getData/${username}`)
   
   function handleMouseOver(d, i, label, data) {
     const xValue = ["June", "September", "November", "December"][i];
-    const yValue = formatNumber(d);
+    var yValue = formatNumber(d);
+    if (yValue==-1) yValue="Not defined"
   
     // Check if the next point is higher
     const nextIndex = i + 1;
