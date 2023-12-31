@@ -143,7 +143,27 @@ class Histogram {
       return [];
     }
   };
-  
+
+  //this function compute the intersection of the selected database and 
+  //the currently database stored in the localStorage
+  intersectFunction = (db2) => {
+    const db1 = JSON.parse(localStorage.getItem('dataset'));
+    console.log("Primo dataset completo", db1, "\n\n", "Secondo dataset", db2);
+    const db2Map = new Map(db2.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));
+    const intersection = db1.filter(item => db2Map.has(`${item["Youtube channel"]} - ${item["youtuber name"]}`));
+    console.log("Intersezione", intersection);
+    return intersection;
+}
+
+  names=(data)=>{
+    const uniqueYoutuberNames = new Set();
+    data.forEach(entry => {
+      uniqueYoutuberNames.add(entry["youtuber name"]);
+    });
+    const resultArray = Array.from(uniqueYoutuberNames);
+    return resultArray;
+    console.log("Unique Youtuber Names:", resultArray);
+  }
 
   brushedend_insto_likes = () => {
     if (d3.event.selection) {
@@ -157,6 +177,25 @@ class Histogram {
 
       //compute the subset
       let sub=this.getSubsetByYoutuberNames(YTinterval);
+      const intersection = this.intersectFunction(sub);
+      localStorage.setItem('dataset', JSON.stringify(intersection));
+      
+      const set_names=this.names(intersection)
+      console.log("Selected data", selectedData, "\n\n", "Int", intersection)
+
+      
+      if (intersection.length==0){
+        window.alert("No intersections found,Reload");
+      }
+      if (intersection.length==1){
+        const confirmation = window.confirm("One youtuber found. Move to see specific data?");
+        if (confirmation){
+          const username = intersection[0]["Youtube channel"];
+          window.location.href = `/userPage.html?username=${encodeURIComponent(username)}`;
+        }
+      }
+
+      this.colorScatterP(set_names);
 
       const histograms=["isto_like","isto_view","isto_comment","isto_follower"];
 
@@ -164,24 +203,24 @@ class Histogram {
         if(histograms[i]!=this.id){
           if(histograms[i]=="isto_view"){
             const histogramViews = new Histogram(this.originalDB, 'isto_view', '#IstoViews', 'Views');
-            const selectedViews= this.findIntervalsForCategory(sub, histogramViews.data, "Views");
+            const selectedViews= this.findIntervalsForCategory(intersection, histogramViews.data, "Views");
             histogramViews.colorIsto(d3.select("#isto_view"), selectedViews);
           }
           else if(histograms[i]=="isto_comment"){
 
             const histogramComments = new Histogram(this.originalDB, 'isto_comment', '#IstoComments', 'Comments');
-            const selectedComments= this.findIntervalsForCategory(sub, histogramComments.data, "Comments");
+            const selectedComments= this.findIntervalsForCategory(intersection, histogramComments.data, "Comments");
             histogramComments.colorIsto(d3.select("#isto_comment"), selectedComments)
           }
           else if(histograms[i]=="isto_like"){
 
             const histogramLikes = new Histogram(this.originalDB, 'isto_like', '#IstoLikes', 'Likes');
-            const selectedLikes= this.findIntervalsForCategory(sub, histogramLikes.data, "Likes");
+            const selectedLikes= this.findIntervalsForCategory(intersection, histogramLikes.data, "Likes");
             histogramLikes.colorIsto(d3.select("#isto_like"), selectedLikes)
           }
           else if(histograms[i]=="isto_follower"){
             const histogramFollowers = new Histogram(this.originalDB, 'isto_follower', '#IstoFollowers', 'Followers');
-            const selectedFollowers= this.findIntervalsForCategory(sub, histogramFollowers.data, "Followers");
+            const selectedFollowers= this.findIntervalsForCategory(intersection, histogramFollowers.data, "Followers");
             histogramFollowers.colorIsto(d3.select("#isto_follower"), selectedFollowers)
           }
         }
@@ -233,7 +272,7 @@ class Histogram {
       }
       else{
         result=valueString;
-      }      if (result==undefined) console.log("result: case likes ", result,valueString,influencer);
+      }      
     } else if (type === "Views") {
       valueString = influencer["Avg. views"];
       if (typeof(valueString)=="string") {
@@ -242,7 +281,6 @@ class Histogram {
       else{
         result=valueString;
       }
-      if(result==undefined) console.log("result: case views ", result,valueString,influencer);
     } else if (type === "Comments") {
       valueString = influencer["Avg. comments"];
       if (typeof(valueString)=="string") {
@@ -250,10 +288,9 @@ class Histogram {
       }
       else{
         result=valueString;
-      }      if (result==undefined) {
-        console.log("result: case comments ", result,valueString,influencer);
+      }      
 
-      }
+      
     } else if (type === "Followers") {
       valueString = influencer["Followers"];
       if (typeof(valueString)=="string") {
@@ -261,7 +298,7 @@ class Histogram {
       }
       else{
         result=valueString;
-      }      if (result==undefined) console.log("result: case follower ", result,valueString,influencer);
+      }      
     }
     else {
       result = 0;
@@ -272,6 +309,7 @@ class Histogram {
 
   //to find the intervals for the other categories
   findIntervalsForCategory=(subset, categoryData, type) =>{
+    console.log("The subset",subset,"called from",type);
     const resultArray = [];
     subset.forEach((influencer) => {
       const categoryValue = this.getCategoryValue(influencer, type);
@@ -292,7 +330,6 @@ class Histogram {
       }
     });
   
-    console.log("resultArray",resultArray,"type",type);
     return resultArray;
   }
   
@@ -375,12 +412,7 @@ class Histogram {
       const likes = parseKMBtoNumber(data["Avg. likes"]);
       return likes >= start && likes <= end;
     });
-    localStorage.setItem("dataset", JSON.stringify(subsetData));
-
-    this.colorScatterP(youtubersInInterval);
-  
-
-
+    //localStorage.setItem("dataset", JSON.stringify(subsetData));
     return youtubersInInterval;
   };
 

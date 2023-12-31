@@ -3,14 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://d3js.org/d3.v5.min.js"></script>
   <link rel="stylesheet" href="userStyle.css">
+  <script src="https://d3js.org/d3.v5.min.js"></script>    
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <title>User Page</title>
 </head>
 <body>
-  <a id="backArrow" href="/">←</a>
-    <div id="tooltip" style="position: absolute; opacity: 0;"></div>
-    <div class="container marginT" id="container1">
+  <div class="container">
+    <div class="row">
+      <div class="col text-center">
+        <a id="backArrow" href="/">
+          <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col text-center mt-4">
+        <h3>Youtuber:</h3> <h4 id="youtuber_name_field"></h4>
+      </div>
+    </div>
+  </div>
+    <div id="tooltip" style="position: absolute; opacity: 0; "></div>
+    <div class="container mt-2" id="container1">
     </div>
     <br>
     <div class="container" id="container2">

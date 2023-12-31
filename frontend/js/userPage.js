@@ -1,4 +1,8 @@
-const username = window.location.pathname.split('/').pop();
+const urlParams = new URLSearchParams(window.location.search);
+const username = urlParams.get('username');
+
+
+//const username = window.location.pathname.split('/').pop();
 
 let youtuberData; // Declare youtuberData outside of the fetch block
 
@@ -44,6 +48,13 @@ fetch(`/getData/${username}`)
   .then(data => {
     // Process data and create D3 visualizations here
     youtuberData = data;
+
+    //Setting the title of the page
+    const youtuber_name=youtuberData[0]["youtuber name"];
+    const youtuber_name_field=document.getElementById('youtuber_name_field');
+    youtuber_name_field.innerHTML=youtuber_name;
+    //
+
     console.log(youtuberData)
 
   const followers = [];
