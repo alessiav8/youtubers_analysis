@@ -1,12 +1,14 @@
 import Histogram from "./histogram.js"
 
 const reset_button = document.getElementById("reset_button");
+const zoom_button = document.getElementById("zoom_button");
 const confirm_button = document.getElementById("confirmButton");
 let dataset_g;
 let dataset_full;
 
 // Leggi dataset
 var selectedMonth = "june"
+var temp=false
 var radioButtons = document.querySelectorAll('input[name="monthOption"]');
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -22,6 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 function handleRadioButtonChange() {
+  temp=false
   var checkedRadioButton = document.querySelector('input[name="monthOption"]:checked');
   selectedMonth = checkedRadioButton.value;
   console.log(selectedMonth)
@@ -40,8 +43,6 @@ radioButtons.forEach((radio) => {
 });
 
 function saveLocalStorageStart() {
-  //TODO: se sto caricando la pagina per la prima volta allora questo è come setto i dataset, se sto facendo invece zoom col pulsante, datasetFull e dataset devono essere costruiti
-  // come copia di "dataset" della pagina di partenza. Per ora ho implementato solo la parte senza zoom.
 
   var file = selectedMonth + ".xlsx";
   fetch(`/getXlsx/${file}`)
@@ -67,7 +68,10 @@ function saveLocalStorageStart() {
       console.error('Errore durante la richiesta:', error.message);
     });
 }
-
+function saveLocalStorageZoom() {
+  const jsonData=JSON.parse(localStorage.getItem("dataset"))
+  localStorage.setItem("datasetFull", JSON.stringify(jsonData));
+}
 function renderHistoAndFilters() {
   //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
   let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
@@ -162,7 +166,10 @@ function confirmFilters() {
 
   removeSVGElements();
   renderHisto();
-  //TODO: re-render scatter
+  temp=true
+  //TODO: create temp.xlsx da dataset localstorage
+  getDataAndRenderGraph()
+  
 }
 
 //From the dataset get back the frequency-something for the histogram
@@ -274,6 +281,16 @@ function renderFilters(categories, container) {
 reset_button.addEventListener("click", function () {
   location.reload();
 })
+zoom_button.addEventListener("click", function () {
+  removeSVGElements();
+  showLoadingMessage();
+  saveLocalStorageZoom();
+  disableRadioButtons();
+  setTimeout(() => {
+    renderHistoAndFilters();
+    getDataAndRenderGraph();
+  }, 200);
+})
 confirm_button.addEventListener("click", function () {
   confirmFilters();
 })
@@ -289,12 +306,21 @@ function removeSVGElements() {
 
 
 function getDataAndRenderGraph() {
-  const requestOptions = {
+  if(temp==false){
+    const requestOptions = {
     method: "GET",
     headers: {
       month: selectedMonth,
     },
   };
+} else {
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      month: "temp",
+    },
+  };
+}
 
   fetch("http://127.0.0.1:5000/data", requestOptions)
     .then((response) => response.json())
