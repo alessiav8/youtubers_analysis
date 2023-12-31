@@ -52,7 +52,7 @@ fetch(`/getData/${username}`)
     //Setting the title of the page
     const youtuber_name=youtuberData[0]["youtuber name"];
     const youtuber_name_field=document.getElementById('youtuber_name_field');
-    youtuber_name_field.innerHTML=youtuber_name;
+    youtuber_name_field.innerHTML="Youtuber: " + youtuber_name;
     //
 
     console.log(youtuberData)
