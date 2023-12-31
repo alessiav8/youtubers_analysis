@@ -96,6 +96,7 @@ function formatData(data, type) {
 class Histogram {
   constructor(data, id, container, label) {
     this.data = formatData(data, label);
+    this.originalDB=data;
     this.id = id;
     this.container = container;
     this.margin = { top: 20, right: 40, bottom: 50, left: 40 };
@@ -118,7 +119,31 @@ class Histogram {
     this.xAxisIsto = d3.axisBottom(this.xScaleIsto).tickValues([]).tickSize(0);
     this.yAxisIsto = d3.axisLeft(this.yScaleIsto);
     this.label = label;
+    this.originalIntervals = this.data.map((d) => ({ ...d }));
   }
+
+  getSubsetByYoutuberNames = (youtuberNamesSubset) => {
+    // Get data from localStorage
+    let originalDatasetString = localStorage.getItem('datasetFull');
+  
+    // Parse the string into an object or array
+    let originalDataset;
+    try {
+      originalDataset = JSON.parse(originalDatasetString);
+    } catch (error) {
+      console.error('Error parsing data from localStorage:', error);
+      return [];
+    }
+  
+    // Check if the parsed data is an array
+    if (Array.isArray(originalDataset)) {
+      return originalDataset.filter((data) => youtuberNamesSubset.includes(data["youtuber name"]));
+    } else {
+      console.error('Invalid data format in localStorage. Please provide an array.');
+      return [];
+    }
+  };
+  
 
   brushedend_insto_likes = () => {
     if (d3.event.selection) {
@@ -126,15 +151,157 @@ class Histogram {
       const startIndex = Math.floor(this.xScaleIsto.invert(x0));
       const endIndex = Math.ceil(this.xScaleIsto.invert(x1));
       const selectedData = this.data.slice(startIndex, endIndex);
-      this.colorIsto(d3.select("#" + this.id), selectedData);      
-      this.getYoutubersInInterval(selectedData)
+
+      //this will trigger the color of the scatterplot
+      let YTinterval=this.getYoutubersInInterval(selectedData)
+
+      //compute the subset
+      let sub=this.getSubsetByYoutuberNames(YTinterval);
+
+      const histograms=["isto_like","isto_view","isto_comment","isto_follower"];
+
+      for (let i in histograms) {
+        if(histograms[i]!=this.id){
+          if(histograms[i]=="isto_view"){
+            const histogramViews = new Histogram(this.originalDB, 'isto_view', '#IstoViews', 'Views');
+            const selectedViews= this.findIntervalsForCategory(sub, histogramViews.data, "Views");
+            histogramViews.colorIsto(d3.select("#isto_view"), selectedViews);
+          }
+          else if(histograms[i]=="isto_comment"){
+
+            const histogramComments = new Histogram(this.originalDB, 'isto_comment', '#IstoComments', 'Comments');
+            const selectedComments= this.findIntervalsForCategory(sub, histogramComments.data, "Comments");
+            histogramComments.colorIsto(d3.select("#isto_comment"), selectedComments)
+          }
+          else if(histograms[i]=="isto_like"){
+
+            const histogramLikes = new Histogram(this.originalDB, 'isto_like', '#IstoLikes', 'Likes');
+            const selectedLikes= this.findIntervalsForCategory(sub, histogramLikes.data, "Likes");
+            histogramLikes.colorIsto(d3.select("#isto_like"), selectedLikes)
+          }
+          else if(histograms[i]=="isto_follower"){
+            const histogramFollowers = new Histogram(this.originalDB, 'isto_follower', '#IstoFollowers', 'Followers');
+            const selectedFollowers= this.findIntervalsForCategory(sub, histogramFollowers.data, "Followers");
+            histogramFollowers.colorIsto(d3.select("#isto_follower"), selectedFollowers)
+          }
+        }
+        else{
+
+          this.colorIsto(d3.select("#" + this.id), selectedData);  
+        }
+      }
     }
   };
+
 
   brushed_insto_likes = () => {
   };
 
+  //this function takes a string of the tipe 137.K and converts it into a number
+  fromStringToNumber = (string) =>{
+    if (string != "N/A'" && string!= "N/A" && string!= null) {
+      for (let l in string){
+        if(string[l]=="K"){
+          const new_string= String(string).slice(0,-1);
+          return parseFloat(new_string)*1000;
+        }
+        else if(string[l]=="M"){
+          const new_string= String(string).slice(0,-1);
+          return parseFloat(new_string)*1000000;
+        }
+        else if(string[l]=="B"){
+          const new_string= String(string).slice(0,-1);
+          return parseFloat(new_string)*1000000000;
+        }
+      }
+    }
+    else {
+      return 0;
+    }
+}
+
+  //this function takes the object influencer and the type of the selected range 
+  //and returns the value of the category 
+  //ex. selected range is "Likes" the result will be the value contained in the column "Avg. likes" of the influencer
+  getCategoryValue = (influencer, type) => {
+    let valueString;
+    let result;
+    if (type === "Likes") {
+      valueString = influencer["Avg. likes"];
+      if (typeof(valueString)=="string") {
+        result=this.fromStringToNumber(valueString);
+      }
+      else{
+        result=valueString;
+      }      if (result==undefined) console.log("result: case likes ", result,valueString,influencer);
+    } else if (type === "Views") {
+      valueString = influencer["Avg. views"];
+      if (typeof(valueString)=="string") {
+        result=this.fromStringToNumber(valueString);
+      }
+      else{
+        result=valueString;
+      }
+      if(result==undefined) console.log("result: case views ", result,valueString,influencer);
+    } else if (type === "Comments") {
+      valueString = influencer["Avg. comments"];
+      if (typeof(valueString)=="string") {
+        result=this.fromStringToNumber(valueString);
+      }
+      else{
+        result=valueString;
+      }      if (result==undefined) {
+        console.log("result: case comments ", result,valueString,influencer);
+
+      }
+    } else if (type === "Followers") {
+      valueString = influencer["Followers"];
+      if (typeof(valueString)=="string") {
+        result=this.fromStringToNumber(valueString);
+      }
+      else{
+        result=valueString;
+      }      if (result==undefined) console.log("result: case follower ", result,valueString,influencer);
+    }
+    else {
+      result = 0;
+    }
+    return result;
+  };
+  
+
+  //to find the intervals for the other categories
+  findIntervalsForCategory=(subset, categoryData, type) =>{
+    const resultArray = [];
+    subset.forEach((influencer) => {
+      const categoryValue = this.getCategoryValue(influencer, type);
+
+      const matchedInterval = categoryData.find((interval) => {
+        const startValue = parseFloat(interval.start);
+        const endValue = parseFloat(interval.end);
+        return categoryValue >= startValue && categoryValue <= endValue;
+      });  
+
+      if (matchedInterval && !resultArray.some(item => item.intervallo === matchedInterval.intervallo)) {
+        resultArray.push({
+          intervallo: matchedInterval.intervallo,
+          frequenza: matchedInterval.frequenza,
+          start: matchedInterval.start,
+          end: matchedInterval.end,
+        });
+      }
+    });
+  
+    console.log("resultArray",resultArray,"type",type);
+    return resultArray;
+  }
+  
+  
+
   //this function handle the color of the selected parts of the histogram
+  //component is the isto component
+  //datas is the subset of data you want to color 
+  //data is the entire dataset
   colorIsto = (component, datas) => {
     component
       .selectAll("rect")
@@ -150,10 +317,17 @@ class Histogram {
       })
       .attr("x", (d, i) => this.xScaleIsto(i))
       .attr("width", this.width_isto / this.data.length - 1)
-      .attr("y", (d) => this.yScaleIsto(d.frequenza))
-      .attr("height", (d) => this.height_isto - this.yScaleIsto(d.frequenza));
-    
+      .attr("y", (d) => {
+        const y = Math.max(0, this.yScaleIsto(d.frequenza)); // Set a minimum value of 0
+        return isNaN(y) ? 0 : y;
+      })
+      
+      .attr("height", (d) => {
+        const y = this.yScaleIsto(d.frequenza);
+        return isNaN(y) ? 0 : this.height_isto - y;
+      });
   };
+  
 
   //get a set of intervals return the minimum start and the maximum end of the interval
   getMaxRange = (interval) => {
@@ -176,8 +350,7 @@ class Histogram {
   //and it produces the subset of the dataset containing the youtubers in that interval(O)
   getYoutubersInInterval = (interval) => {
 
-    const db = JSON.parse(localStorage.getItem("dataset"));
-    console.log("consideredDB", db);
+    const db = JSON.parse(localStorage.getItem("datasetFull"));
     let find;
     if (this.label == "Likes") {
       find = "Avg. likes";
@@ -202,13 +375,16 @@ class Histogram {
       const likes = parseKMBtoNumber(data["Avg. likes"]);
       return likes >= start && likes <= end;
     });
-
     localStorage.setItem("dataset", JSON.stringify(subsetData));
 
     this.colorScatterP(youtubersInInterval);
+  
+
 
     return youtubersInInterval;
   };
+
+ 
 
   updateTheDataset=(dataset)=>{
 
@@ -369,7 +545,6 @@ class Histogram {
 
       //this function handle the click on the histogram outside/inside.
       const container_isto = document.getElementById('Isto' + this.label);
-      console.log("container", "Isto" + this.label);
       
       container_isto.addEventListener('click', function(event) {
           const isClicInsideIstogramma = event.target.id === 'histo';
