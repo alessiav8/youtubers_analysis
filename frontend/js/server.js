@@ -3,12 +3,24 @@ const path = require('path');
 const fs = require('fs').promises;
 const XLSX = require('xlsx');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+
 
 
 const app = express();
 const port = 8080;
 
 app.use(cors());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+    limit: '35mb',
+    parameterLimit: 50000,
+  }),
+);
 
 //disable the cache 
 app.use((req, res, next) => {
@@ -78,7 +90,48 @@ app.get('/getXlsx/:filename', async (req, res) => {
   }
 });
 
+app.post('/generateExcel', async (req, res) => {
+  try {
+    const datasetString = req.body.dataset;
+    const dataset = JSON.parse(datasetString);
 
+    // Define the file path to save the Excel file
+    const filePath = path.join(__dirname, '../../datasets/temp.xlsx');
+
+    // Ensure the directory exists
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+
+    // Delete the existing file if it exists
+    try {
+      await fs.unlink(filePath);
+      console.log('Existing file deleted:', filePath);
+    } catch (unlinkError) {
+      // Ignore if the file doesn't exist
+      if (unlinkError.code !== 'ENOENT') {
+        throw unlinkError;
+      }
+    }
+
+    // Create a worksheet from the dataset
+    const ws = XLSX.utils.json_to_sheet(dataset);
+
+    // Create a workbook with the worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet 1');
+
+    // Convert the workbook to a binary string
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'binary' });
+
+    // Write the binary string to the file
+    await fs.writeFile(filePath, excelBuffer, 'binary');
+
+    console.log('File saved successfully:', filePath);
+    res.status(200).send('File saved successfully');
+  } catch (error) {
+    console.error('Error generating Excel file:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // Routing for the /getData/{username} path
 app.get('/getData/:username', async (req, res) => {

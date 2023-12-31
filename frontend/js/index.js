@@ -77,9 +77,9 @@ function renderHistoAndFilters() {
   let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
   dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
 
-  var categories = extractCategories(dataset_full);
+  var categories = extractCategories(dataset);
   renderFilters(categories, "scrollableCategory");
-  var countries = extractCountries(dataset_g);
+  var countries = extractCountries(dataset);
   renderFilters(countries, "scrollableCountry")
 
   const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
@@ -114,7 +114,7 @@ function renderHisto() {
 function confirmFilters() {
   //quando il pulsante confirm viene premuto, la variabile in localStorage dataset viene modificata in base ai filtri tolti o aggiunti e vengono ri-renderizzati istogrammi e scatter
   //in base a quanto contenuto nella variabile dataset.
-
+  disableRadioButtons();
   var checkboxesContainer = document.getElementById('scrollableCategory');
   var countryCheckboxesContainer = document.getElementById('scrollableCountry');
 
@@ -167,8 +167,33 @@ function confirmFilters() {
   removeSVGElements();
   renderHisto();
   temp=true
-  //TODO: create temp.xlsx da dataset localstorage
-  getDataAndRenderGraph()
+  
+  const serverEndpoint = '/generateExcel';
+  const datasetString = localStorage.getItem("dataset");
+
+  // Make a POST request to the server
+  fetch(serverEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ dataset: datasetString }),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      // If the response is 'OK', log a message or perform other actions
+      console.log('Server responded with OK');
+    })
+    .catch(error => {
+      console.error('Error during the request:', error);
+    });
+
+    setTimeout(() => {
+      showLoadingMessage();
+      getDataAndRenderGraph();
+    }, 200);
   
 }
 
@@ -306,15 +331,16 @@ function removeSVGElements() {
 
 
 function getDataAndRenderGraph() {
+  var requestOptions;
   if(temp==false){
-    const requestOptions = {
+    requestOptions = {
     method: "GET",
     headers: {
       month: selectedMonth,
     },
   };
 } else {
-  const requestOptions = {
+  requestOptions = {
     method: "GET",
     headers: {
       month: "temp",
