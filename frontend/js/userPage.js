@@ -1,5 +1,7 @@
 const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get('username');
+const username1 = window.location.pathname.split('/').pop();
+console.log(username1)
 
 
 //const username = window.location.pathname.split('/').pop();
@@ -43,7 +45,7 @@ function formatNumber(value) {
 }
 
 // Make an AJAX request to the server to get data
-fetch(`/getData/${username}`)
+fetch(`/getData/${username1}`)
   .then(response => response.json())
   .then(data => {
     // Process data and create D3 visualizations here
