@@ -191,7 +191,7 @@ class Histogram {
         const confirmation = window.confirm("One youtuber found. Move to see specific data?");
         if (confirmation){
           const username = intersection[0]["Youtube channel"];
-          window.location.href = `/userPage.html?username=${encodeURIComponent(username)}`;
+          window.location.href = `/${encodeURIComponent(username)}`;
         }
       }
 
