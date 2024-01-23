@@ -521,7 +521,6 @@ function renderScatterPlot(data) {
     if (event && event.selection) {
       const selection = event.selection;
       //qui vengono mappati i dati selezionati e ti restituisce l'array con
-      //qui vengono mappati i dati selezionati e ti restituisce l'array con
       //le label e la posizione dei punti selezionati
 
       const selectedData = data.filter(
