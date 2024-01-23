@@ -144,14 +144,45 @@ class Histogram {
     }
   };
 
+  //given two intervals check the intersection 
+  checkInterval=(interval1,interval2) => {  
+  }
+
+
   //this function compute the intersection of the selected database and 
   //the currently database stored in the localStorage
   intersectFunction = (db2) => {
-    const db1 = JSON.parse(localStorage.getItem('dataset'));
-    console.log("Primo dataset completo", db1, "\n\n", "Secondo dataset", db2);
-    const db2Map = new Map(db2.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));
-    const intersection = db1.filter(item => db2Map.has(`${item["Youtube channel"]} - ${item["youtuber name"]}`));
-    console.log("Intersezione", intersection);
+    //orginal database
+    const db = JSON.parse(localStorage.getItem('dataset'));
+
+    const histos=["Likes","Comments","Views","Followers"];
+    let n = [3, 4, 5];
+    const dynamicDatabases = {};
+
+    for (let i in histos) {
+      if (histos[i] !== this.label) {
+        let variable = n.pop();
+        const my_db = "db" + variable;
+        // Associo il valore della sessionStorage all'oggetto dynamicDatabases
+        dynamicDatabases[my_db] = JSON.parse(sessionStorage.getItem("dataset" + histos[i]));
+        console.log("dynamicDatabases di", my_db,"dati",dynamicDatabases[my_db]);
+      }
+    }
+
+    //compare the current selection with the original database
+    const db2Map = new Map(db2.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));    
+    const db3Map = new Map(dynamicDatabases.db3.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));
+    const db4Map = new Map(dynamicDatabases.db4.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));
+    const db5Map = new Map(dynamicDatabases.db5.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));
+
+    // Trovare l'intersezione tra tutti i dataset
+    const intersection = db.filter(item => {
+        const key = `${item["Youtube channel"]} - ${item["youtuber name"]}`;
+        return db2Map.has(key) && db3Map.has(key) && db4Map.has(key) && db5Map.has(key);
+    });
+
+    sessionStorage.setItem("dataset" + this.label, JSON.stringify(intersection));
+
     return intersection;
 }
 
@@ -177,8 +208,9 @@ class Histogram {
 
       //compute the subset
       let sub=this.getSubsetByYoutuberNames(YTinterval);
+      sessionStorage.setItem("dataset"+this.label, sub);
+
       const intersection = this.intersectFunction(sub);
-      localStorage.setItem('dataset', JSON.stringify(intersection));
       
       const set_names=this.names(intersection)
       console.log("Selected data", selectedData, "\n\n", "Int", intersection)

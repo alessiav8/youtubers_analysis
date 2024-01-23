@@ -77,6 +77,11 @@ function renderHistoAndFilters() {
   let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
   dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
 
+  sessionStorage.setItem("datasetLikes", JSON.stringify(dataset));
+  sessionStorage.setItem("datasetViews", JSON.stringify(dataset));
+  sessionStorage.setItem("datasetComments", JSON.stringify(dataset));
+  sessionStorage.setItem("datasetFollowers", JSON.stringify(dataset));
+
   var categories = extractCategories(dataset);
   renderFilters(categories, "scrollableCategory");
   var countries = extractCountries(dataset);
@@ -98,6 +103,12 @@ function renderHisto() {
   //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
   let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
   dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
+
+  sessionStorage.setItem("datasetLikes", dataset);
+  sessionStorage.setItem("datasetViews", dataset);
+  sessionStorage.setItem("datasetComments", dataset);
+  sessionStorage.setItem("datasetFollowers", dataset);
+
   const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
   h_likes.renderIsto()
 
