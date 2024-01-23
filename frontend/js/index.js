@@ -77,11 +77,6 @@ function renderFilters() {
   let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
   dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
 
-  sessionStorage.setItem("datasetLikes", JSON.stringify(dataset));
-  sessionStorage.setItem("datasetViews", JSON.stringify(dataset));
-  sessionStorage.setItem("datasetComments", JSON.stringify(dataset));
-  sessionStorage.setItem("datasetFollowers", JSON.stringify(dataset));
-
   var categories = extractCategories(dataset);
   renderFilter(categories, "scrollableCategory");
   var countries = extractCountries(dataset);
@@ -92,10 +87,10 @@ function renderHisto() {
   let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
   dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
 
-  sessionStorage.setItem("datasetLikes", dataset);
-  sessionStorage.setItem("datasetViews", dataset);
-  sessionStorage.setItem("datasetComments", dataset);
-  sessionStorage.setItem("datasetFollowers", dataset);
+  sessionStorage.setItem("datasetLikes", JSON.stringify(dataset));
+  sessionStorage.setItem("datasetViews", JSON.stringify(dataset));
+  sessionStorage.setItem("datasetComments", JSON.stringify(dataset));
+  sessionStorage.setItem("datasetFollowers", JSON.stringify(dataset));
 
   const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
   h_likes.renderIsto()
@@ -521,6 +516,13 @@ function renderScatterPlot(data) {
       console.log("Selected Data:", selectedData);
       colorScatterPlot(circles, selectedData, "black")
       colorScatterPlot(circles, selectedData, "black")
+      if (selectedData.length === 1) {
+        const confirmation = window.confirm("One youtuber found. Move to see specific data?");
+        if (confirmation){
+          const username = selectedData[0]["label"];
+          window.location.href = `/${encodeURIComponent(username)}`;
+        }
+      }
     }
   }
   scatter_plot.call(brush);
@@ -547,9 +549,9 @@ function colorScatterPlot(component, selectedData, color) {
 
     return selectedData.length > 0
       ? isPointInsideSelection(d, selectedData)
-        ? "green"
-        : "steelblue"
-      : "steelblue";
+        ? "steelblue"
+        : "gray"
+      : "gray";
   });
 
 }
