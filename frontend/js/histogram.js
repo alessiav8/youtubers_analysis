@@ -377,12 +377,12 @@ class Histogram {
       .data(this.data)
       .style("fill", (d) => {
         if (datas.length === 0) {
-          return "steelblue";
+          return "gray";
         }
         return datas.includes(d) ||
           datas.find((obj) => JSON.stringify(obj) === JSON.stringify(d))
-          ? "green"
-          : "steelblue";
+          ? "steelblue"
+          : "gray";
       })
       .attr("x", (d, i) => this.xScaleIsto(i))
       .attr("width", this.width_isto / this.data.length - 1)
@@ -468,18 +468,27 @@ class Histogram {
 
   //this function handle the color of the selected parts of the scatterplot
   colorScatterP = (youtubers) => {
-    // TODO: this must wait for the scatterplot to load
     const scatterplotContainer = d3.select(`#ScatterPlotContainer`);
     const scatterplot = scatterplotContainer.select("svg");
     const scatterplotGroup = scatterplot.select("g");
     const circles = scatterplotGroup.selectAll("circle");
 
+    circles.attr("opacity", (d) =>{
+        return youtubers.length > 0
+          ? this.isPointInsideSelection(d, youtubers)
+            ? 1
+            : 0.05
+          : 0.2;
+      });
+
+    circles.sort((a, b) => d3.descending(a.opacity, b.opacity));
+
     circles.attr("fill", (d) => {
       return youtubers.length > 0
         ? this.isPointInsideSelection(d, youtubers)
-          ? "green"
-          : "rgba(70, 130, 180, 0.1)"
-        : "steelblue";
+          ? "steelblue"
+          : "gray"
+        : "gray";
     });
   };
 
@@ -512,7 +521,7 @@ class Histogram {
       .data(this.data)
       .enter()
       .append("rect")
-      .style("fill", "steelblue")
+      .style("fill", "gray")
       .attr("x", (d, i) => this.xScaleIsto(i))
       .attr("width", this.width_isto / this.data.length - 1)
       .attr("y", (d) => {

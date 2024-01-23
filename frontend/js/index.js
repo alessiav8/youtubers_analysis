@@ -423,8 +423,8 @@ function renderScatterPlot(data) {
   const parentDivRect = parentDiv.getBoundingClientRect();
 
   const margin = { top: 20, right: 20, bottom: 30, left: 40 };
-  const width = parentDivRect.width - margin.left - margin.right;
-  const height = parentDivRect.height - margin.top - margin.bottom;
+  const width = (parentDivRect.width/12)*11 - margin.left - margin.right;
+  const height = (parentDivRect.height/15)*14 - margin.top - margin.bottom;
 
 
   const scatter_plot = d3
@@ -465,7 +465,7 @@ function renderScatterPlot(data) {
     .attr("cx", (d) => xScale(d.x))
     .attr("cy", (d) => yScale(d.y))
     .attr("r", 4)
-    .attr("fill", "steelblue");
+    .attr("fill", "gray");
 
 
   circles.on("mouseover", (event) => {
