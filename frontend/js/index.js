@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
   saveLocalStorageStart();
   disableRadioButtons();
   setTimeout(() => {
-    renderHistoAndFilters();
+    renderFilters();
     getDataAndRenderGraph();
   }, 200);
 });
@@ -33,7 +33,7 @@ function handleRadioButtonChange() {
   disableRadioButtons();
   removeSVGElements();
   setTimeout(() => {
-    renderHistoAndFilters();
+    renderFilters();
     getDataAndRenderGraph();
   }, 200);
 }
@@ -72,7 +72,7 @@ function saveLocalStorageZoom() {
   const jsonData=JSON.parse(localStorage.getItem("dataset"))
   localStorage.setItem("datasetFull", JSON.stringify(jsonData));
 }
-function renderHistoAndFilters() {
+function renderFilters() {
   //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
   let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
   dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
@@ -83,21 +83,9 @@ function renderHistoAndFilters() {
   sessionStorage.setItem("datasetFollowers", JSON.stringify(dataset));
 
   var categories = extractCategories(dataset);
-  renderFilters(categories, "scrollableCategory");
+  renderFilter(categories, "scrollableCategory");
   var countries = extractCountries(dataset);
-  renderFilters(countries, "scrollableCountry")
-
-  const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
-  h_likes.renderIsto()
-
-  const h_views = new Histogram(dataset, "isto_view", "#IstoViews", "Views");
-  h_views.renderIsto()
-
-  const h_comments = new Histogram(dataset, "isto_comment", "#IstoComments", "Comments");
-  h_comments.renderIsto()
-
-  const h_followers = new Histogram(dataset, "isto_follower", "#IstoFollowers", "Followers");
-  h_followers.renderIsto()
+  renderFilter(countries, "scrollableCountry")
 }
 function renderHisto() {
   //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
@@ -176,7 +164,6 @@ function confirmFilters() {
   console.log('Filtered datasetUNO:', filteredDataset);
 
   removeSVGElements();
-  renderHisto();
   temp=true
   
   const serverEndpoint = '/generateExcel';
@@ -244,7 +231,7 @@ function extractCountries(data) {
 
   return uniqueCountries;
 }
-function renderFilters(categories, container) {
+function renderFilter(categories, container) {
   const checkboxesContainer = document.getElementById(container);
 
   // Clear existing checkboxes
@@ -323,7 +310,7 @@ zoom_button.addEventListener("click", function () {
   saveLocalStorageZoom();
   disableRadioButtons();
   setTimeout(() => {
-    renderHistoAndFilters();
+    renderFilters();
     getDataAndRenderGraph();
   }, 200);
 })
@@ -366,6 +353,7 @@ function getDataAndRenderGraph() {
       hideLoadingMessage();
       renderScatterPlot(data);
       enableRadioButtons();
+      renderHisto();
 
     })
     .catch((error) => {
