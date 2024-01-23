@@ -450,7 +450,7 @@ function renderScatterPlot(data) {
     .attr("r", 4)
     .attr("fill", "gray");
 
-
+  //questa parte di codice attualmente non funziona per l'hover
   circles.on("mouseover", (event) => {
     const xPosition = xScale(event.x) + 5 + 7 * margin.left;
     const yPosition = yScale(event.y) - 10 + 7 * margin.top;
@@ -467,7 +467,8 @@ function renderScatterPlot(data) {
   circles.on("mouseout", () => {
     tooltip.transition().duration(500).style("opacity", 0);
   });
-
+  //fino a qui
+  
   const xAxis = d3.axisBottom(xScale);
   const yAxis = d3.axisLeft(yScale);
 
