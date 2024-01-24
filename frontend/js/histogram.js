@@ -154,6 +154,7 @@ class Histogram {
   intersectFunction = (db2) => {
     //orginal database
     const db = JSON.parse(localStorage.getItem('dataset'));
+    console.log('dbHisto',db);
 
     const histos=["Likes","Comments","Views","Followers"];
     let n = [3, 4, 5];
@@ -165,15 +166,21 @@ class Histogram {
         const my_db = "db" + variable;
         // Associo il valore della sessionStorage all'oggetto dynamicDatabases
         dynamicDatabases[my_db] = JSON.parse(sessionStorage.getItem("dataset" + histos[i]));
-        console.log("dynamicDatabases di", my_db,"dati",dynamicDatabases[my_db]);
+        console.log("dynamicDatabases di ",histos[i], my_db,"dati",dynamicDatabases[my_db]);
       }
     }
 
+
     //compare the current selection with the original database
-    const db2Map = new Map(db2.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));    
+    const db2Map = new Map(db2.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));   
+    console.log("db2Map", db2Map);
     const db3Map = new Map(dynamicDatabases.db3.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));
+    console.log("db3Map",db3Map);
     const db4Map = new Map(dynamicDatabases.db4.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));
+    console.log("db4Map",db4Map);
+
     const db5Map = new Map(dynamicDatabases.db5.map(item => [`${item["Youtube channel"]} - ${item["youtuber name"]}`, item]));
+    console.log("db5Map",db5Map);
 
     // Trovare l'intersezione tra tutti i dataset
     const intersection = db.filter(item => {
@@ -181,7 +188,7 @@ class Histogram {
         return db2Map.has(key) && db3Map.has(key) && db4Map.has(key) && db5Map.has(key);
     });
 
-    sessionStorage.setItem("dataset" + this.label, JSON.stringify(intersection));
+    //sessionStorage.setItem("dataset" + this.label, JSON.stringify(intersection));
 
     return intersection;
 }
@@ -189,11 +196,10 @@ class Histogram {
   names=(data)=>{
     const uniqueYoutuberNames = new Set();
     data.forEach(entry => {
-      uniqueYoutuberNames.add(entry["youtuber name"]);
+      uniqueYoutuberNames.add(entry["Youtube channel"]);
     });
     const resultArray = Array.from(uniqueYoutuberNames);
     return resultArray;
-    console.log("Unique Youtuber Names:", resultArray);
   }
 
   brushedend_insto_likes = () => {
@@ -202,19 +208,15 @@ class Histogram {
       const startIndex = Math.floor(this.xScaleIsto.invert(x0));
       const endIndex = Math.ceil(this.xScaleIsto.invert(x1));
       const selectedData = this.data.slice(startIndex, endIndex);
-
       //this will trigger the color of the scatterplot
       let YTinterval=this.getYoutubersInInterval(selectedData)
 
       //compute the subset
       let sub=this.getSubsetByYoutuberNames(YTinterval);
-      sessionStorage.setItem("dataset"+this.label, sub);
+
+      sessionStorage.setItem("dataset"+this.label, JSON.stringify(sub));
 
       const intersection = this.intersectFunction(sub);
-      
-      const set_names=this.names(intersection)
-      console.log("Selected data", selectedData, "\n\n", "Int", intersection)
-
       
       if (intersection.length==0){
         window.alert("No intersections found,Reload");
@@ -227,6 +229,8 @@ class Histogram {
         }
       }
 
+      //to color the scatterplot i pass the array of youtube channels
+      const set_names=this.names(intersection)
       this.colorScatterP(set_names);
 
       const histograms=["isto_like","isto_view","isto_comment","isto_follower"];
@@ -456,9 +460,9 @@ class Histogram {
 
   //auxiliary function to check if a point is inside a set of youtubers
   isPointInsideSelection = (d, youtubers) => {
-    const targetYoutuber = String(d.label).toLowerCase();
+    const targetYoutuber = String(d.label)
     for (const i in youtubers) {
-      const comparisonName = String(youtubers[i]).toLowerCase();
+      const comparisonName = youtubers[i]
       if (targetYoutuber === comparisonName) {
         return true;
       }
@@ -490,6 +494,8 @@ class Histogram {
           : "gray"
         : "gray";
     });
+
+    
   };
 
 
