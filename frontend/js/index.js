@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
   saveLocalStorageStart();
   disableRadioButtons();
   setTimeout(() => {
-    renderHistoAndFilters();
+    renderFilters();
     getDataAndRenderGraph();
   }, 200);
 });
@@ -33,7 +33,7 @@ function handleRadioButtonChange() {
   disableRadioButtons();
   removeSVGElements();
   setTimeout(() => {
-    renderHistoAndFilters();
+    renderFilters();
     getDataAndRenderGraph();
   }, 200);
 }
@@ -72,7 +72,17 @@ function saveLocalStorageZoom() {
   const jsonData=JSON.parse(localStorage.getItem("dataset"))
   localStorage.setItem("datasetFull", JSON.stringify(jsonData));
 }
-function renderHistoAndFilters() {
+function renderFilters() {
+  //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
+  let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
+  dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
+
+  var categories = extractCategories(dataset);
+  renderFilter(categories, "scrollableCategory");
+  var countries = extractCountries(dataset);
+  renderFilter(countries, "scrollableCountry")
+}
+function renderHisto() {
   //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
   let dataset = JSON.parse(localStorage.getItem("dataset")) === null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
   dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
@@ -81,33 +91,6 @@ function renderHistoAndFilters() {
   sessionStorage.setItem("datasetViews", JSON.stringify(dataset));
   sessionStorage.setItem("datasetComments", JSON.stringify(dataset));
   sessionStorage.setItem("datasetFollowers", JSON.stringify(dataset));
-
-  var categories = extractCategories(dataset);
-  renderFilters(categories, "scrollableCategory");
-  var countries = extractCountries(dataset);
-  renderFilters(countries, "scrollableCountry")
-
-  const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
-  h_likes.renderIsto()
-
-  const h_views = new Histogram(dataset, "isto_view", "#IstoViews", "Views");
-  h_views.renderIsto()
-
-  const h_comments = new Histogram(dataset, "isto_comment", "#IstoComments", "Comments");
-  h_comments.renderIsto()
-
-  const h_followers = new Histogram(dataset, "isto_follower", "#IstoFollowers", "Followers");
-  h_followers.renderIsto()
-}
-function renderHisto() {
-  //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
-  let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
-  dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
-
-  sessionStorage.setItem("datasetLikes", dataset);
-  sessionStorage.setItem("datasetViews", dataset);
-  sessionStorage.setItem("datasetComments", dataset);
-  sessionStorage.setItem("datasetFollowers", dataset);
 
   const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
   h_likes.renderIsto()
@@ -176,7 +159,6 @@ function confirmFilters() {
   console.log('Filtered datasetUNO:', filteredDataset);
 
   removeSVGElements();
-  renderHisto();
   temp=true
   
   const serverEndpoint = '/generateExcel';
@@ -244,7 +226,7 @@ function extractCountries(data) {
 
   return uniqueCountries;
 }
-function renderFilters(categories, container) {
+function renderFilter(categories, container) {
   const checkboxesContainer = document.getElementById(container);
 
   // Clear existing checkboxes
@@ -323,7 +305,7 @@ zoom_button.addEventListener("click", function () {
   saveLocalStorageZoom();
   disableRadioButtons();
   setTimeout(() => {
-    renderHistoAndFilters();
+    renderFilters();
     getDataAndRenderGraph();
   }, 200);
 })
@@ -366,6 +348,8 @@ function getDataAndRenderGraph() {
       const Data=intersectCleanedDataScatteData(data); 
       renderScatterPlot(Data);
       enableRadioButtons();
+      renderHisto();
+
     })
     .catch((error) => {
       hideLoadingMessage();
@@ -513,7 +497,7 @@ function renderScatterPlot(data) {
     .attr("r", 4)
     .attr("fill", "gray");
 
-
+  //questa parte di codice attualmente non funziona per l'hover
   circles.on("mouseover", (event) => {
     const xPosition = xScale(event.x) + 5 + 7 * margin.left;
     const yPosition = yScale(event.y) - 10 + 7 * margin.top;
@@ -530,7 +514,8 @@ function renderScatterPlot(data) {
   circles.on("mouseout", () => {
     tooltip.transition().duration(500).style("opacity", 0);
   });
-
+  //fino a qui
+  
   const xAxis = d3.axisBottom(xScale);
   const yAxis = d3.axisLeft(yScale);
 
@@ -579,6 +564,13 @@ function renderScatterPlot(data) {
       console.log("Selected Data:", selectedData);
       colorScatterPlot(circles, selectedData, "black")
       colorScatterPlot(circles, selectedData, "black")
+      if (selectedData.length === 1) {
+        const confirmation = window.confirm("One youtuber found. Move to see specific data?");
+        if (confirmation){
+          const username = selectedData[0]["label"];
+          window.location.href = `/${encodeURIComponent(username)}`;
+        }
+      }
     }
   }
   scatter_plot.call(brush);
@@ -605,9 +597,9 @@ function colorScatterPlot(component, selectedData, color) {
 
     return selectedData.length > 0
       ? isPointInsideSelection(d, selectedData)
-        ? "green"
-        : "steelblue"
-      : "steelblue";
+        ? "steelblue"
+        : "gray"
+      : "gray";
   });
 
 }
