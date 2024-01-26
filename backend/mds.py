@@ -4,7 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from joblib import Parallel, delayed
+# Abbiamo usato mds con dissimilarity matrix calcolata su euclidian distance perchè:
+# MDS directly works with a dissimilarity matrix and attempts to preserve those dissimilarities in the lower-dimensional space.
+# Quindi a noi interessava che youtuber simili fossero vicini, visto che gli youtuber si trovano in genere in "fasce" di popolarità ben distinte sui numeri
 
+# Per prima cosa si portano tutti i valori da stringhe a interi, dopo ci sarà normalizzazione
 def convert_to_int(value):
     if isinstance(value, str):  
         if 'M' in value:
@@ -16,6 +20,9 @@ def convert_to_int(value):
     else:
         return value  
 
+# questa funzione prende in input le features e crea un array diff_matrix 3d i,j,k che rappresenta la differenza dell'elemento i e j sulla feature k
+# poi fa quadrato e somma lungo l'asse delle features (dando fuori sum_squared_diff che è array 2d che indica valore per ogni coppia di valori) ed infine radice.
+# è quindi solo una fancy way di fare euclidian, fancy perchè così si può fare faster calculations con numpy arrays
 def calculate_dissimilarity_matrix(features_scaled):
     diff_matrix = features_scaled[:, np.newaxis, :] - features_scaled
     squared_diff = diff_matrix ** 2
@@ -30,6 +37,8 @@ def create_scatter_plot(csv_path):
 
     y_channel = df['Youtube channel'].values
     features = df[['Followers', 'Avg. views', 'Avg. likes', 'Avg. comments']].applymap(convert_to_int).values
+
+    # NORMALIZATION: This ensures that each feature has zero mean and unit variance, making them comparable and preventing features with larger scales from dominating the analysis.
     features_scaled = StandardScaler().fit_transform(features)
 
     # Calculate dissimilarity matrix in parallel
