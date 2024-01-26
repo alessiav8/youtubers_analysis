@@ -61,8 +61,8 @@ function saveLocalStorageStart() {
         }
       });
       dataset_g = jsonData;
-      localStorage.setItem("dataset", JSON.stringify(jsonData));
-      localStorage.setItem("datasetFull", JSON.stringify(jsonData));
+      localStorage.setItem("dataset", JSON.stringify(cleanData(JSON.stringify(jsonData))));
+      localStorage.setItem("datasetFull", JSON.stringify(cleanData(JSON.stringify(jsonData))));
     })
     .catch(error => {
       console.error('Errore durante la richiesta:', error.message);
@@ -84,7 +84,7 @@ function renderFilters() {
 }
 function renderHisto() {
   //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
-  let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
+  let dataset = JSON.parse(localStorage.getItem("dataset")) === null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
   dataset_full = JSON.parse(localStorage.getItem("datasetFull"));
 
   sessionStorage.setItem("datasetLikes", JSON.stringify(dataset));
@@ -344,9 +344,9 @@ function getDataAndRenderGraph() {
   fetch("http://127.0.0.1:5000/data", requestOptions)
     .then((response) => response.json())
     .then((data) => {
-      //console.log(data);
       hideLoadingMessage();
-      renderScatterPlot(data);
+      const Data=intersectCleanedDataScatteData(data); 
+      renderScatterPlot(Data);
       enableRadioButtons();
       renderHisto();
 
@@ -354,9 +354,56 @@ function getDataAndRenderGraph() {
     .catch((error) => {
       hideLoadingMessage();
       enableRadioButtons();
-      //console.error("Error:", error);
     });
 }
+
+//remove all N/A and all duplicates elements
+function cleanData(dataset) {
+  dataset=JSON.parse(dataset);
+  const uniqueChannels = {};
+  const cleanedData = dataset.filter(item => {
+    const channelName = item["Youtube channel"];
+    const youtuberName = item["youtuber name"];
+    const Comments = item["Avg. comments"];
+    const Likes= item["Avg. likes"];
+    const Views= item["Avg. views"]
+    const Followers= item["Followers"]
+    if ( channelName !== "N/A" && channelName !== ("N/A'") &&
+   youtuberName !== "N/A" && youtuberName !== ("N/A'") &&
+    Comments !== "N/A" && Comments !== ("N/A'") &&
+     Likes !== "N/A" && Likes !== ("N/A'") &&
+    Views !== "N/A" && Views !== ("N/A'") &&
+   Followers !== "N/A" && Followers !== ("N/A'")) {
+      // Se il canale non è già stato registrato, mantenerlo e registrarlo
+      if (!uniqueChannels[channelName]) {
+        uniqueChannels[channelName] = true;
+        return true;
+      }
+     
+    }
+
+    return false;
+  });
+
+  return cleanedData;
+}
+
+//clean the data for the scatterplot
+function intersectCleanedDataScatteData(data){
+  const dataset=JSON.parse(localStorage.getItem("dataset"));
+  const uniqueChannels = new Set();
+  const filteredData = data.filter(item => {
+    if (!uniqueChannels.has(item["label"])) {
+      uniqueChannels.add(item["label"]);
+      return true;
+    }
+    return false;
+  });
+  return filteredData;
+
+}
+
+
 
 
 function showLoadingMessage() {
