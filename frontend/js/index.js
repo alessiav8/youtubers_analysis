@@ -486,35 +486,7 @@ function renderScatterPlot(data) {
     .style("opacity", 0)
     .style("position", "absolute");
 
-  const circles = scatter_plot
-    .append("g")
-    .selectAll("circle")
-    .data(data)
-    .enter()
-    .append("circle")
-    .attr("cx", (d) => xScale(d.x))
-    .attr("cy", (d) => yScale(d.y))
-    .attr("r", 4)
-    .attr("fill", "gray");
 
-  //questa parte di codice attualmente non funziona per l'hover
-  circles.on("mouseover", (event) => {
-    const xPosition = xScale(event.x) + 5 + 7 * margin.left;
-    const yPosition = yScale(event.y) - 10 + 7 * margin.top;
-    tooltip
-      .transition()
-      .duration(200)
-      .style("opacity", 0.9)
-      .style("left", xPosition + "px")
-      .style("top", yPosition + "px");
-
-    tooltip.html(`<strong>${event.label}</strong>`);
-  });
-
-  circles.on("mouseout", () => {
-    tooltip.transition().duration(500).style("opacity", 0);
-  });
-  //fino a qui
   
   const xAxis = d3.axisBottom(xScale);
   const yAxis = d3.axisLeft(yScale);
@@ -574,6 +546,41 @@ function renderScatterPlot(data) {
     }
   }
   scatter_plot.call(brush);
+
+
+  const circles = scatter_plot
+  .append("g")
+  .selectAll("circle")
+  .data(data)
+  .enter()
+  .append("circle")
+  .attr("cx", (d) => xScale(d.x))
+  .attr("cy", (d) => yScale(d.y))
+  .attr("r", 4)
+  .attr("fill", "gray")
+  .attr("pointer-events", "all")
+  .on("mouseover", mouseover);
+
+ //mouseover function
+ function mouseover(event) {
+  const xPosition = xScale(event.x) + 5 + 7 * margin.left;
+  const yPosition = yScale(event.y) - 10 + 7 * margin.top;
+  console.log("I saw  mouse!")
+  tooltip
+    .transition()
+    .duration(200)
+    .style("opacity", 0.9)
+    .style("left", xPosition + "px")
+    .style("top", yPosition + "px");
+
+  tooltip.html(`<strong>${event.label}</strong>`);
+}
+
+
+circles.on("mouseout", () => {
+  tooltip.transition().duration(500).style("opacity", 0);
+});
+//fino a qui
 }
 
 
