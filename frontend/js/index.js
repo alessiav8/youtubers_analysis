@@ -605,7 +605,7 @@ function renderScatterPlot(data) {
   .attr("r", 4)
   .attr("fill", "gray")
   .attr("pointer-events", "all")
-  .on("mouseover", mouseover);
+  .on("mouseover", mouseover)
 
  //mouseover function
  function mouseover(event) {
@@ -625,7 +625,16 @@ function renderScatterPlot(data) {
 circles.on("mouseout", () => {
   tooltip.transition().duration(500).style("opacity", 0);
 });
-//fino a qui
+
+circles.on("click", (d) => {
+  const confirmation = window.confirm("One youtuber found. Move to see specific data?");
+  if (confirmation) {
+    const username = d.label;
+    window.location.href = `/${encodeURIComponent(username)}`;
+  }
+});
+
+
 }
 
 
