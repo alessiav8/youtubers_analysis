@@ -62,6 +62,8 @@ function saveLocalStorageStart() {
       });
       dataset_g = jsonData;
       localStorage.setItem("dataset", JSON.stringify(cleanData(JSON.stringify(jsonData))));
+      localStorage.setItem("datasetAfterHisto", JSON.stringify(cleanData(JSON.stringify(jsonData))));
+      localStorage.setItem("datasetAfterScatter", JSON.stringify(cleanData(JSON.stringify(jsonData))));
       localStorage.setItem("datasetFull", JSON.stringify(cleanData(JSON.stringify(jsonData))));
     })
     .catch(error => {
@@ -69,8 +71,10 @@ function saveLocalStorageStart() {
     });
 }
 function saveLocalStorageZoom() {
-  const jsonData=JSON.parse(localStorage.getItem("dataset"))
+  const jsonData=JSON.parse(localStorage.getItem("datasetAfterScatter"))
   localStorage.setItem("datasetFull", JSON.stringify(jsonData));
+  localStorage.setItem("dataset", JSON.stringify(jsonData));
+  localStorage.setItem("datasetAfterHisto", JSON.stringify(jsonData));
 }
 function renderFilters() {
   //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
@@ -144,6 +148,9 @@ function confirmFilters() {
 
       // Update "dataset" in storage with the filtered dataset
       localStorage.setItem("dataset", JSON.stringify(filteredDataset));
+      localStorage.setItem("datasetAfterHisto", JSON.stringify(filteredDataset));
+      localStorage.setItem("datasetAfterScatter", JSON.stringify(filteredDataset));
+
 
       console.log('Selected cat:', selectedCategories);
       console.log('Selected country:', selectedCountries);
@@ -304,10 +311,36 @@ zoom_button.addEventListener("click", function () {
   showLoadingMessage();
   saveLocalStorageZoom();
   disableRadioButtons();
-  setTimeout(() => {
-    renderFilters();
-    getDataAndRenderGraph();
-  }, 200);
+  temp=true
+  
+  const serverEndpoint = '/generateExcel';
+  const datasetString = localStorage.getItem("dataset");
+
+  // Make a POST request to the server
+  fetch(serverEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ dataset: datasetString }),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      // If the response is 'OK', log a message or perform other actions
+      console.log('Server responded with OK');
+    })
+    .catch(error => {
+      console.error('Error during the request:', error);
+    });
+
+    setTimeout(() => {
+      renderFilters();
+      showLoadingMessage();
+      getDataAndRenderGraph();
+    }, 500);
+  
 })
 confirm_button.addEventListener("click", function () {
   confirmFilters();
@@ -347,6 +380,7 @@ function getDataAndRenderGraph() {
       hideLoadingMessage();
       const Data=intersectCleanedDataScatteData(data); 
       renderScatterPlot(Data);
+      console.log("logg", data.length);  // Check the length
       enableRadioButtons();
       renderHisto();
 
@@ -523,6 +557,7 @@ function renderScatterPlot(data) {
     const event = d3.event;
     if (event && event.selection) {
       const selection = event.selection;
+      const jsonData=JSON.parse(localStorage.getItem("datasetAfterHisto"))
       //qui vengono mappati i dati selezionati e ti restituisce l'array con
       //le label e la posizione dei punti selezionati
 
@@ -531,9 +566,20 @@ function renderScatterPlot(data) {
           xScale(d.x) >= selection[0][0] &&
           xScale(d.x) <= selection[1][0] &&
           yScale(d.y) >= selection[0][1] &&
-          yScale(d.y) <= selection[1][1]
+          yScale(d.y) <= selection[1][1]  &&
+          jsonData.some(item => item["Youtube channel"] === d.label)
       );
       console.log("Selected Data:", selectedData);
+      const datasetAfterScatter = JSON.parse(localStorage.getItem("datasetAfterScatter"));
+
+      // Filter items from "datasetAfterScatter" based on the YouTube channel in selectedData
+      const filteredDataset = datasetAfterScatter.filter(item =>
+        selectedData.some(selectedItem => selectedItem.label === item["Youtube channel"])
+      );
+
+      // Save the filtered dataset in localStorage
+      localStorage.setItem("datasetAfterScatter", JSON.stringify(filteredDataset));
+
       colorScatterPlot(circles, selectedData, "black")
       colorScatterPlot(circles, selectedData, "black")
       if (selectedData.length === 1) {
@@ -565,7 +611,6 @@ function renderScatterPlot(data) {
  function mouseover(event) {
   const xPosition = xScale(event.x) + 5 + 7 * margin.left;
   const yPosition = yScale(event.y) - 10 + 7 * margin.top;
-  console.log("I saw  mouse!")
   tooltip
     .transition()
     .duration(200)

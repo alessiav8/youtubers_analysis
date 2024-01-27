@@ -216,7 +216,8 @@ class Histogram {
       );
     });
 
-    //sessionStorage.setItem("dataset" + this.label, JSON.stringify(intersection));
+    localStorage.setItem("datasetAfterHisto", JSON.stringify(intersection));
+    localStorage.setItem("datasetAfterScatter", JSON.stringify(intersection));
 
     return intersection;
   };
