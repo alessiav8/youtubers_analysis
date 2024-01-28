@@ -1,5 +1,6 @@
 import Histogram from "./histogram.js"
 
+
 const reset_button = document.getElementById("reset_button");
 const zoom_button = document.getElementById("zoom_button");
 const confirm_button = document.getElementById("confirmButton");
@@ -10,6 +11,7 @@ let dataset_full;
 var selectedMonth = "june"
 var temp=false
 var radioButtons = document.querySelectorAll('input[name="monthOption"]');
+var Data
 
 document.addEventListener("DOMContentLoaded", function () {
   showLoadingMessage();
@@ -44,6 +46,13 @@ radioButtons.forEach((radio) => {
 
 function saveLocalStorageStart() {
 
+  const parentDiv = document.getElementById("ScatterPlotContainer");
+  const parentDivRect = parentDiv.getBoundingClientRect();
+
+  const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+  const width = (parentDivRect.width/12)*11 - margin.left - margin.right;
+  const height = (parentDivRect.height/15)*14 - margin.top - margin.bottom;
+
   var file = selectedMonth + ".xlsx";
   fetch(`/getXlsx/${file}`)
     .then(response => {
@@ -65,6 +74,10 @@ function saveLocalStorageStart() {
       localStorage.setItem("datasetAfterHisto", JSON.stringify(cleanData(JSON.stringify(jsonData))));
       localStorage.setItem("datasetAfterScatter", JSON.stringify(cleanData(JSON.stringify(jsonData))));
       localStorage.setItem("datasetFull", JSON.stringify(cleanData(JSON.stringify(jsonData))));
+      localStorage.setItem("pt1x", 0);
+      localStorage.setItem("pt2x", width);
+      localStorage.setItem("pt2y", height);
+      localStorage.setItem("pt1y", 0);
     })
     .catch(error => {
       console.error('Errore durante la richiesta:', error.message);
@@ -378,7 +391,7 @@ function getDataAndRenderGraph() {
     .then((response) => response.json())
     .then((data) => {
       hideLoadingMessage();
-      const Data=intersectCleanedDataScatteData(data); 
+      Data=intersectCleanedDataScatteData(data); 
       renderScatterPlot(Data);
       console.log("logg", data.length);  // Check the length
       enableRadioButtons();
@@ -579,9 +592,12 @@ function renderScatterPlot(data) {
 
       // Save the filtered dataset in localStorage
       localStorage.setItem("datasetAfterScatter", JSON.stringify(filteredDataset));
+      localStorage.setItem("pt1x", selection[0][0]);
+      localStorage.setItem("pt2x", selection[1][0]);
+      localStorage.setItem("pt2y", selection[1][1]);
+      localStorage.setItem("pt1y", selection[0][1]);
 
-      colorScatterPlot(circles, selectedData, "black")
-      colorScatterPlot(circles, selectedData, "black")
+      colorScatterPlot(circles, selectedData)
       if (selectedData.length === 1) {
         const confirmation = window.confirm("One youtuber found. Move to see specific data?");
         if (confirmation){
@@ -648,10 +664,8 @@ function isPointInsideSelection(point, selection) {
   return false;
 }
 
-function colorScatterPlot(component, selectedData, color) {
+function colorScatterPlot(component, selectedData) {
   component.attr("fill", function (d) {
-    const circle = d3.select(this);
-
     //TODO: modifica
     //colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
     //h.colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
@@ -662,7 +676,19 @@ function colorScatterPlot(component, selectedData, color) {
         : "gray"
       : "gray";
   });
+  component.attr("opacity", function (d) {
+    //TODO: modifica
+    //colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
+    //h.colorIsto(d3.select("#instolikes"),[{ intervallo: "0-10", frequenza: 5 }])
 
+    return selectedData.length > 0
+      ? isPointInsideSelection(d, selectedData)
+        ? 1
+        : 0.05
+      : 0.05;
+  });
 }
 
 export { colorScatterPlot, parseKMBtoNumber }
+export { Data };
+

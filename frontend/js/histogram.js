@@ -1,4 +1,5 @@
 import { parseKMBtoNumber, colorScatterPlot } from "./index.js";
+import { Data } from './index.js';
 
 function formatData(data, type) {
   let formattedData;
@@ -209,17 +210,54 @@ class Histogram {
     );
 
     // Trovare l'intersezione tra tutti i dataset
-    const intersection = db.filter((item) => {
+    var intersection = db.filter((item) => {
       const key = `${item["Youtube channel"]} - ${item["youtuber name"]}`;
       return (
         db2Map.has(key) && db3Map.has(key) && db4Map.has(key) && db5Map.has(key)
       );
     });
 
-    localStorage.setItem("datasetAfterHisto", JSON.stringify(intersection));
-    localStorage.setItem("datasetAfterScatter", JSON.stringify(intersection));
 
-    return intersection;
+    const parentDiv = document.getElementById("ScatterPlotContainer");
+    const parentDivRect = parentDiv.getBoundingClientRect();
+  
+    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    const width = (parentDivRect.width/12)*11 - margin.left - margin.right;
+    const height = (parentDivRect.height/15)*14 - margin.top - margin.bottom;
+    const xExtent = d3.extent(Data, (d) => d.x);
+    const yExtent = d3.extent(Data, (d) => d.y);
+  
+    const maxExtent = [
+      Math.min(xExtent[0], yExtent[0]),
+      Math.max(xExtent[1], yExtent[1]),
+    ];
+  
+    const xScale = d3.scaleLinear().domain(maxExtent).range([0, width]);
+    const yScale = d3.scaleLinear().domain(maxExtent).range([height, 0]);
+    var filteredScatter=Data.filter(
+      (d) =>
+        xScale(d.x) >= localStorage.getItem("pt1x") &&
+        xScale(d.x) <= localStorage.getItem("pt2x") &&
+        yScale(d.y) >= localStorage.getItem("pt1y") &&
+        yScale(d.y) <= localStorage.getItem("pt2y")
+    );
+
+
+    var commonItems = intersection.filter((intersectionItem) => {
+      // Create a key for comparison (assuming 'Youtube channel' for intersection)
+      const intersectionKey = `${intersectionItem["Youtube channel"]}`;
+    
+      // Check if the key exists in the 'filteredScatter' array based on 'label'
+      return filteredScatter.some((scatterItem) => {
+        const scatterKey = scatterItem.label;
+        return scatterKey === intersectionKey;
+      });
+    });
+
+    localStorage.setItem("datasetAfterHisto", JSON.stringify(intersection));
+    localStorage.setItem("datasetAfterScatter", JSON.stringify(commonItems));
+
+    return commonItems;
   };
 
   names = (data) => {
@@ -540,7 +578,7 @@ class Histogram {
         ? this.isPointInsideSelection(d, youtubers)
           ? 1
           : 0.05
-        : 0.2;
+        : 0.05;
     });
 
     circles.sort((a, b) => d3.descending(a.opacity, b.opacity));

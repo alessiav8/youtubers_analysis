@@ -1,3 +1,4 @@
+
 class ScatterPlot {
     constructor(data) {
       this.data = data;
