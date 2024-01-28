@@ -583,10 +583,10 @@ function renderScatterPlot(data) {
           jsonData.some(item => item["Youtube channel"] === d.label)
       );
       console.log("Selected Data:", selectedData);
-      const datasetAfterScatter = JSON.parse(localStorage.getItem("datasetAfterScatter"));
+      const datasetAfterHisto = JSON.parse(localStorage.getItem("datasetAfterHisto"));
 
       // Filter items from "datasetAfterScatter" based on the YouTube channel in selectedData
-      const filteredDataset = datasetAfterScatter.filter(item =>
+      const filteredDataset = datasetAfterHisto.filter(item =>
         selectedData.some(selectedItem => selectedItem.label === item["Youtube channel"])
       );
 
