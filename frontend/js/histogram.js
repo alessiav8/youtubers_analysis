@@ -107,6 +107,7 @@ function formatData(data, type) {
 class Histogram {
   constructor(data, id, container, label) {
     this.data = formatData(data, label);
+    console.log(label,this.data);
     this.originalDB = data;
     this.id = id;
     this.container = container;
@@ -133,6 +134,7 @@ class Histogram {
     this.originalIntervals = this.data.map((d) => ({ ...d }));
   }
 
+ 
   getSubsetByYoutuberNames = (youtuberNamesSubset) => {
     // Get data from localStorage
     let originalDatasetString = localStorage.getItem("datasetFull");
@@ -164,9 +166,10 @@ class Histogram {
 
   //this function compute the intersection of the selected database and
   //the currently database stored in the localStorage
-  intersectFunction = (db2) => {
+ intersectFunction = (db2) => {
     //orginal database
     const db = JSON.parse(localStorage.getItem("dataset"));
+    console.log("compared to db",db)
 
     const histos = ["Likes", "Comments", "Views", "Followers"];
     let n = [3, 4, 5];
@@ -209,14 +212,16 @@ class Histogram {
       ])
     );
 
+    console.log(db3Map,db4Map,db5Map,db2Map)
+
     // Trovare l'intersezione tra tutti i dataset
     var intersection = db.filter((item) => {
       const key = `${item["Youtube channel"]} - ${item["youtuber name"]}`;
+      console.log("HAS KEY",key,"\n",db2Map.has(key),db3Map.has(key),db4Map.has(key),db5Map.has(key))
       return (
         db2Map.has(key) && db3Map.has(key) && db4Map.has(key) && db5Map.has(key)
       );
     });
-
 
     const parentDiv = document.getElementById("ScatterPlotContainer");
     const parentDivRect = parentDiv.getBoundingClientRect();
@@ -276,17 +281,19 @@ class Histogram {
       const endIndex = Math.ceil(this.xScaleIsto.invert(x1));
       const selectedData = this.data.slice(startIndex, endIndex);
       //this will trigger the color of the scatterplot
+
       let YTinterval = this.getYoutubersInInterval(selectedData);
 
       //compute the subset
       let sub = this.getSubsetByYoutuberNames(YTinterval);
-
       sessionStorage.setItem("dataset" + this.label, JSON.stringify(sub));
 
-      const intersection = this.intersectFunction(sub);
+      this.intersectFunction(sub);
+      const intersection = JSON.parse(localStorage.getItem("datasetAfterHisto"));
 
       if (intersection.length == 0) {
         window.alert("No intersections found,Reload");
+        location.reload();
       }
       if (intersection.length == 1) {
         const confirmation = window.confirm(
@@ -302,11 +309,11 @@ class Histogram {
       const set_names = this.names(intersection);
       this.colorScatterP(set_names);
 
-      this.reRenderHistos(intersection, selectedData);
+      this.reRenderHistos(intersection, selectedData,"histo");
     }
   };
 
-  reRenderHistos = (intersection, selectedData) => {
+  reRenderHistos = (intersection, selectedData, calledFrom) => {
     const histograms = [
       "isto_like",
       "isto_view",
@@ -376,7 +383,9 @@ class Histogram {
           );
         }
       } else {
+        if(calledFrom!= "scatter"){
         this.colorIsto(d3.select("#" + this.id), selectedData);
+        }
       }
     }
   };
@@ -478,6 +487,7 @@ class Histogram {
   //datas is the subset of data you want to color
   //data is the entire dataset
   colorIsto = (component, datas) => {
+    console.log(this.label,datas)
     component
       .selectAll("rect")
       .data(this.data)
