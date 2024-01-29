@@ -1,108 +1,108 @@
 import { parseKMBtoNumber, colorScatterPlot } from "./index.js";
 import { Data } from './index.js';
 
+
+
 function formatData(data, type) {
   let formattedData;
   const numBins = 5;
+  let divisor = 10;
+
+  let key;
+  let filterKey;
+  let scaleType;
 
   if (type === "Likes") {
-    // Likes
-    const likesData = data
-      .filter((d) => !isNaN(parseKMBtoNumber(d["Avg. likes"])))
-      .map((d) => parseKMBtoNumber(d["Avg. likes"]));
-    const maxLikes = d3.max(likesData);
-    sessionStorage.setItem("Likes", maxLikes);
-    console.log("MaxLikes: " + maxLikes);
-    const logScaleLikes = d3
-      .scaleLog()
-      .domain([1, maxLikes])
-      .range([0, maxLikes / 10]);
-    const histogramLikes = d3
-      .histogram()
-      .domain([0, maxLikes])
-      .thresholds(d3.range(1, numBins + 2).map((d) => logScaleLikes(d)))(
-      likesData
-    );
-    formattedData = histogramLikes.map((bin) => ({
-      intervallo: bin.x0,
-      frequenza: bin.length,
-      start: `${bin.x0}`,
-      end: `${bin.x1}`,
-    }));
+    key = "Avg. likes";
+    filterKey = "Likes";
+    scaleType = "log";
   } else if (type === "Views") {
-    // Views
-    const viewsData = data
-      .filter((d) => !isNaN(parseKMBtoNumber(d["Avg. views"])))
-      .map((d) => parseKMBtoNumber(d["Avg. views"]));
-    const maxViews = d3.max(viewsData);
-    sessionStorage.setItem("Views", maxViews);
-    const logScaleViews = d3
-      .scaleLog()
-      .domain([1, maxViews])
-      .range([0, maxViews / 10]);
-    const histogramViews = d3
-      .histogram()
-      .domain([0, maxViews])
-      .thresholds(d3.range(1, numBins + 2).map((d) => logScaleViews(d)))(
-      viewsData
-    );
-    formattedData = histogramViews.map((bin) => ({
-      intervallo: bin.x0,
-      frequenza: bin.length,
-      start: `${bin.x0}`,
-      end: `${bin.x1}`,
-    }));
+    key = "Avg. views";
+    filterKey = "Views";
+    scaleType = "log";
   } else if (type === "Comments") {
-    // Comments
-    const commentsData = data
-      .filter((d) => !isNaN(parseKMBtoNumber(d["Avg. comments"])))
-      .map((d) => parseKMBtoNumber(d["Avg. comments"]));
-    const maxComments = d3.max(commentsData);
-    sessionStorage.setItem("Comments", maxComments);
-    const logScaleComments = d3
-      .scaleLog()
-      .domain([1, maxComments])
-      .range([0, maxComments / 10]);
-    const histogramComments = d3
-      .histogram()
-      .domain([0, maxComments])
-      .thresholds(d3.range(1, numBins + 2).map((d) => logScaleComments(d)))(
-      commentsData
-    );
-    formattedData = histogramComments.map((bin) => ({
-      intervallo: bin.x0,
-      frequenza: bin.length,
-      start: `${bin.x0}`,
-      end: `${bin.x1}`,
-    }));
+    key = "Avg. comments";
+    filterKey = "Comments";
+    scaleType = "log";
   } else if (type === "Followers") {
-    // Followers
-    const followersData = data
-      .filter((d) => !isNaN(parseKMBtoNumber(d["Followers"])))
-      .map((d) => parseKMBtoNumber(d["Followers"]));
-    const maxFollowers = d3.max(followersData);
-    sessionStorage.setItem("Followers", maxFollowers);
-    const logScaleFollowers = d3
-      .scaleLog()
-      .domain([1, maxFollowers])
-      .range([0, maxFollowers / 1]);
-    const histogramFollowers = d3
-      .histogram()
-      .domain([0, maxFollowers])
-      .thresholds(d3.range(1, numBins + 2).map((d) => logScaleFollowers(d)))(
-      followersData
-    );
-    formattedData = histogramFollowers.map((bin) => ({
-      intervallo: bin.x0,
-      frequenza: bin.length,
-      start: `${bin.x0}`,
-      end: `${bin.x1}`,
-    }));
-    const minFollowers = d3.min(followersData);
+    key = "Followers";
+    filterKey = "Followers";
+    scaleType = "log";
   }
+
+  const filteredData = data
+    .filter((d) => !isNaN(parseKMBtoNumber(d[key])))
+    .map((d) => parseKMBtoNumber(d[key]));
+
+  const maxData = d3.max(filteredData);
+  const minData = d3.min(filteredData);
+
+  let tot= maxData / 1000000;
+  
+  if (tot > 1 ){
+    if(tot >= 100){
+      divisor = 1;
+    }
+    else if (tot >= 10){
+      divisor = 20;
+
+    }
+    else if (tot >= 1){
+      divisor=30;
+
+    }
+    else{
+      divisor = 20;
+    }
+  }
+  else{
+    tot= maxData / 1000;
+    if(tot < 100){
+      scaleType="linear"
+    }
+    else{
+      divisor = 20; 
+    }
+  }
+
+  if (data.length < 50){
+    scaleType="linear"
+  }
+  if(minData >= maxData/10){
+    scaleType="linear"
+  }
+
+
+  const scale = scaleType === "log"
+    ? d3.scaleLog().domain([1, maxData]).range([0, maxData / divisor])
+    : d3.scaleLinear().domain([1, maxData]).range([0, maxData]);        
+
+  let histogram;
+    if (scaleType === "log"){
+       histogram = d3.histogram()
+      .domain([0, maxData])
+      .thresholds(d3.range(1, numBins + 2).map((d) => scale(d)))
+      (filteredData);
+    }
+    else{
+      const thresholdsLinear = d3.range(0,numBins).map(d => scale(minData + (maxData - minData) / numBins * d));
+      histogram = d3.histogram()
+        .domain([0, maxData])
+        .thresholds(thresholdsLinear)
+        (filteredData);
+    }
+  sessionStorage.setItem(filterKey, maxData);
+
+  formattedData = histogram.map((bin) => ({
+    intervallo: bin.x0,
+    frequenza: bin.length,
+    start: `${bin.x0}`,
+    end: `${bin.x1}`,
+  }));
 
   return formattedData;
 }
+
 
 class Histogram {
   constructor(data, id, container, label) {
