@@ -2,8 +2,10 @@ import Histogram from "./histogram.js"
 
 
 const reset_button = document.getElementById("reset_button");
+const compare_button = document.getElementById("compare_button");
 const zoom_button = document.getElementById("zoom_button");
 const confirm_button = document.getElementById("confirmButton");
+
 let dataset_g;
 let dataset_full;
 
@@ -85,6 +87,7 @@ function saveLocalStorageStart() {
 }
 function saveLocalStorageZoom() {
   const jsonData=JSON.parse(localStorage.getItem("datasetAfterScatter"))
+  if (jsonData.length < 6) compare_button.removeAttribute("hidden");
   localStorage.setItem("datasetFull", JSON.stringify(jsonData));
   localStorage.setItem("dataset", JSON.stringify(jsonData));
   localStorage.setItem("datasetAfterHisto", JSON.stringify(jsonData));
@@ -150,6 +153,9 @@ function confirmFilters() {
       // Parse the JSON strings into JavaScript objects
       var dataset = JSON.parse(storedDataset);
       var datasetFull = JSON.parse(storedDatasetFull);
+
+
+      
       var additionalEntries
 
       // Filter "dataset" based on selected categories
@@ -158,6 +164,9 @@ function confirmFilters() {
 
       filteredDataset = datasetFull.filter(entry => selectedCategories.includes(entry.Category));
       filteredDataset = filteredDataset.filter(entry => selectedCountries.includes(entry.Country));
+      
+      if (filteredDataset.length < 6) compare_button.removeAttribute("hidden");
+      else compare_button.setAttribute("hidden", true);
 
       // Update "dataset" in storage with the filtered dataset
       localStorage.setItem("dataset", JSON.stringify(filteredDataset));
@@ -328,6 +337,9 @@ zoom_button.addEventListener("click", function () {
   
   const serverEndpoint = '/generateExcel';
   const datasetString = localStorage.getItem("dataset");
+  var datasetAsd = JSON.parse(datasetString);
+  if (datasetAsd.length < 6) compare_button.removeAttribute("hidden");
+
 
   // Make a POST request to the server
   fetch(serverEndpoint, {
@@ -602,7 +614,7 @@ function renderScatterPlot(data) {
         const confirmation = window.confirm("One youtuber found. Move to see specific data?");
         if (confirmation){
           const username = selectedData[0]["label"];
-          window.location.href = `/${encodeURIComponent(username)}`;
+          window.location.href = `/detail/${encodeURIComponent(username)}`;
         }
       }
     }
@@ -646,7 +658,7 @@ circles.on("click", (d) => {
   const confirmation = window.confirm("One youtuber found. Move to see specific data?");
   if (confirmation) {
     const username = d.label;
-    window.location.href = `/${encodeURIComponent(username)}`;
+    window.location.href = `/detail/${encodeURIComponent(username)}`;
   }
 });
 

@@ -41,9 +41,12 @@ app.get('/', (req, res) => {
 });
 
 // Routing for the /{username} path
-app.get('/:username', (req, res) => {
+app.get('/detail/:username', (req, res) => {
   const username = req.params.username;
   res.sendFile(path.join(__dirname, '../', 'templates', 'userPage.html'));
+});
+app.get('/compare', (req, res) => {
+  res.sendFile(path.join(__dirname, '../', 'templates', 'compare.html'));
 });
 
 //to handle error
