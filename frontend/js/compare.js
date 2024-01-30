@@ -1,17 +1,17 @@
 const dataset = JSON.parse(localStorage.getItem("dataset"));
-const colours = ["blue","red","green","yellow","black"]
+const usernames = dataset.map(item => item["Youtube channel"]);
+const colours = ["blue","red","green","brown","black"]
+var username;
+var [followersTotal, likesTotal, commentsTotal, viewsTotal] = [[], [], [], []];
 
 //crea 4 array di array (1 per ogni grafico), ognuno contiene k youtuber e per ogni youtuber 4 campi per i mesi
-//il fetch va loopato e i dati inseriti negli array di array. La chiama a scatter plot creation va fatta fuori dal loop
+//il fetch va loopato e i dati inseriti negli array di array. La chiamata a scatter plot creation va fatta fuori dal loop
 //la funzione per scatterplot deve loopare su ogni youtuber, cambiando colore con array colours
 
-// Extract usernames from the "Youtube channel" field in each item
-const usernames = dataset.map(item => item["Youtube channel"]);
 
 let youtuberData; // Declare youtuberData outside of the fetch block
 
 function convertToInt(value) {
-  console.log(value)
 
   if (typeof value === 'string') {
       if (value==="N/A'"||value==="N/A") {
@@ -46,53 +46,37 @@ function formatNumber(value) {
   }
 }
 
-// Make an AJAX request to the server to get data
-fetch(`/getData/${username1}`)
-  .then(response => response.json())
-  .then(data => {
-    // Process data and create D3 visualizations here
-    youtuberData = data;
-
-    //Setting the title of the page
-    const youtuber_name=youtuberData[0]["youtuber name"];
-    const youtuber_name_field=document.getElementById('youtuber_name_field');
-    youtuber_name_field.innerHTML="Youtuber: " + youtuber_name;
-    //
-
-    console.log(youtuberData)
-
-  const followers = [];
-    for (let i = 0; i < youtuberData.length; i++) {
-      followers.push(convertToInt(youtuberData[i]["Followers"]));
-    }
-    const likes = [];
-    for (let i = 0; i < youtuberData.length; i++) {
-      likes.push(convertToInt(youtuberData[i]["Avg. likes"]));
-    }
-    const comments = [];
-    for (let i = 0; i < youtuberData.length; i++) {
-      comments.push(convertToInt(youtuberData[i]["Avg. comments"]));
-      console.log(youtuberData[i]["Avg. comments"])
-    }
-    const views = [];
-    for (let i = 0; i < youtuberData.length; i++) {
-      views.push(convertToInt(youtuberData[i]["Avg. views"]));
-    }
-
-    createScatterPlot(followers, 'Followers', "#container1");
-    createScatterPlot(likes, 'Likes', "#container1");
-    createScatterPlot(comments, 'Comments', "#container2");
-    createScatterPlot(views, 'Views',"#container2");
-
-    console.log(followers)
-    console.log(likes)
-    console.log(comments)
-
-  })
-  .catch(error => console.error('Error fetching data:', error));
+var [followers, likes, comments, views] = [[], [], [], []];
 
 
+
+const fetchPromises = usernames.map(currentUsername => {
+  return fetch(`/getData/${currentUsername}`)
+    .then(response => response.json())
+    .then(data => {
+      // Process data and push to respective arrays
+      const followers = data.map(entry => convertToInt(entry["Followers"]));
+      const likes = data.map(entry => convertToInt(entry["Avg. likes"]));
+      const comments = data.map(entry => convertToInt(entry["Avg. comments"]));
+      const views = data.map(entry => convertToInt(entry["Avg. views"]));
+
+      followersTotal.push(followers);
+      likesTotal.push(likes);
+      commentsTotal.push(comments);
+      viewsTotal.push(views);
+    })
+    .catch(error => console.error('Error fetching data:', error));
+});
   
+Promise.all(fetchPromises)
+  .then(() => {
+    // All fetch operations completed, create scatter plots
+    createScatterPlot(followersTotal, 'Followers', "#container1");
+    createScatterPlot(likesTotal, 'Likes', "#container1");
+    createScatterPlot(commentsTotal, 'Comments', "#container2");
+    createScatterPlot(viewsTotal, 'Views', "#container2");
+  })
+  .catch(error => console.error('Error:', error));
 
 
 
@@ -101,7 +85,17 @@ fetch(`/getData/${username1}`)
     const margin = { top: 20, right: 20, bottom: 70, left: 70 };
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
-  
+    var ymax=0;
+    var i=0
+    data.forEach(currentData => {
+      currentData.forEach(value => {
+        if (!isNaN(value) && value > ymax) {
+          ymax = value;
+        }
+      });
+    });
+    console.log("ymax="+ymax)
+
     const months = ["June", "September", "November", "December"];
 
     const xScale = d3.scaleBand()
@@ -110,7 +104,7 @@ fetch(`/getData/${username1}`)
       .paddingInner(0)
       .paddingOuter(0); // Remove inner and outer padding
   
-    const yScale = d3.scaleLinear().domain([0, d3.max(data)]).range([height, 0]);
+    const yScale = d3.scaleLinear().domain([0, ymax]).range([height, 0]);
   
     const formatAxisLabel = d3.format(".2s");
   
@@ -120,23 +114,25 @@ fetch(`/getData/${username1}`)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
-  
-      svg.selectAll('circle')
-      .data(data)
+    
+    data.forEach(currentData => {
+      console.log(i+":"+currentData)
+      svg.selectAll('circle'+i)
+      .data(currentData)
       .enter()
       .append('circle')
       .attr('cx', (d, i) => xScale(["June", "September", "November", "December"][i]) + xScale.bandwidth() / 2)
       .attr('cy', d => yScale(d))
       .attr('r', 5)
       .style('display', d => (typeof d === 'undefined' ? 'none' : ''))
-      .on('mouseover', (d, i) => handleMouseOver(d,i,label,data))  // Add mouseover event listener
+      .on('mouseover', (d, i) => handleMouseOver(d,i,label,currentData))  // Add mouseover event listener
       .on('mouseout', handleMouseOut);  // Add mouseout event listener
 
 
 
       // start line
-    svg.selectAll('line')
-      .data(data)
+    svg.selectAll('line'+i)
+      .data(currentData)
       .enter()
       .append('line')
       .attr('x1', (d, i) => {
@@ -150,11 +146,11 @@ fetch(`/getData/${username1}`)
         if (currentPointVisible) {
           // Find the next visible point
           let j = i + 1;
-          while (j < data.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
+          while (j < currentData.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
             j++;
           }
 
-          if (j < data.length) {
+          if (j < currentData.length) {
             const nextXValue = ["June", "September", "November", "December"][j];
             return xScale(nextXValue) + xScale.bandwidth() / 2;
           }
@@ -168,29 +164,29 @@ fetch(`/getData/${username1}`)
     if (currentPointVisible) {
       // Find the next visible point
       let j = i + 1;
-      while (j < data.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
+      while (j < currentData.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
         j++;
       }
 
-      if (j < data.length) {
-        return yScale(data[j]);
+      if (j < currentData.length) {
+        return yScale(currentData[j]);
       }
     }
 
     return null;
   })
-  .style('stroke', 'blue') // Set the color of the lines (adjust as needed)
+  .style('stroke', colours[i]) // Set the color of the lines (adjust as needed)
   .style('display', (d, i, nodes) => {
     const currentPointVisible = typeof d !== 'undefined' && nodes[i].style.display !== 'none';
 
     if (currentPointVisible) {
       // Find the next visible point
       let j = i + 1;
-      while (j < data.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
+      while (j < currentData.length && (typeof currentData[j] === 'undefined' || nodes[j].style.display === 'none')) {
         j++;
       }
 
-      if (j < data.length) {
+      if (j < currentData.length) {
         return null;
       }
     }
@@ -198,7 +194,9 @@ fetch(`/getData/${username1}`)
     return 'none';
   });
   //end line
+  i=i+1
 
+});
 
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
@@ -219,6 +217,9 @@ fetch(`/getData/${username1}`)
       .attr('dy', '1em')
       .style('text-anchor', 'middle')
       .text('Count');
+
+  
+      
   }
   
   function handleMouseOver(d, i, label, data) {
