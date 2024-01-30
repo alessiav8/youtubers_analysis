@@ -309,11 +309,12 @@ class Histogram {
       const set_names = this.names(intersection);
       this.colorScatterP(set_names);
 
-      this.reRenderHistos(intersection, selectedData,"histo");
+      this.reRenderHistos(intersection);
     }
   };
 
-  reRenderHistos = (intersection, selectedData, calledFrom) => {
+  //selectedData removed here 
+  reRenderHistos = (intersection) => {
     const histograms = [
       "isto_like",
       "isto_view",
@@ -322,7 +323,7 @@ class Histogram {
     ];
 
     for (let i in histograms) {
-      if (histograms[i] != this.id) {
+     // if (histograms[i] != this.id) {
         if (histograms[i] == "isto_view") {
           const histogramViews = new Histogram(
             this.originalDB,
@@ -382,12 +383,12 @@ class Histogram {
             selectedFollowers
           );
         }
-      } else {
+      } /*else {
         if(calledFrom!= "scatter"){
         this.colorIsto(d3.select("#" + this.id), selectedData);
         }
-      }
-    }
+      }*/
+    //}
   };
 
   brushed_insto_likes = () => {};
@@ -484,10 +485,9 @@ class Histogram {
 
   //this function handle the color of the selected parts of the histogram
   //component is the isto component
-  //datas is the subset of data you want to color
+  //datas is the subset of data you want to color formatted as the set of intervals selected
   //data is the entire dataset
   colorIsto = (component, datas) => {
-    console.log(this.label,datas)
     component
       .selectAll("rect")
       .data(this.data)

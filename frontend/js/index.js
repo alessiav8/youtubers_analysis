@@ -91,16 +91,9 @@ function saveLocalStorageZoom() {
   localStorage.setItem("datasetFull", JSON.stringify(jsonData));
   localStorage.setItem("dataset", JSON.stringify(jsonData));
   localStorage.setItem("datasetAfterHisto", JSON.stringify(jsonData));
-  resetDataHisto();
 }
 
-function resetDataHisto(){
-  let dataset = JSON.parse(localStorage.getItem("dataset")) === null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
-  sessionStorage.setItem("datasetLikes", JSON.stringify(dataset));
-  sessionStorage.setItem("datasetViews", JSON.stringify(dataset));
-  sessionStorage.setItem("datasetComments", JSON.stringify(dataset));
-  sessionStorage.setItem("datasetFollowers", JSON.stringify(dataset));
-}
+
 function renderFilters() {
   //i filtri sono basati sul dataset totale (per poter riaggiungere cose), gli istrogrammi sono basati sulla selezione attuale.
   let dataset = JSON.parse(localStorage.getItem("dataset"))=== null? JSON.parse(localStorage.getItem("datasetFull")): JSON.parse(localStorage.getItem("dataset"));
@@ -618,15 +611,13 @@ function renderScatterPlot(data) {
       localStorage.setItem("pt2y", selection[1][1]);
       localStorage.setItem("pt1y", selection[0][1]);
 
-      const h = new Histogram(filteredDataset,"","","")
+      //added by A
+      const dataset2= JSON.parse(localStorage.getItem("dataset"));
+      const h = new Histogram(dataset2,"","","");
       const intersect = h.intersectFunction(filteredDataset)
-
-      const histos=["#isto_like","#isto_comment","#isto_view","#isto_follower"];
-
-      for (let i=0; i<histos.length; i++) {
-        //h.colorIsto(d3.select(histos[i]),)
-      }
-
+      h.reRenderHistos(intersect);
+      //
+      
       colorScatterPlot(circles, selectedData)
       if (selectedData.length === 1) {
         const confirmation = window.confirm("One youtuber found. Move to see specific data?");
