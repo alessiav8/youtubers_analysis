@@ -107,7 +107,7 @@ function formatData(data, type) {
 class Histogram {
   constructor(data, id, container, label) {
     this.data = formatData(data, label);
-    console.log(label,this.data);
+    //console.log(label,this.data);
     this.originalDB = data;
     this.id = id;
     this.container = container;
@@ -217,7 +217,6 @@ class Histogram {
     // Trovare l'intersezione tra tutti i dataset
     var intersection = db.filter((item) => {
       const key = `${item["Youtube channel"]} - ${item["youtuber name"]}`;
-      console.log("HAS KEY",key,"\n",db2Map.has(key),db3Map.has(key),db4Map.has(key),db5Map.has(key))
       return (
         db2Map.has(key) && db3Map.has(key) && db4Map.has(key) && db5Map.has(key)
       );
@@ -276,6 +275,7 @@ class Histogram {
 
   brushedend_insto_likes = () => {
     if (d3.event.selection) {
+      sessionStorage.setItem("filteredOnHistos", true);
       const [x0, x1] = d3.event.selection;
       const startIndex = Math.floor(this.xScaleIsto.invert(x0));
       const endIndex = Math.ceil(this.xScaleIsto.invert(x1));
@@ -315,6 +315,7 @@ class Histogram {
 
   //selectedData removed here 
   reRenderHistos = (intersection) => {
+    console.log("Original DB in reRenderHisto",this.originalDB);
     const histograms = [
       "isto_like",
       "isto_view",
@@ -337,6 +338,7 @@ class Histogram {
             "Views"
           );
           histogramViews.colorIsto(d3.select("#isto_view"), selectedViews);
+          console.log("rage to color histogram in views",selectedViews);
         } else if (histograms[i] == "isto_comment") {
           const histogramComments = new Histogram(
             this.originalDB,

@@ -464,6 +464,17 @@ function intersectCleanedDataScatteData(data){
 
 }
 
+function callChangeInHistograms(filteredDataset){
+  //added by A
+  const dataset2= JSON.parse(localStorage.getItem("dataset"));
+  const h = new Histogram(dataset2,"","","");
+  //const intersect = h.intersectFunction(filteredDataset)
+  h.reRenderHistos(filteredDataset);
+  console.log("callChangeInHistograms","\n Actual db", dataset2, "filteredData",filteredDataset);
+
+  //
+}
+
 
 
 
@@ -584,7 +595,9 @@ function renderScatterPlot(data) {
     const event = d3.event;
     if (event && event.selection) {
       const selection = event.selection;
-      const jsonData=JSON.parse(localStorage.getItem("datasetAfterHisto"))
+      const filtered = sessionStorage.getItem("filteredOnHistos") ? sessionStorage.getItem("filteredOnHistos") : false;
+      const jsonData= filtered ? JSON.parse(localStorage.getItem("datasetAfterHisto")) : JSON.parse(localStorage.getItem("dataset"))
+      console.log("JSON data",jsonData,"filtered flag",filtered,"Data",data)
       //qui vengono mappati i dati selezionati e ti restituisce l'array con
       //le label e la posizione dei punti selezionati
 
@@ -611,14 +624,10 @@ function renderScatterPlot(data) {
       localStorage.setItem("pt2y", selection[1][1]);
       localStorage.setItem("pt1y", selection[0][1]);
 
-      //added by A
-      const dataset2= JSON.parse(localStorage.getItem("dataset"));
-      const h = new Histogram(dataset2,"","","");
-      const intersect = h.intersectFunction(filteredDataset)
-      h.reRenderHistos(intersect);
-      //
+     
       
-      colorScatterPlot(circles, selectedData)
+      colorScatterPlot(circles, selectedData);
+      callChangeInHistograms(filteredDataset);
       if (selectedData.length === 1) {
         const confirmation = window.confirm("One youtuber found. Move to see specific data?");
         if (confirmation){
