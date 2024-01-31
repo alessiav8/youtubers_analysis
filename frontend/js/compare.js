@@ -75,6 +75,7 @@ Promise.all(fetchPromises)
     createScatterPlot(likesTotal, 'Likes', "#container1");
     createScatterPlot(commentsTotal, 'Comments', "#container2");
     createScatterPlot(viewsTotal, 'Views', "#container2");
+    createLegend(usernames, colours)
   })
   .catch(error => console.error('Error:', error));
 
@@ -86,7 +87,7 @@ Promise.all(fetchPromises)
     const width = 600 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
     var ymax=0;
-    var i=0
+    var counter=0
     data.forEach(currentData => {
       currentData.forEach(value => {
         if (!isNaN(value) && value > ymax) {
@@ -115,9 +116,10 @@ Promise.all(fetchPromises)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
     
+    //console.log("data:"+data)
     data.forEach(currentData => {
-      console.log(i+":"+currentData)
-      svg.selectAll('circle'+i)
+      console.log(counter+":"+currentData)
+      svg.selectAll('circle'+counter)
       .data(currentData)
       .enter()
       .append('circle')
@@ -131,7 +133,7 @@ Promise.all(fetchPromises)
 
 
       // start line
-    svg.selectAll('line'+i)
+    svg.selectAll('line'+counter)
       .data(currentData)
       .enter()
       .append('line')
@@ -146,10 +148,13 @@ Promise.all(fetchPromises)
         if (currentPointVisible) {
           // Find the next visible point
           let j = i + 1;
-          while (j < currentData.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
+          //console.log("j prima:"+j)
+
+          //serve a skippare il punto prossimo se non esiste
+          while (j < currentData.length && (typeof currentData[j] === 'undefined' || nodes[j].style.display === 'none')) {
             j++;
           }
-
+          //console.log("j dopo:"+j)
           if (j < currentData.length) {
             const nextXValue = ["June", "September", "November", "December"][j];
             return xScale(nextXValue) + xScale.bandwidth() / 2;
@@ -164,7 +169,7 @@ Promise.all(fetchPromises)
     if (currentPointVisible) {
       // Find the next visible point
       let j = i + 1;
-      while (j < currentData.length && (typeof data[j] === 'undefined' || nodes[j].style.display === 'none')) {
+      while (j < currentData.length && (typeof currentData[j] === 'undefined' || nodes[j].style.display === 'none')) {
         j++;
       }
 
@@ -175,7 +180,7 @@ Promise.all(fetchPromises)
 
     return null;
   })
-  .style('stroke', colours[i]) // Set the color of the lines (adjust as needed)
+  .style('stroke', colours[counter]) // Set the color of the lines (adjust as needed)
   .style('display', (d, i, nodes) => {
     const currentPointVisible = typeof d !== 'undefined' && nodes[i].style.display !== 'none';
 
@@ -194,7 +199,7 @@ Promise.all(fetchPromises)
     return 'none';
   });
   //end line
-  i=i+1
+  counter=counter+1
 
 });
 
@@ -262,6 +267,18 @@ Promise.all(fetchPromises)
     tooltip
       .style('left', left + 'px')
       .style('top', top + 'px');
+  }
+
+  function createLegend(usernames, colours) {
+    const legendContainer = d3.select('#legend-container');
+  
+    // Loop through each youtuber and create legend entries
+    usernames.forEach((username, index) => {
+      const legendEntry = legendContainer
+      .append('div')
+        .style('color', colours[index])
+        .text(username);
+    });
   }
   
 
