@@ -604,7 +604,7 @@ function renderScatterPlot(data) {
       sessionStorage.setItem("scatterTriggered",true);
       const selection = event.selection;
       const filtered = sessionStorage.getItem("filteredOnHistos") ? sessionStorage.getItem("filteredOnHistos") : false;
-      const jsonData = filtered ? JSON.parse(localStorage.getItem("datasetAfterHisto")) : JSON.parse(localStorage.getItem("dataset"))
+      const jsonData = filtered == true ? JSON.parse(localStorage.getItem("datasetAfterHisto")) : JSON.parse(localStorage.getItem("dataset"))
       //qui vengono mappati i dati selezionati e ti restituisce l'array con
       //le label e la posizione dei punti selezionati
 

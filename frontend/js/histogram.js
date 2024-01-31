@@ -176,7 +176,7 @@ class Histogram {
  intersectFunction = (db2) => {
     //orginal database
     const scatterTriggered = sessionStorage.getItem('scatterTriggered');
-    const db = scatterTriggered ? JSON.parse(localStorage.getItem("datasetAfterScatter")) : JSON.parse(localStorage.getItem("dataset"));
+    const db = scatterTriggered == true ? JSON.parse(localStorage.getItem("datasetAfterScatter")) : JSON.parse(localStorage.getItem("dataset"));
     console.log("compared to db",db,"scatterTriggered",scatterTriggered);
 
     const histos = ["Likes", "Comments", "Views", "Followers"];
