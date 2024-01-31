@@ -15,6 +15,13 @@ var temp=false
 var radioButtons = document.querySelectorAll('input[name="monthOption"]');
 var Data
 
+window.addEventListener('beforeunload', function (event) {
+ sessionStorage.setItem("scatterTriggered",false);
+ sessionStorage.setItem("filteredOnHistos",false);
+
+});
+
+
 document.addEventListener("DOMContentLoaded", function () {
   showLoadingMessage();
   saveLocalStorageStart();
@@ -594,10 +601,10 @@ function renderScatterPlot(data) {
   function brushedend_scatter_plot() {
     const event = d3.event;
     if (event && event.selection) {
+      sessionStorage.setItem("scatterTriggered",true);
       const selection = event.selection;
       const filtered = sessionStorage.getItem("filteredOnHistos") ? sessionStorage.getItem("filteredOnHistos") : false;
-      const jsonData= filtered ? JSON.parse(localStorage.getItem("datasetAfterHisto")) : JSON.parse(localStorage.getItem("dataset"))
-      console.log("JSON data",jsonData,"filtered flag",filtered,"Data",data)
+      const jsonData = filtered ? JSON.parse(localStorage.getItem("datasetAfterHisto")) : JSON.parse(localStorage.getItem("dataset"))
       //qui vengono mappati i dati selezionati e ti restituisce l'array con
       //le label e la posizione dei punti selezionati
 
@@ -623,6 +630,8 @@ function renderScatterPlot(data) {
       localStorage.setItem("pt2x", selection[1][0]);
       localStorage.setItem("pt2y", selection[1][1]);
       localStorage.setItem("pt1y", selection[0][1]);
+
+      console.log("datasetfixed by scatter",localStorage.getItem("datasetAfterScatter"));
 
      
       
