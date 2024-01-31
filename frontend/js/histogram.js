@@ -128,8 +128,16 @@ class Histogram {
       .domain([0, this.max])
       .range([this.height_isto, 0]);
 
-    this.xAxisIsto = d3.axisBottom(this.xScaleIsto).tickValues([]).tickSize(0);
+    this.xAxisIsto = d3.axisBottom(this.xScaleIsto).ticks(5);
     this.yAxisIsto = d3.axisLeft(this.yScaleIsto);
+
+    this.yAxisIsto.tickFormat(d3.format(".0f"));
+
+    this.xAxisIsto.tickSize(5);
+    this.yAxisIsto.tickSize(5);
+
+    this.xAxisIsto.tickValues([]);
+
     this.label = label;
     this.originalIntervals = this.data.map((d) => ({ ...d }));
   }
@@ -620,6 +628,21 @@ class Histogram {
       .append("g")
       .attr("transform", `translate(0, ${this.height_isto})`)
       .call(this.xAxisIsto);
+
+    // Ticks sull'asse x
+    histo
+      .selectAll(".tick-line")
+      .data(this.data)
+      .enter()
+      .append("line")
+      .attr("class", "tick-line")
+      .attr("x1", (d, i) => this.xScaleIsto(i) + this.width_isto / ( this.data.length))
+      .attr("x2", (d, i) => this.xScaleIsto(i) + this.width_isto / (this.data.length))
+      .attr("y1", this.height_isto)
+      .attr("y2", this.height_isto + 5)
+      .style("stroke", "black"); 
+
+
 
     histo
       .append("g")
