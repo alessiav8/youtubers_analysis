@@ -309,7 +309,7 @@ class Histogram {
         );
         if (confirmation) {
           const username = intersection[0]["Youtube channel"];
-          window.location.href = `/${encodeURIComponent(username)}`;
+          window.location.href = `/detail/${encodeURIComponent(username)}`;
         }
       }
 
