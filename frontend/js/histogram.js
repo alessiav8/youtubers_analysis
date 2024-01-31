@@ -107,7 +107,6 @@ function formatData(data, type) {
 class Histogram {
   constructor(data, id, container, label) {
     this.data = formatData(data, label);
-    //console.log(label,this.data);
     this.originalDB = data;
     this.id = id;
     this.container = container;
@@ -128,7 +127,7 @@ class Histogram {
       .domain([0, this.max])
       .range([this.height_isto, 0]);
 
-    this.xAxisIsto = d3.axisBottom(this.xScaleIsto).ticks(5);
+    this.xAxisIsto = d3.axisBottom(this.xScaleIsto);
     this.yAxisIsto = d3.axisLeft(this.yScaleIsto);
 
     this.yAxisIsto.tickFormat(d3.format(".0f"));
