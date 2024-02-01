@@ -145,7 +145,6 @@ class Histogram {
   getSubsetByYoutuberNames = (youtuberNamesSubset) => {
     // Get data from localStorage
     let originalDatasetString = localStorage.getItem("datasetFull");
-
     // Parse the string into an object or array
     let originalDataset;
     try {
@@ -175,9 +174,8 @@ class Histogram {
   //the currently database stored in the localStorage
  intersectFunction = (db2) => {
     //orginal database
-    const scatterTriggered = sessionStorage.getItem('scatterTriggered');
-    const db = scatterTriggered == true ? JSON.parse(localStorage.getItem("datasetAfterScatter")) : JSON.parse(localStorage.getItem("dataset"));
-    console.log("compared to db",db,"scatterTriggered",scatterTriggered);
+    const scatterTriggered = localStorage.getItem('scatterTriggered');
+    const db = scatterTriggered == true ? JSON.parse(localStorage.getItem("dataContainedInScatterArea")) : JSON.parse(localStorage.getItem("dataset"));
 
     const histos = ["Likes", "Comments", "Views", "Followers"];
     let n = [3, 4, 5];
@@ -219,8 +217,6 @@ class Histogram {
         item,
       ])
     );
-
-    console.log(db3Map,db4Map,db5Map,db2Map)
 
     // Trovare l'intersezione tra tutti i dataset
     var intersection = db.filter((item) => {
@@ -283,25 +279,45 @@ class Histogram {
 
   brushedend_insto_likes = () => {
     if (d3.event.selection) {
-      sessionStorage.setItem("filteredOnHistos", true);
+      localStorage.setItem("filteredOnHistos", true);
+
+      const scatterTriggered = localStorage.getItem("scatterTriggered") && JSON.parse(localStorage.getItem("scatterTriggered")) == true ? true : false;
+
       const [x0, x1] = d3.event.selection;
       const startIndex = Math.floor(this.xScaleIsto.invert(x0));
       const endIndex = Math.ceil(this.xScaleIsto.invert(x1));
       const selectedData = this.data.slice(startIndex, endIndex);
+
+      //const selectedAreaScatter = JSON.parse(localStorage.getItem("dataContainedInScatterArea"));
       //this will trigger the color of the scatterplot
 
       let YTinterval = this.getYoutubersInInterval(selectedData);
 
       //compute the subset
       let sub = this.getSubsetByYoutuberNames(YTinterval);
-      sessionStorage.setItem("dataset" + this.label, JSON.stringify(sub));
+      sessionStorage.setItem("NoSub"+this.label,JSON.stringify(sub));
 
+      //if it was applied a filter by the use of the scatter
+      //i compute the intersection between what i selected in the scatter and what i selected in the histo 
+      if(scatterTriggered==true) {
+        sub = this.checkIntersectionWithScatter(sub);
+      }
+
+      sessionStorage.setItem("dataset" + this.label, JSON.stringify(sub));
       this.intersectFunction(sub);
-      const intersection = JSON.parse(localStorage.getItem("datasetAfterHisto"));
+      let intersection = JSON.parse(localStorage.getItem("datasetAfterHisto"));
+
+      //if (scatterTriggered==true) intersection = this.checkIntersectionWithScatter(selectedAreaScatter);
+
 
       if (intersection.length == 0) {
-        window.alert("No intersections found,Reload");
-        location.reload();
+        const confirmation = window.confirm(
+          "No intersections found,Reload "      
+          );
+        if (confirmation) {
+          location.reload();
+
+        }      
       }
       if (intersection.length == 1) {
         const confirmation = window.confirm(
@@ -321,9 +337,21 @@ class Histogram {
     }
   };
 
+
+  //Points to color
+  checkIntersectionWithScatter = (subset) => {
+    const subScatter = JSON.parse(localStorage.getItem("dataContainedInScatterArea"));
+    const newVersion =subScatter.filter((data) => {
+      const foundChannel = subset.find(item => item['Youtube channel'] === data["Youtube channel"]);
+      if (foundChannel){
+        return data;
+      }
+    });
+    return newVersion;
+  }
+
   //selectedData removed here 
   reRenderHistos = (intersection) => {
-    console.log("Original DB in reRenderHisto",this.originalDB);
     const histograms = [
       "isto_like",
       "isto_view",
@@ -346,7 +374,6 @@ class Histogram {
             "Views"
           );
           histogramViews.colorIsto(d3.select("#isto_view"), selectedViews);
-          console.log("rage to color histogram in views",selectedViews);
         } else if (histograms[i] == "isto_comment") {
           const histogramComments = new Histogram(
             this.originalDB,

@@ -16,8 +16,8 @@ var radioButtons = document.querySelectorAll('input[name="monthOption"]');
 var Data
 
 window.addEventListener('beforeunload', function (event) {
- sessionStorage.setItem("scatterTriggered",false);
- sessionStorage.setItem("filteredOnHistos",false);
+ localStorage.setItem("scatterTriggered",false);
+ localStorage.setItem("filteredOnHistos",false);
 
 });
 
@@ -38,7 +38,6 @@ function handleRadioButtonChange() {
   temp=false
   var checkedRadioButton = document.querySelector('input[name="monthOption"]:checked');
   selectedMonth = checkedRadioButton.value;
-  console.log(selectedMonth)
   showLoadingMessage();
   saveLocalStorageStart();
   disableRadioButtons();
@@ -120,6 +119,11 @@ function renderHisto() {
   sessionStorage.setItem("datasetViews", JSON.stringify(dataset));
   sessionStorage.setItem("datasetComments", JSON.stringify(dataset));
   sessionStorage.setItem("datasetFollowers", JSON.stringify(dataset));
+
+  sessionStorage.setItem("NoSubLikes", JSON.stringify(dataset));
+  sessionStorage.setItem("NoSubViews", JSON.stringify(dataset));
+  sessionStorage.setItem("NoSubComments", JSON.stringify(dataset));
+  sessionStorage.setItem("NoSubFollowers", JSON.stringify(dataset));
 
   const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
   h_likes.renderIsto()
@@ -522,6 +526,48 @@ function changeHighlight(data) {
   colorIsto(data)
 }
 
+//to recompute some varibales do to the change of the histo range and the area selected by the scatter
+function recomputeIntersection(selection){
+  const histos = ["Likes", "Comments", "Views", "Followers"];
+    let n = [2, 3, 4, 5];
+    const dynamicDatabases = {};
+
+    for (let i in histos) {
+        let variable = n.pop();
+        const my_db = "db" + variable;
+        // Associo il valore della sessionStorage all'oggetto dynamicDatabases
+        dynamicDatabases[my_db] = JSON.parse(
+          sessionStorage.getItem("NoSub"+histos[i])
+        );
+        console.log(JSON.parse(
+          sessionStorage.getItem("NoSub"+histos[i])
+        ));
+    }
+
+    console.log("dynamicDatabases: ", dynamicDatabases);
+    
+    // Trovare l'intersezione tra tutti i dataset
+    var intersection = selection.filter((item) => {
+      if(dynamicDatabases.db2.some(d=>d["Youtube channel"]==item["Youtube channel"]) &&
+        dynamicDatabases.db3.some(d=>d["Youtube channel"]==item["Youtube channel"]) &&
+        dynamicDatabases.db4.some(d=>d["Youtube channel"]==item["Youtube channel"]) &&
+        dynamicDatabases.db5.some(d=>d["Youtube channel"]==item["Youtube channel"]) ){
+        return item;
+      }
+    });
+
+    console.log("afterHistos: " + JSON.parse(localStorage.getItem("datasetAfterHisto")));
+    localStorage.setItem("datasetAfterHisto", JSON.stringify(intersection));
+    console.log("DBComments: ",JSON.parse(sessionStorage.getItem("datasetComments")));
+   
+
+
+
+
+    console.log("Intersection from recomputing");
+    return intersection;
+}
+
 function renderScatterPlot(data) {
   data.forEach((d) => {
     d.x = +d.x;
@@ -601,22 +647,41 @@ function renderScatterPlot(data) {
   function brushedend_scatter_plot() {
     const event = d3.event;
     if (event && event.selection) {
-      sessionStorage.setItem("scatterTriggered",true);
-      const selection = event.selection;
-      const filtered = sessionStorage.getItem("filteredOnHistos") ? sessionStorage.getItem("filteredOnHistos") : false;
-      const jsonData = filtered == true ? JSON.parse(localStorage.getItem("datasetAfterHisto")) : JSON.parse(localStorage.getItem("dataset"))
-      //qui vengono mappati i dati selezionati e ti restituisce l'array con
-      //le label e la posizione dei punti selezionati
 
-      const selectedData = data.filter(
+      localStorage.setItem("scatterTriggered",true);
+      const selection = event.selection;
+      const actualDB = JSON.parse(localStorage.getItem("dataset"));
+      const Data = data.filter(
         (d) =>
           xScale(d.x) >= selection[0][0] &&
           xScale(d.x) <= selection[1][0] &&
           yScale(d.y) >= selection[0][1] &&
-          yScale(d.y) <= selection[1][1]  &&
-          jsonData.some(item => item["Youtube channel"] === d.label)
+          yScale(d.y) <= selection[1][1]  
       );
-      console.log("Selected Data:", selectedData);
+      const selectedScatter = actualDB.filter((d) => {
+        if(Data.some(item => item.label === d["Youtube channel"])){
+          return d;
+        }}
+      )
+      recomputeIntersection(selectedScatter);
+      const jsonData = JSON.parse(localStorage.getItem("filteredOnHistos")) == true ? JSON.parse(localStorage.getItem("datasetAfterHisto")) : JSON.parse(localStorage.getItem("dataset"))
+      
+      //qui vengono mappati i dati selezionati e ti restituisce l'array con
+      //le label e la posizione dei punti selezionati
+
+
+      const selectedData = Data.filter((d)=>{
+        if(jsonData.some(item => item["Youtube channel"] === d.label)){
+          return d;
+        }
+      });
+
+      //i need two variabiles, one to keep track of the points i need to color
+      //the other one, this one, to keep track of the points in the selected area
+
+
+      localStorage.setItem("dataContainedInScatterArea",JSON.stringify(selectedScatter));
+
       const datasetAfterHisto = JSON.parse(localStorage.getItem("datasetAfterHisto"));
 
       // Filter items from "datasetAfterScatter" based on the YouTube channel in selectedData
@@ -631,12 +696,14 @@ function renderScatterPlot(data) {
       localStorage.setItem("pt2y", selection[1][1]);
       localStorage.setItem("pt1y", selection[0][1]);
 
-      console.log("datasetfixed by scatter",localStorage.getItem("datasetAfterScatter"));
-
+      console.log("dataset after Histo",datasetAfterHisto,"saved in afterScatter", filteredDataset, "Selected Area",selectedScatter);
      
       
       colorScatterPlot(circles, selectedData);
+
+
       callChangeInHistograms(filteredDataset);
+
       if (selectedData.length === 1) {
         const confirmation = window.confirm("One youtuber found. Move to see specific data?");
         if (confirmation){
