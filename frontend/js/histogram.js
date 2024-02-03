@@ -1,5 +1,6 @@
 import { parseKMBtoNumber, colorScatterPlot } from "./index.js";
 import { Data } from './index.js';
+import { updateText } from './index.js';
 
 
 
@@ -264,6 +265,7 @@ class Histogram {
 
     localStorage.setItem("datasetAfterHisto", JSON.stringify(intersection));
     localStorage.setItem("datasetAfterScatter", JSON.stringify(commonItems));
+    updateText()
 
     return commonItems;
   };

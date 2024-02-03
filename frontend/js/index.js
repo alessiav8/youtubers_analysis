@@ -5,6 +5,8 @@ const reset_button = document.getElementById("reset_button");
 const compare_button = document.getElementById("compare_button");
 const zoom_button = document.getElementById("zoom_button");
 const confirm_button = document.getElementById("confirmButton");
+const ScatterPlotContainer = document.getElementById("ScatterPlotContainer")
+var totalAmount
 
 let dataset_g;
 let dataset_full;
@@ -48,6 +50,29 @@ function handleRadioButtonChange() {
   }, 200);
 }
 
+export function updateText(){
+    // Check if the element with id "counter" already exists
+  const len=JSON.parse(localStorage.getItem("datasetAfterScatter")).length
+  const text=len+" of "+totalAmount+" Youtubers selected"
+  const existingCounterElement = document.getElementById("counter");
+
+  if (existingCounterElement) existingCounterElement.parentNode.removeChild(existingCounterElement);
+      //create a new text node and span element
+      const newText = document.createTextNode(text);
+      const counterElement = document.createElement("div");
+      counterElement.id = "counter";
+      counterElement.appendChild(newText);
+
+      // Append the span element to the ScatterPlotContainer div
+      ScatterPlotContainer.appendChild(counterElement);
+}
+
+function updateTextBefore(){
+  const existingCounterElement = document.getElementById("counter");
+
+  if (existingCounterElement) existingCounterElement.parentNode.removeChild(existingCounterElement);
+}
+
 radioButtons.forEach((radio) => {
   radio.addEventListener('change', handleRadioButtonChange);
 });
@@ -82,6 +107,7 @@ function saveLocalStorageStart() {
       localStorage.setItem("datasetAfterHisto", JSON.stringify(cleanData(JSON.stringify(jsonData))));
       localStorage.setItem("datasetAfterScatter", JSON.stringify(cleanData(JSON.stringify(jsonData))));
       localStorage.setItem("datasetFull", JSON.stringify(cleanData(JSON.stringify(jsonData))));
+      totalAmount=JSON.parse(localStorage.getItem("datasetAfterScatter")).length
       localStorage.setItem("pt1x", 0);
       localStorage.setItem("pt2x", width);
       localStorage.setItem("pt2y", height);
@@ -342,6 +368,7 @@ reset_button.addEventListener("click", function () {
   location.reload();
 })
 zoom_button.addEventListener("click", function () {
+  updateTextBefore()
   removeSVGElements();
   showLoadingMessage();
   saveLocalStorageZoom();
@@ -381,6 +408,7 @@ zoom_button.addEventListener("click", function () {
   
 })
 confirm_button.addEventListener("click", function () {
+  updateTextBefore()
   confirmFilters();
 })
 
@@ -421,6 +449,7 @@ function getDataAndRenderGraph() {
       console.log("logg", data.length);  // Check the length
       enableRadioButtons();
       renderHisto();
+      updateText()
 
     })
     .catch((error) => {
@@ -691,6 +720,7 @@ function renderScatterPlot(data) {
 
       // Save the filtered dataset in localStorage
       localStorage.setItem("datasetAfterScatter", JSON.stringify(filteredDataset));
+      updateText()
       localStorage.setItem("pt1x", selection[0][0]);
       localStorage.setItem("pt2x", selection[1][0]);
       localStorage.setItem("pt2y", selection[1][1]);
