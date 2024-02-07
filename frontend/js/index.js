@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 function handleRadioButtonChange() {
+  updateTextBefore()
   temp=false
   var checkedRadioButton = document.querySelector('input[name="monthOption"]:checked');
   selectedMonth = checkedRadioButton.value;

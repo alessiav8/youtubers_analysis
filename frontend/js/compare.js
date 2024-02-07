@@ -86,10 +86,9 @@ Promise.all(fetchPromises)
     const margin = { top: 20, right: 20, bottom: 70, left: 70 };
 
     const parentDiv = document.getElementById("container1");
-    const parentDivRect = parentDiv.getBoundingClientRect();
     const pixels = (window.innerHeight * 35) / 100;
 
-    const width = (parentDivRect.width/12)*11 - margin.left - margin.right;
+    const width = 600 - margin.left - margin.right;
     const height = pixels - margin.top - margin.bottom;
   
 
