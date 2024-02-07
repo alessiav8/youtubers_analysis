@@ -20,6 +20,7 @@ var Data
 window.addEventListener('beforeunload', function (event) {
  localStorage.setItem("scatterTriggered",false);
  localStorage.setItem("filteredOnHistos",false);
+ reSetRadios("none")
 
 });
 
@@ -32,9 +33,15 @@ document.addEventListener("DOMContentLoaded", function () {
     renderFilters();
     getDataAndRenderGraph();
   }, 200);
+  reSetRadios("none")
 });
 
-
+function reSetRadios(value){
+  document.getElementById("ScaleLikes").style.display=value;
+  document.getElementById("ScaleComments").style.display=value;
+  document.getElementById("ScaleViews").style.display=value;
+  document.getElementById("ScaleFollowers").style.display=value;
+}
 
 function handleRadioButtonChange() {
   updateTextBefore()
@@ -163,6 +170,8 @@ function renderHisto() {
 
   const h_followers = new Histogram(dataset, "isto_follower", "#IstoFollowers", "Followers");
   h_followers.renderIsto()
+
+  reSetRadios("block");
 }
 
 function confirmFilters() {
@@ -374,6 +383,7 @@ zoom_button.addEventListener("click", function () {
   showLoadingMessage();
   saveLocalStorageZoom();
   disableRadioButtons();
+  reSetRadios("none")
   temp=true
   
   const serverEndpoint = '/generateExcel';
@@ -689,6 +699,7 @@ function renderScatterPlot(data) {
     }
   }
   function brushedend_scatter_plot() {
+    console.log("Call from brushened scatte")
     const event = d3.event;
     if (event && event.selection) {
 
@@ -710,6 +721,7 @@ function renderScatterPlot(data) {
       recomputeIntersection(selectedScatter);
       const jsonData = JSON.parse(localStorage.getItem("filteredOnHistos")) == true ? JSON.parse(localStorage.getItem("datasetAfterHisto")) : JSON.parse(localStorage.getItem("dataset"))
       
+      console.log("datasetAfterHisto",JSON.parse(localStorage.getItem("datasetAfterHisto")),"\n datasetAfterScatter",JSON.parse(localStorage.getItem("datasetAfterScatter")))
       //qui vengono mappati i dati selezionati e ti restituisce l'array con
       //le label e la posizione dei punti selezionati
 
@@ -725,7 +737,6 @@ function renderScatterPlot(data) {
 
 
       localStorage.setItem("dataContainedInScatterArea",JSON.stringify(selectedScatter));
-
       const datasetAfterHisto = JSON.parse(localStorage.getItem("datasetAfterHisto"));
 
       // Filter items from "datasetAfterScatter" based on the YouTube channel in selectedData
@@ -741,12 +752,8 @@ function renderScatterPlot(data) {
       localStorage.setItem("pt2y", selection[1][1]);
       localStorage.setItem("pt1y", selection[0][1]);
 
-      console.log("dataset after Histo",datasetAfterHisto,"saved in afterScatter", filteredDataset, "Selected Area",selectedScatter);
-     
-      
+      //console.log("dataset after Histo",datasetAfterHisto,"saved in afterScatter", filteredDataset, "Selected Area",selectedScatter);
       colorScatterPlot(circles, selectedData);
-
-
       callChangeInHistograms(filteredDataset);
 
       if (selectedData.length === 1) {

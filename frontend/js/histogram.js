@@ -3,7 +3,21 @@ import { Data } from './index.js';
 import { updateText } from './index.js';
 const minFontSize = Math.max(8, window.innerHeight * 0.01);
 
+document.addEventListener("DOMContentLoaded", function() {
+  var buttonsLinear = document.querySelectorAll(".linearbottom");
+  buttonsLinear.forEach(function(button) {
+      button.addEventListener("click", function() {
+          console.log("Hai cliccato su un linear!");
+      });
+  });
 
+  var buttonsLog = document.querySelectorAll(".logbottom");
+  buttonsLog.forEach(function(button) {
+      button.addEventListener("click", function() {
+          console.log("Hai cliccato su un log!");
+      });
+  });
+});
 
 function formatData(data, type) {
   let formattedData;
@@ -360,12 +374,14 @@ class Histogram {
   //Points to color
   checkIntersectionWithScatter = (subset) => {
     const subScatter = JSON.parse(localStorage.getItem("dataContainedInScatterArea"));
+    console.log("Check int",subset);
     const newVersion =subScatter.filter((data) => {
       const foundChannel = subset.find(item => item['Youtube channel'] === data["Youtube channel"]);
       if (foundChannel){
         return data;
       }
     });
+    console.log("Result int",newVersion);
     return newVersion;
   }
 

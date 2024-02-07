@@ -33,6 +33,14 @@
         font-family: Arial, sans-serif;
         font-size: 1.2vh; 
     }
+
+      .form-check-input[type="radio"] {
+        width: 16px; /* Adjust the width of the radio button circle */
+        height: 16px; /* Adjust the height of the radio button circle */
+      }
+      .form-check-label {
+        font-size: 12px; /* Adjust the font size of the label text */
+      }
     </style>
   </head>
   <body>
@@ -103,15 +111,85 @@
   <div class="row">
    
 
+
+
       <div class="row"id="IstoContainer">
 
-        <div class="col-3" id="IstoLikes">
+        <div class="col-3" >
+          <div class="row" id="IstoLikes"></div>
+          <div class="container" id="ScaleLikes" style="display:none;">
+            <div class="row justify-content-center">
+              <div class="col-auto">
+                <div class="form-check">
+                  <input class="form-check-input linearbottom" type="radio" name="LikesOption" id="linear_likes" value="linear">
+                  <label class="form-check-label" for="linear_likes">Linear</label>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-check">
+                  <input class="form-check-input logbottom" type="radio" name="LikesOption" id="log_likes" value="log" checked>
+                  <label class="form-check-label" for="log_likes">Log</label>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-3" id="IstoComments">
+        <div class="col-3" >
+          <div class="row" id="IstoComments"></div>
+          <div class="container" id="ScaleComments" style="display:none;">
+            <div class="row justify-content-center">
+              <div class="col-auto">
+                <div class="form-check">
+                  <input class="form-check-input linearbottom" type="radio" name="CommentsOption" id="linear_comments" value="linear">
+                  <label class="form-check-label" for="linear_comments">Linear</label>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-check">
+                  <input class="form-check-input logbottom" type="radio" name="CommentsOption" id="log_comments" value="log" checked>
+                  <label class="form-check-label" for="log_comments">Log</label>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-3" id="IstoViews">
+        <div class="col-3" >
+          <div class="row" id="IstoViews"></div>
+          <div class="container" id="ScaleViews" style="display:none;">
+            <div class="row justify-content-center">
+              <div class="col-auto">
+                <div class="form-check">
+                  <input class="form-check-input linearbottom" type="radio" name="ViewsOption" id="linear_views" value="linear">
+                  <label class="form-check-label" for="linear_views">Linear</label>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-check">
+                  <input class="form-check-input logbottom" type="radio" name="ViewsOption" id="log_views" value="log" checked>
+                  <label class="form-check-label" for="log_views">Log</label>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-3" id="IstoFollowers">
+        <div class="col-3" >
+          <div class="row" id="IstoFollowers"></div>
+          <div class="container" id="ScaleFollowers" style="display:none;">
+            <div class="row justify-content-center">
+              <div class="col-auto">
+                <div class="form-check">
+                  <input class="form-check-input linearbottom" type="radio" name="FollowersOption" id="linear_followes" value="linear">
+                  <label class="form-check-label" for="linear_followes">Linear</label>
+                </div>
+              </div>
+              <div class="col-auto">
+                <div class="form-check">
+                  <input class="form-check-input logbottom" type="radio" name="FollowersOption" id="log_followers" value="log" checked>
+                  <label class="form-check-label" for="log_followers">Log</label>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
       </div>
