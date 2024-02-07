@@ -11,7 +11,6 @@
 
     <script type="module" src="../js/index.js"></script>
     <style>
-      
       body {
         display: flex;
         justify-content: center;
@@ -32,7 +31,7 @@
         writing-mode: tb-rl; 
         transform: rotate(-180deg); 
         font-family: Arial, sans-serif;
-        font-size: 12px; 
+        font-size: 1.2vh; 
     }
     </style>
   </head>
@@ -40,12 +39,12 @@
     <div class="container" id="mainContainer">
       <div class="row">
         
-      <div class="container mb-1"  style="width: 100%; height: 40%;">
+      <div class="container mb-1" style="width: 100%; height: 40%;">
         <div class="row">
           <h3 class="mt-2">Find your Youtuber!</h3>
         </div>
 
-      <div class="row my-5 text-center" id="monthSelector">
+      <div class="row text-center" id="monthSelector">
         <div class="col">
           <label class="radio-inline">
               <input type="radio" name="monthOption" value="june" checked> June 2022
@@ -68,13 +67,13 @@
         </div>
       </div>
 
-      <div class="row my-5">
+      <div class="row ">
         <div class="col-2 text-center justify-content-between " id="Filters">
 
           <div class="my-3" id="category">
             <div class="form-group border p-3">
               <label for="scrollableCategory">Select Category</label>
-              <div id="scrollableCategory" style="height: 100px; overflow-y: auto;">
+              <div id="scrollableCategory" style="height: 10vh; overflow-y: auto;">
               </div>
             </div>
           </div>
@@ -82,7 +81,7 @@
           <div class="my-3" id="country">
             <div class="form-group border p-3">
               <label for="scrollableCountry">Select Country</label>
-              <div id="scrollableCountry" style="height: 100px; overflow-y: auto;">
+              <div id="scrollableCountry" style="height: 10vh; overflow-y: auto;">
               </div>
             </div>
           </div>
@@ -118,7 +117,7 @@
       </div>
 
       <div class="row mt-4 mb-4 justify-content-center align-items-center ">
-        <a href="/compare" id="compare_button" class="mx-5 btn btn-primary" style="width:10%" hidden>Compare</a>
+        <a href="/compare" id="compare_button" class="mx-5 btn btn-primary" style="width:10%" hidden target="_blank">Compare</a>
         <button type="button" id="zoom_button" class="mx-5 btn btn-primary" style="width:10%">Zoom</button>
         <button type="button" id="reset_button" class="mx-5 btn btn-danger" style="width:10%">Reset</button>
       </div>

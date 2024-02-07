@@ -97,8 +97,13 @@ fetch(`/getData/${username1}`)
 
   function createScatterPlot(data, label, container) {
     const margin = { top: 20, right: 20, bottom: 70, left: 70 };
-    const width = 600 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+
+    const parentDiv = document.getElementById("container1");
+    const parentDivRect = parentDiv.getBoundingClientRect();
+    const pixels = (window.innerHeight * 35) / 100;
+
+    const width = (parentDivRect.width/24)*11 - margin.left - margin.right;
+    const height = pixels - margin.top - margin.bottom;
   
     const months = ["June", "September", "November", "December"];
 

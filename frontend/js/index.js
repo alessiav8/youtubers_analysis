@@ -316,7 +316,7 @@ function renderFilter(categories, container) {
   allCheckboxLabel.classList.add("custom-control-label");
   allCheckboxLabel.setAttribute("for", idd);
   allCheckboxLabel.textContent = "All";
-  allCheckboxLabel.style.marginLeft = "5px"; // Adjust the spacing as needed
+  allCheckboxLabel.style.marginLeft = "0.5vh"; // Adjust the spacing as needed
 
   // Add event listener to toggle all other checkboxes
   allCheckboxInput.addEventListener("change", function () {
@@ -349,7 +349,7 @@ function renderFilter(categories, container) {
     checkboxLabel.classList.add("custom-control-label");
     checkboxLabel.setAttribute("for", category); // Should match the checkbox ID
     checkboxLabel.textContent = category; // You may want to modify this based on your category data
-    checkboxLabel.style.marginLeft = "5px"; // Adjust the spacing as needed
+    checkboxLabel.style.marginLeft = "0.5vh"; // Adjust the spacing as needed
 
     checkboxDiv.appendChild(checkboxInput);
     checkboxDiv.appendChild(checkboxLabel);
@@ -449,7 +449,6 @@ function getDataAndRenderGraph() {
       console.log("logg", data.length);  // Check the length
       enableRadioButtons();
       renderHisto();
-      updateText()
 
     })
     .catch((error) => {
@@ -738,7 +737,7 @@ function renderScatterPlot(data) {
         const confirmation = window.confirm("One youtuber found. Move to see specific data?");
         if (confirmation){
           const username = selectedData[0]["label"];
-          window.location.href = `/detail/${encodeURIComponent(username)}`;
+          window.open(`/detail/${encodeURIComponent(username)}`, '_blank');
         }
       }
     }
@@ -782,7 +781,7 @@ circles.on("click", (d) => {
   const confirmation = window.confirm("One youtuber found. Move to see specific data?");
   if (confirmation) {
     const username = d.label;
-    window.location.href = `/detail/${encodeURIComponent(username)}`;
+    window.open(`/detail/${encodeURIComponent(username)}`, '_blank');
   }
 });
 

@@ -1,6 +1,7 @@
 import { parseKMBtoNumber, colorScatterPlot } from "./index.js";
 import { Data } from './index.js';
 import { updateText } from './index.js';
+const minFontSize = Math.max(8, window.innerHeight * 0.01);
 
 
 
@@ -103,6 +104,10 @@ function formatData(data, type) {
 
   return formattedData;
 }
+const margin = { top: 20, right: 20, bottom: 70, left: 70 };
+
+const parentDiv = document.getElementById("IstoContainer");
+const pixels = (window.innerHeight * 25) / 100;
 
 
 class Histogram {
@@ -117,7 +122,7 @@ class Histogram {
     const parentDivRect = parentDiv.getBoundingClientRect();
     this.width_isto =
       parentDivRect.width / 4 - this.margin.left - this.margin.right;
-    this.height_isto = 250 - this.margin.top - this.margin.bottom;
+    this.height_isto = pixels - this.margin.top - this.margin.bottom;
     this.xScaleIsto = d3
       .scaleLinear()
       .domain([0, this.data.length])
@@ -327,7 +332,7 @@ class Histogram {
         );
         if (confirmation) {
           const username = intersection[0]["Youtube channel"];
-          window.location.href = `/detail/${encodeURIComponent(username)}`;
+          window.open(`/detail/${encodeURIComponent(username)}`, '_blank');
         }
       }
 
@@ -677,7 +682,7 @@ class Histogram {
       .call(this.yAxisIsto)
       .selectAll("text")
       .style("font-family", "Arial")
-      .style("font-size", "8px");
+      .style("font-size", minFontSize + "px");
 
     histo
       .selectAll("rect")
@@ -714,7 +719,7 @@ class Histogram {
             (this.width_isto / this.data.length - 1) / 500
       )
       .attr("y", this.height_isto + this.margin.top)
-      .attr("font-size", "8px");
+      .attr("font-size", minFontSize + "px");
 
     // Etichetta alla fine
     histo
@@ -730,7 +735,7 @@ class Histogram {
           : this.xScaleIsto(i) + (this.width_isto / this.data.length - 1) / 2
       )
       .attr("y", (d, i) => this.height_isto + this.margin.top)
-      .attr("font-size", "8px");
+      .attr("font-size", minFontSize + "px");
 
     //label y
     histo
@@ -740,7 +745,7 @@ class Histogram {
       .attr("x", 0 - this.height_isto / 2)
       .attr("dy", "1em")
       .style("text-anchor", "middle")
-      .style("font-size", "8px")
+      .style("font-size", minFontSize + "px")
       .text("Frequency");
 
     //label views,comments...
@@ -748,7 +753,7 @@ class Histogram {
       .append("text")
       .attr("transform", `translate(${this.width_isto / 2})`)
       .style("text-anchor", "middle")
-      .style("font-size", "9px")
+      .style("font-size", minFontSize + "px")
       .text(this.label)
       .attr("x", this.width_isto / 2 - 100)
       .attr("y", this.height_isto + this.margin.top + this.margin.bottom - 30);
