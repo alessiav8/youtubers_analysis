@@ -620,18 +620,30 @@ function renderScatterPlot(data) {
     .attr("id", "scatterplot")
     .attr("id", "scatterplot")
     .attr("transform", `translate(${margin.left},${margin.top})`);
+    
+    const xExtent = d3.extent(data, (d) => d.x);
+    const yExtent = d3.extent(data, (d) => d.y);
+    
+    const xScale = d3.scaleLinear().domain(xExtent).range([0, width]);
+    const yScale = d3.scaleLinear().domain(yExtent).range([height, 0]);
 
-  const xExtent = d3.extent(data, (d) => d.x);
-  const yExtent = d3.extent(data, (d) => d.y);
+    /*se ci sono problemi:
+        const xExtent = d3.extent(data, (d) => d.x);
+      const yExtent = d3.extent(data, (d) => d.y);
 
-  const maxExtent = [
-    Math.min(xExtent[0], yExtent[0]),
-    Math.max(xExtent[1], yExtent[1]),
-  ];
+      const maxExtent = [
+        Math.min(xExtent[0], yExtent[0]),
+        Math.max(xExtent[1], yExtent[1]),
+      ];
 
-  const xScale = d3.scaleLinear().domain(maxExtent).range([0, width]);
-  const yScale = d3.scaleLinear().domain(maxExtent).range([height, 0]);
-
+      const xScale = d3.scaleLinear().domain(maxExtent).range([0, width]);
+      const yScale = d3.scaleLinear().domain(maxExtent).range([height, 0]);
+    */
+    
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+    
+  
   const tooltip = d3
     .select("body")
     .append("div")
@@ -641,8 +653,7 @@ function renderScatterPlot(data) {
 
 
   
-  const xAxis = d3.axisBottom(xScale);
-  const yAxis = d3.axisLeft(yScale);
+
 
   scatter_plot
     .append("g")
@@ -760,8 +771,8 @@ function renderScatterPlot(data) {
 
  //mouseover function
  function mouseover(event) {
-  const xPosition = xScale(event.x) + 5 + 7 * margin.left;
-  const yPosition = yScale(event.y) - 10 + 7 * margin.top;
+  const xPosition = xScale(event.x) + 400;
+  const yPosition = yScale(event.y) + 200;
   tooltip
     .transition()
     .duration(200)
