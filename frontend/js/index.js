@@ -627,7 +627,11 @@ function renderScatterPlot(data) {
     
     const xScale = d3.scaleLinear().domain(xExtent).range([0, width]);
     const yScale = d3.scaleLinear().domain(yExtent).range([height, 0]);
+    
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
 
+    
     /*se ci sono problemi:
         const xExtent = d3.extent(data, (d) => d.x);
       const yExtent = d3.extent(data, (d) => d.y);
@@ -639,10 +643,10 @@ function renderScatterPlot(data) {
 
       const xScale = d3.scaleLinear().domain(maxExtent).range([0, width]);
       const yScale = d3.scaleLinear().domain(maxExtent).range([height, 0]);
-    */
-    
-    const xAxis = d3.axisBottom(xScale);
+
+      const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale);
+    */
     
   
   const tooltip = d3

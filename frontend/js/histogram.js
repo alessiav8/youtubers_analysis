@@ -238,6 +238,16 @@ class Histogram {
     const margin = { top: 20, right: 20, bottom: 30, left: 40 };
     const width = (parentDivRect.width/12)*11 - margin.left - margin.right;
     const height = (parentDivRect.height/15)*14 - margin.top - margin.bottom;
+    
+    const xExtent = d3.extent(Data, (d) => d.x);
+    const yExtent = d3.extent(Data, (d) => d.y);
+    
+    const xScale = d3.scaleLinear().domain(xExtent).range([0, width]);
+    const yScale = d3.scaleLinear().domain(yExtent).range([height, 0]);
+  
+
+    
+    /*se ci sono problemi:
     const xExtent = d3.extent(Data, (d) => d.x);
     const yExtent = d3.extent(Data, (d) => d.y);
   
@@ -248,6 +258,8 @@ class Histogram {
   
     const xScale = d3.scaleLinear().domain(maxExtent).range([0, width]);
     const yScale = d3.scaleLinear().domain(maxExtent).range([height, 0]);
+    */
+   
     var filteredScatter=Data.filter(
       (d) =>
         xScale(d.x) >= localStorage.getItem("pt1x") &&
