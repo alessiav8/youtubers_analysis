@@ -75,7 +75,7 @@
         </div>
       </div>
 
-      <div class="row ">
+      <div class="row mt-3">
         <div class="col-2 text-center justify-content-between " id="Filters">
 
           <div class="my-3" id="category">
@@ -94,13 +94,35 @@
             </div>
           </div>
 
-          <button id="confirmButton" class="btn btn-sm  btn-primary">Confirm</button>
+          <button id="confirmButton" class="btn btn-sm  btn-primary">Confirm filters</button>
 
         </div>
 
       
-        <div class="col-10" id="ScatterPlotContainer">
+        <div class="col-10 border" id="ScatterPlotContainer">
           <div class="row my-5 text-center" id="loadingMessage">Loading data...</div>
+          <div class="row mb-3" id="mdsParam" style="display: none;">
+            <div class="col-2">
+              <label for="sliderA">Likes:<br></label>
+              <input type="range" class="form-control-range slider" id="sliderA" min="0" max="100" value="25">
+            </div>
+            <div class="col-2">
+              <label for="sliderB">Comments:<br></label>
+              <input type="range" class="form-control-range slider" id="sliderB" min="0" max="100" value="25">
+            </div>
+            <div class="col-2">
+              <label for="sliderC">Views:<br></label>
+              <input type="range" class="form-control-range slider" id="sliderC" min="0" max="100" value="25">
+            </div>
+            <div class="col-2">
+              <label for="sliderD">Followers:<br></label>
+              <input type="range" class="form-control-range slider" id="sliderD" min="0" max="100" value="25">
+            </div>
+            <div class="col-2 d-flex justify-content-center align-items-center">
+              <button id="confirmButton1" class="btn btn-sm btn-primary">Confirm parameters</button>
+            </div>
+            <div class="col-2 d-flex justify-content-center align-items-center" id="counterContainer"></div>
+          </div>
         </div>
 
         
@@ -194,7 +216,7 @@
 
       </div>
 
-      <div class="row mt-4 mb-4 justify-content-center align-items-center ">
+      <div class="row mt-3 justify-content-center align-items-center ">
         <a href="/compare" id="compare_button" class="mx-5 btn btn-primary" style="width:10%" hidden target="_blank">Compare</a>
         <button type="button" id="zoom_button" class="mx-5 btn btn-primary" style="width:10%">Zoom</button>
         <button type="button" id="reset_button" class="mx-5 btn btn-danger" style="width:10%">Reset</button>
