@@ -27,13 +27,25 @@ def convert_to_int(value):
 # questa funzione prende in input le features e crea un array diff_matrix 3d i,j,k che rappresenta la differenza dell'elemento i e j sulla feature k
 # poi fa quadrato e somma lungo l'asse delle features (dando fuori sum_squared_diff che è array 2d che indica valore per ogni coppia di valori) ed infine radice.
 # è quindi solo una fancy way di fare euclidian, fancy perchè così si può fare faster calculations con numpy arrays
-def calculate_dissimilarity_matrix(features_scaled,likes,comments,views,followers):
-    weighted_features = features_scaled * np.array([followers, views, likes, comments]).reshape(-1, 1)
+def calculate_dissimilarity_matrix(features_scaled, likes, comments, views, followers):
+    # Create an array of weights for each feature
+    weights = np.array([followers, views, likes, comments])
+
+    # Broadcasting to apply weights to each feature
+    weighted_features = features_scaled * weights.reshape(1, -1)
+
+    # Calculate pairwise differences
     diff_matrix = weighted_features[:, np.newaxis, :] - weighted_features
-    #diff_matrix = features_scaled[:, np.newaxis, :] - features_scaled
+
+    # Calculate squared differences
     squared_diff = diff_matrix ** 2
+
+    # Sum squared differences along the last axis
     sum_squared_diff = np.sum(squared_diff, axis=-1)
+
+    # Calculate the square root to get the dissimilarity matrix
     dissimilarity_matrix = np.sqrt(sum_squared_diff)
+
     return dissimilarity_matrix
 
 def create_scatter_plot(csv_path,likes,comments,views,followers):
