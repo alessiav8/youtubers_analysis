@@ -159,16 +159,21 @@ function renderHisto() {
   sessionStorage.setItem("NoSubComments", JSON.stringify(dataset));
   sessionStorage.setItem("NoSubFollowers", JSON.stringify(dataset));
 
-  const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes");
+  sessionStorage.setItem("LikesScale","log");
+  sessionStorage.setItem("CommentsScale","log");
+  sessionStorage.setItem("ViewsScale","log");
+  sessionStorage.setItem("FollowersScale","log");
+
+  const h_likes = new Histogram(dataset, "isto_like", "#IstoLikes", "Likes","log");
   h_likes.renderIsto()
 
-  const h_views = new Histogram(dataset, "isto_view", "#IstoViews", "Views");
+  const h_views = new Histogram(dataset, "isto_view", "#IstoViews", "Views","log");
   h_views.renderIsto()
 
-  const h_comments = new Histogram(dataset, "isto_comment", "#IstoComments", "Comments");
+  const h_comments = new Histogram(dataset, "isto_comment", "#IstoComments", "Comments","log");
   h_comments.renderIsto()
 
-  const h_followers = new Histogram(dataset, "isto_follower", "#IstoFollowers", "Followers");
+  const h_followers = new Histogram(dataset, "isto_follower", "#IstoFollowers", "Followers","log");
   h_followers.renderIsto()
 
   reSetRadios("block");
@@ -517,7 +522,7 @@ function intersectCleanedDataScatteData(data){
 function callChangeInHistograms(filteredDataset){
   //added by A
   const dataset2= JSON.parse(localStorage.getItem("dataset"));
-  const h = new Histogram(dataset2,"","","");
+  const h = new Histogram(dataset2,"","","","log");
   //const intersect = h.intersectFunction(filteredDataset)
   h.reRenderHistos(filteredDataset);
   console.log("callChangeInHistograms","\n Actual db", dataset2, "filteredData",filteredDataset);

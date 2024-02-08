@@ -1,49 +1,125 @@
 import { parseKMBtoNumber, colorScatterPlot } from "./index.js";
 import { Data } from './index.js';
 import { updateText } from './index.js';
-const minFontSize = Math.max(8, window.innerHeight * 0.01);
+const minFontSize = Math.max(7.2, window.innerHeight * 0.01);
 
 document.addEventListener("DOMContentLoaded", function() {
   var buttonsLinear = document.querySelectorAll(".linearbottom");
   buttonsLinear.forEach(function(button) {
       button.addEventListener("click", function() {
-          console.log("Hai cliccato su un linear!");
+          const id_button=button.id;
+          if(id_button=="linear_likes"){
+            sessionStorage.setItem("LikesScale","linear");
+            removeDiv("#IstoLikes");
+            reRenderHisto("Likes", "linear");
+          }
+          else if(id_button=="linear_comments"){
+            sessionStorage.setItem("CommentsScale","linear");
+            removeDiv("#IstoComments");
+            reRenderHisto("Comments", "linear");
+          }
+          else if(id_button=="linear_views"){
+            sessionStorage.setItem("ViewsScale","linear");
+            removeDiv("#IstoViews");
+            reRenderHisto("Views", "linear");
+          }
+          else if(id_button=="linear_followes"){
+            sessionStorage.setItem("FollowersScale","linear");
+            removeDiv("#IstoFollowers");
+            reRenderHisto("Followers", "linear");
+          }
       });
   });
 
   var buttonsLog = document.querySelectorAll(".logbottom");
   buttonsLog.forEach(function(button) {
       button.addEventListener("click", function() {
+        const id_button=button.id;
+        if(id_button=="log_likes"){
+          sessionStorage.setItem("LikesScale","log");
+          removeDiv("#IstoLikes");
+          reRenderHisto("Likes", "log");
+        }
+        else if(id_button=="log_comments"){
+          sessionStorage.setItem("CommentsScale","log");
+          removeDiv("#IstoComments");
+          reRenderHisto("Comments", "log");
+        }
+        else if(id_button=="log_views"){
+          sessionStorage.setItem("ViewsScale","log");
+          removeDiv("#IstoViews");
+          reRenderHisto("Views", "log");
+        }
+        else if(id_button=="log_followers"){
+          sessionStorage.setItem("FollowersScale","log");
+          removeDiv("#IstoFollowers");
+          reRenderHisto("Followers", "log");
+        }
           console.log("Hai cliccato su un log!");
       });
   });
 });
 
-function formatData(data, type) {
+function removeDiv(div){
+  var containerDiv = d3.select(div);
+  containerDiv.selectAll("*").remove();
+}
+
+function reRenderHisto(type,scale_type){
+  console.log("ReRenderHisto",type,scale_type);
+  //data considered by the Histo
+  const data = JSON.parse(localStorage.getItem("dataset"+type)) ? JSON.parse(localStorage.getItem("dataset"+type)) : JSON.parse(localStorage.getItem("dataset"));
+  //data selected in the histo
+  const to_color = JSON.parse(localStorage.getItem("NoSub"+type)) ? JSON.parse(localStorage.getItem("NoSub"+type)) : data;
+
+  let id;
+  if(type=="Likes") id="isto_like";
+  else if(type=="Comments") id="isto_comment";
+  else if(type=="Views") id="isto_view";
+  else if(type=="Followers") id="isto_follower";
+
+  const Isto= "#Isto"+type;
+  const histo = new Histogram(data, id, Isto, type, scale_type);
+  histo.renderIsto()
+
+
+  /*const histogramViews = new Histogram(
+    this.originalDB,
+    "isto_view",
+    "#IstoViews",
+    "Views"
+  );
+  const selectedViews = this.findIntervalsForCategory(
+    intersection,
+    histogramViews.data,
+    "Views"
+  );
+  histogramViews.colorIsto(d3.select("#isto_view"), selectedViews);
+
+  histo.colorIsto(d3.select("#"+id,to_color));*/
+}
+
+function formatData(data, type, scale_type) {
   let formattedData;
-  const numBins = 5;
+  const numBins = 6;
   let divisor = 10;
 
   let key;
   let filterKey;
-  let scaleType;
+  let scaleType=scale_type;
 
   if (type === "Likes") {
     key = "Avg. likes";
     filterKey = "Likes";
-    scaleType = "log";
   } else if (type === "Views") {
     key = "Avg. views";
     filterKey = "Views";
-    scaleType = "log";
   } else if (type === "Comments") {
     key = "Avg. comments";
     filterKey = "Comments";
-    scaleType = "log";
   } else if (type === "Followers") {
     key = "Followers";
     filterKey = "Followers";
-    scaleType = "log";
   }
 
   const filteredData = data
@@ -74,7 +150,7 @@ function formatData(data, type) {
   else{
     tot= maxData / 1000;
     if(tot < 100){
-      scaleType="linear"
+      //scaleType="linear"
     }
     else{
       divisor = 20; 
@@ -82,12 +158,11 @@ function formatData(data, type) {
   }
 
   if (data.length < 50){
-    scaleType="linear"
+    //scaleType="linear"
   }
   if(minData >= maxData/10){
-    scaleType="linear"
+    //scaleType="linear"
   }
-
 
   const scale = scaleType === "log"
     ? d3.scaleLog().domain([1, maxData]).range([0, maxData / divisor])
@@ -97,15 +172,22 @@ function formatData(data, type) {
     if (scaleType === "log"){
        histogram = d3.histogram()
       .domain([0, maxData])
-      .thresholds(d3.range(1, numBins + 2).map((d) => scale(d)))
+      .thresholds(d3.range(1, numBins+1).map((d) => scale(d)))
       (filteredData);
     }
     else{
-      const thresholdsLinear = d3.range(0,numBins).map(d => scale(minData + (maxData - minData) / numBins * d));
-      histogram = d3.histogram()
-        .domain([0, maxData])
+      const binWidth = (maxData - minData) / numBins;
+      const thresholdsLinear = [];
+      for (let i = 0; i < numBins; i++) {
+        thresholdsLinear.push(minData + binWidth * i);
+      }
+      
+    histogram = d3.histogram()
+        .domain([minData, maxData])
         .thresholds(thresholdsLinear)
         (filteredData);
+      
+
     }
   sessionStorage.setItem(filterKey, maxData);
 
@@ -116,6 +198,8 @@ function formatData(data, type) {
     end: `${bin.x1}`,
   }));
 
+
+
   return formattedData;
 }
 const margin = { top: 20, right: 20, bottom: 70, left: 70 };
@@ -125,8 +209,9 @@ const pixels = (window.innerHeight * 25) / 100;
 
 
 class Histogram {
-  constructor(data, id, container, label) {
-    this.data = formatData(data, label);
+  constructor(data, id, container, label, scale_type) {
+    this.scale=scale_type ? scale_type : "log";
+    this.data = formatData(data, label,scale_type);
     this.originalDB = data;
     this.id = id;
     this.container = container;
@@ -401,7 +486,7 @@ class Histogram {
             this.originalDB,
             "isto_view",
             "#IstoViews",
-            "Views"
+            "Views",sessionStorage.getItem("ViewsScale")
           );
           const selectedViews = this.findIntervalsForCategory(
             intersection,
@@ -414,7 +499,7 @@ class Histogram {
             this.originalDB,
             "isto_comment",
             "#IstoComments",
-            "Comments"
+            "Comments",sessionStorage.getItem("CommentsScale")
           );
           const selectedComments = this.findIntervalsForCategory(
             intersection,
@@ -430,7 +515,7 @@ class Histogram {
             this.originalDB,
             "isto_like",
             "#IstoLikes",
-            "Likes"
+            "Likes",sessionStorage.getItem("LikesScale")
           );
           const selectedLikes = this.findIntervalsForCategory(
             intersection,
@@ -443,7 +528,7 @@ class Histogram {
             this.originalDB,
             "isto_follower",
             "#IstoFollowers",
-            "Followers"
+            "Followers",sessionStorage.getItem("FollowersScale")
           );
           const selectedFollowers = this.findIntervalsForCategory(
             intersection,
@@ -676,6 +761,7 @@ class Histogram {
 
   //this function handle the renderization of the histogram
   renderIsto() {
+    console.log(this.data,this.label)
     const histo = d3
       .select(this.container)
       .append("svg")
@@ -756,10 +842,10 @@ class Histogram {
       .enter()
       .append("text")
       .attr("class", "bar-label-end")
-      .text((d, i) => (i === 5 ? formatLabel(d.end, i) : ""))
+      .text((d, i) => (i === 5 ? formatLabel(d.end, i)  : ""))
       .attr("x", (d, i) =>
         i === 5
-          ? this.xScaleIsto(i) - 10 + (this.width_isto / this.data.length - 1)
+          ? this.xScaleIsto(i) - 12 + (this.width_isto / this.data.length - 1)
           : this.xScaleIsto(i) + (this.width_isto / this.data.length - 1) / 2
       )
       .attr("y", (d, i) => this.height_isto + this.margin.top)
