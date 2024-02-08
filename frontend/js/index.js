@@ -5,7 +5,15 @@ const reset_button = document.getElementById("reset_button");
 const compare_button = document.getElementById("compare_button");
 const zoom_button = document.getElementById("zoom_button");
 const confirm_button = document.getElementById("confirmButton");
+const confirm_button1 = document.getElementById("confirmButton1");
 const ScatterPlotContainer = document.getElementById("ScatterPlotContainer")
+const counterContainer = document.getElementById("counterContainer")
+var likesSlider=document.getElementById("sliderA").checked
+var commentsSlider=document.getElementById("sliderB").checked
+var viewsSlider=document.getElementById("sliderC").checked
+var followersSlider=document.getElementById("sliderD").checked
+
+
 var totalAmount
 
 let dataset_g;
@@ -31,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
   disableRadioButtons();
   setTimeout(() => {
     renderFilters();
-    getDataAndRenderGraph();
+    getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersSlider);
   }, 200);
   reSetRadios("none")
 });
@@ -54,25 +62,41 @@ function handleRadioButtonChange() {
   removeSVGElements();
   setTimeout(() => {
     renderFilters();
-    getDataAndRenderGraph();
+    getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersSlider);
   }, 200);
 }
+
+
+
+  // Function to update the sum and counter container
+  function updateSum() {
+    likesSlider=document.getElementById("sliderA").checked
+    commentsSlider=document.getElementById("sliderB").checked
+    viewsSlider=document.getElementById("sliderC").checked
+    followersSlider=document.getElementById("sliderD").checked
+  }
+
+  // Attach event listener to sliders
+  const checkboxes = document.querySelectorAll('.sliders');
+  checkboxes.forEach(function (checkbox) {
+    checkbox.addEventListener('change', updateSum);
+  });
 
 export function updateText(){
     // Check if the element with id "counter" already exists
   const len=JSON.parse(localStorage.getItem("datasetAfterScatter")).length
-  const text=len+" of "+totalAmount+" Youtubers selected"
+  const text=len+"/"+totalAmount
   const existingCounterElement = document.getElementById("counter");
 
   if (existingCounterElement) existingCounterElement.parentNode.removeChild(existingCounterElement);
       //create a new text node and span element
       const newText = document.createTextNode(text);
-      const counterElement = document.createElement("div");
+      const counterElement = document.createElement("p");
       counterElement.id = "counter";
       counterElement.appendChild(newText);
 
       // Append the span element to the ScatterPlotContainer div
-      ScatterPlotContainer.appendChild(counterElement);
+      counterContainer.appendChild(counterElement);
 }
 
 function updateTextBefore(){
@@ -180,6 +204,8 @@ function renderHisto() {
 }
 
 function confirmFilters() {
+  showLoadingMessage();
+
   //quando il pulsante confirm viene premuto, la variabile in localStorage dataset viene modificata in base ai filtri tolti o aggiunti e vengono ri-renderizzati istogrammi e scatter
   //in base a quanto contenuto nella variabile dataset.
   disableRadioButtons();
@@ -266,9 +292,9 @@ function confirmFilters() {
       console.error('Error during the request:', error);
     });
 
+   
     setTimeout(() => {
-      showLoadingMessage();
-      getDataAndRenderGraph();
+      getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersSlider);
     }, 200);
   
 }
@@ -419,11 +445,15 @@ zoom_button.addEventListener("click", function () {
     setTimeout(() => {
       renderFilters();
       showLoadingMessage();
-      getDataAndRenderGraph();
+      getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersSlider);
     }, 500);
   
 })
 confirm_button.addEventListener("click", function () {
+  updateTextBefore()
+  confirmFilters();
+})
+confirm_button1.addEventListener("click", function () {
   updateTextBefore()
   confirmFilters();
 })
@@ -438,13 +468,17 @@ function removeSVGElements() {
 }
 
 
-function getDataAndRenderGraph() {
+function getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersSlider) {
   var requestOptions;
   if(temp==false){
     requestOptions = {
     method: "GET",
     headers: {
       month: selectedMonth,
+      likes: likesSlider,
+      comments: commentsSlider,
+      views: viewsSlider,
+      followers: followersSlider,
     },
   };
 } else {
@@ -452,6 +486,10 @@ function getDataAndRenderGraph() {
     method: "GET",
     headers: {
       month: "temp",
+      likes: likesSlider,
+      comments: commentsSlider,
+      views: viewsSlider,
+      followers: followersSlider,
     },
   };
 }
@@ -470,6 +508,9 @@ function getDataAndRenderGraph() {
     .catch((error) => {
       hideLoadingMessage();
       enableRadioButtons();
+      console.error('Error details:', error);
+      console.error('Response:', error.message); // or error.message
+
     });
 }
 
@@ -535,11 +576,13 @@ function callChangeInHistograms(filteredDataset){
 
 function showLoadingMessage() {
   document.getElementById("loadingMessage").style.display = "block";
+  document.getElementById("mdsParam").style.display = "none";
 }
 
 
 function hideLoadingMessage() {
   document.getElementById("loadingMessage").style.display = "none";
+  document.getElementById("mdsParam").style.display = "";
 }
 
 
@@ -628,7 +671,7 @@ function renderScatterPlot(data) {
 
   const scatter_plot = d3
     .select("#ScatterPlotContainer")
-    .append("svg")
+    .insert("svg", ":first-child") // Insert as the first child
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .attr("id", "mds")
