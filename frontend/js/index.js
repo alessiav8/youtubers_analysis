@@ -8,10 +8,10 @@ const confirm_button = document.getElementById("confirmButton");
 const confirm_button1 = document.getElementById("confirmButton1");
 const ScatterPlotContainer = document.getElementById("ScatterPlotContainer")
 const counterContainer = document.getElementById("counterContainer")
-var likesSlider=document.getElementById("sliderA").value/25
-var commentsSlider=document.getElementById("sliderB").value/25
-var viewsSlider=document.getElementById("sliderC").value/25
-var followersSlider=document.getElementById("sliderD").value/25
+var likesSlider=document.getElementById("sliderA").checked
+var commentsSlider=document.getElementById("sliderB").checked
+var viewsSlider=document.getElementById("sliderC").checked
+var followersSlider=document.getElementById("sliderD").checked
 
 
 var totalAmount
@@ -71,33 +71,17 @@ const sliders = d3.selectAll(".slider");
 
   // Function to update the sum and counter container
   function updateSum() {
-    // Get values from all sliders
-    const values = sliders.nodes().map(slider => +slider.value);
-
-    // Calculate the sum
-    const sum = d3.sum(values);
-
-
-    // If sum exceeds 100, distribute the difference evenly among sliders
-    if (sum > 100) {
-      const excess = sum - 100;
-      const numNonZeroSliders = values.filter(value => value > 0).length;
-
-      // Adjust sliders to ensure the sum is at most 100
-      sliders.each(function(_, i) {
-        const adjustedValue = values[i] - excess / numNonZeroSliders;
-        d3.select(this).property("value", adjustedValue);
-      });
-    }
-    likesSlider=document.getElementById("sliderA").value/25
-    commentsSlider=document.getElementById("sliderB").value/25
-    viewsSlider=document.getElementById("sliderC").value/25
-    followersSlider=document.getElementById("sliderD").value/25
+    likesSlider=document.getElementById("sliderA").checked
+    commentsSlider=document.getElementById("sliderB").checked
+    viewsSlider=document.getElementById("sliderC").checked
+    followersSlider=document.getElementById("sliderD").checked
   }
 
   // Attach event listener to sliders
-  sliders.on("input", updateSum);
-
+  const checkboxes = document.querySelectorAll('.sliders');
+  checkboxes.forEach(function (checkbox) {
+    checkbox.addEventListener('change', updateSum);
+  });
 
 export function updateText(){
     // Check if the element with id "counter" already exists

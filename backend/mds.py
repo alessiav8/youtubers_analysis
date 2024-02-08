@@ -27,34 +27,37 @@ def convert_to_int(value):
 # questa funzione prende in input le features e crea un array diff_matrix 3d i,j,k che rappresenta la differenza dell'elemento i e j sulla feature k
 # poi fa quadrato e somma lungo l'asse delle features (dando fuori sum_squared_diff che è array 2d che indica valore per ogni coppia di valori) ed infine radice.
 # è quindi solo una fancy way di fare euclidian, fancy perchè così si può fare faster calculations con numpy arrays
-def calculate_dissimilarity_matrix(features_scaled, likes, comments, views, followers):
-    # Create an array of weights for each feature
-    weights = np.array([followers, views, likes, comments])
+def calculate_dissimilarity_matrix(features_scaled,likes,comments,views,followers):
 
-    # Broadcasting to apply weights to each feature
-    weighted_features = features_scaled * weights.reshape(1, -1)
-
-    # Calculate pairwise differences
-    diff_matrix = weighted_features[:, np.newaxis, :] - weighted_features
-
-    # Calculate squared differences
+    diff_matrix = features_scaled[:, np.newaxis, :] - features_scaled
     squared_diff = diff_matrix ** 2
-
-    # Sum squared differences along the last axis
     sum_squared_diff = np.sum(squared_diff, axis=-1)
-
-    # Calculate the square root to get the dissimilarity matrix
     dissimilarity_matrix = np.sqrt(sum_squared_diff)
-
     return dissimilarity_matrix
 
 def create_scatter_plot(csv_path,likes,comments,views,followers):
+    print("Likes:", likes)
+    print("Comments:", comments)
+    print("Views:", views)
+    print("Followers:", followers)
+    selected_columns = []
+
+    if likes.lower() == 'true':
+        selected_columns.append('Avg. likes')
+    if comments.lower() == 'true':
+        selected_columns.append('Avg. comments')
+    if views.lower() == 'true':
+        selected_columns.append('Avg. views')
+    if followers.lower() == 'true':
+        selected_columns.append('Followers')
+
     df = pd.read_excel(csv_path, header=0)
     df.replace(["N/A", "N/A'", ""], pd.NA, inplace=True)
     df = df.dropna()
-
+    print("selected_columns:", selected_columns)
     y_channel = df['Youtube channel'].values
-    features = df[['Followers', 'Avg. views', 'Avg. likes', 'Avg. comments']].applymap(convert_to_int).values
+    features = df[selected_columns].applymap(convert_to_int).values
+    print("features:", features)
 
     # NORMALIZATION: This ensures that each feature has zero mean and unit variance, making them comparable and preventing features with larger scales from dominating the analysis.
     features_scaled = StandardScaler().fit_transform(features)
