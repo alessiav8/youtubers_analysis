@@ -67,7 +67,6 @@ function handleRadioButtonChange() {
 }
 
 
-const sliders = d3.selectAll(".slider");
 
   // Function to update the sum and counter container
   function updateSum() {

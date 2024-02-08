@@ -57,7 +57,6 @@ def create_scatter_plot(csv_path,likes,comments,views,followers):
     print("selected_columns:", selected_columns)
     y_channel = df['Youtube channel'].values
     features = df[selected_columns].applymap(convert_to_int).values
-    print("features:", features)
 
     # NORMALIZATION: This ensures that each feature has zero mean and unit variance, making them comparable and preventing features with larger scales from dominating the analysis.
     features_scaled = StandardScaler().fit_transform(features)
