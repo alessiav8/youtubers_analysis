@@ -8,10 +8,10 @@ const confirm_button = document.getElementById("confirmButton");
 const confirm_button1 = document.getElementById("confirmButton1");
 const ScatterPlotContainer = document.getElementById("ScatterPlotContainer")
 const counterContainer = document.getElementById("counterContainer")
-var likesSlider=document.getElementById("sliderA").value
-var commentsSlider=document.getElementById("sliderB").value
-var viewsSlider=document.getElementById("sliderC").value
-var followersSlider=document.getElementById("sliderD").value
+var likesSlider=document.getElementById("sliderA").value/25
+var commentsSlider=document.getElementById("sliderB").value/25
+var viewsSlider=document.getElementById("sliderC").value/25
+var followersSlider=document.getElementById("sliderD").value/25
 
 
 var totalAmount
@@ -520,6 +520,9 @@ function getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersS
     .catch((error) => {
       hideLoadingMessage();
       enableRadioButtons();
+      console.error('Error details:', error);
+      console.error('Response:', error.message); // or error.message
+
     });
 }
 

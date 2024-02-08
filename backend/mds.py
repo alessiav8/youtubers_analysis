@@ -28,6 +28,7 @@ def convert_to_int(value):
 # poi fa quadrato e somma lungo l'asse delle features (dando fuori sum_squared_diff che è array 2d che indica valore per ogni coppia di valori) ed infine radice.
 # è quindi solo una fancy way di fare euclidian, fancy perchè così si può fare faster calculations con numpy arrays
 def calculate_dissimilarity_matrix(features_scaled,likes,comments,views,followers):
+    print(f'Likes: {likes}, Comments: {comments}, Views: {views}, Followers: {followers}')
     diff_matrix = features_scaled[:, np.newaxis, :] - features_scaled
     squared_diff = diff_matrix ** 2
     sum_squared_diff = np.sum(squared_diff, axis=-1)
