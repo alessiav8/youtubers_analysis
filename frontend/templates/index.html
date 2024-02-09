@@ -15,7 +15,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh; 
+        min-height: 100vh;
+        font-size: 1.6vh;
         margin: 0;
         overflow-y: auto;
         margin-right:0;
@@ -39,11 +40,11 @@
         height: 12px; 
       }
       .form-check-label {
-        font-size: 10px; 
+        font-size: 1.4vh;  
       }
       .small-button {
         height: 30px; 
-        font-size: 14px; 
+        font-size: 1.4vh; 
         padding: 5px 10px;
         margin: 5px;
     }
@@ -86,7 +87,7 @@
 
           <div class="my-3" id="category">
             <div class="form-group border p-3">
-              <label for="scrollableCategory" style="font-size: 14px">Select Category</label>
+              <label for="scrollableCategory" style="font-size: 1.4vh">Select Category</label>
               <div id="scrollableCategory" style="height: 10vh; overflow-y: auto;">
               </div>
             </div>
@@ -94,13 +95,13 @@
 
           <div class="my-3" id="country">
             <div class="form-group border p-3">
-              <label for="scrollableCountry" style="font-size: 14px">Select Country</label>
+              <label for="scrollableCountry" style="font-size: 1.4vh">Select Country</label>
               <div id="scrollableCountry" style="height: 10vh; overflow-y: auto;">
               </div>
             </div>
           </div>
 
-          <button id="confirmButton" class="btn btn-sm  btn-primary" style="font-size: 12px">Confirm filters</button>
+          <button id="confirmButton" class="btn btn-sm  btn-primary" style="font-size: 1.4vh">Confirm filters</button>
 
         </div>
 
@@ -109,23 +110,23 @@
           <div class="row my-5 text-center" id="loadingMessage">Loading data...</div>
           <div class="row mb-3" id="mdsParam" style="display: none;  text-align: center;">
             <div class="col-2">
-              <label for="sliderA" style="font-size: 12px">Likes:<br></label>
+              <label for="sliderA" style="font-size: 1.4vh">Likes:<br></label>
               <input type="checkbox" class="form-check-input sliders" id="sliderA" checked>
             </div>
             <div class="col-2">
-              <label for="sliderB" style="font-size: 12px">Comments:<br></label>
+              <label for="sliderB" style="font-size: 1.4vh">Comments:<br></label>
               <input type="checkbox" class="form-check-input sliders" id="sliderB" checked>
             </div>
             <div class="col-2">
-              <label for="sliderC" style="font-size: 12px">Views:<br></label>
+              <label for="sliderC" style="font-size: 1.4vh">Views:<br></label>
               <input type="checkbox" class="form-check-input sliders" id="sliderC" checked>
             </div>
             <div class="col-2">
-              <label for="sliderD" style="font-size: 12px">Followers:<br></label>
+              <label for="sliderD" style="font-size: 1.4vh">Followers:<br></label>
               <input type="checkbox" class="form-check-input sliders" id="sliderD" checked>
             </div>            
             <div class="col-2 d-flex justify-content-center align-items-center">
-              <button id="confirmButton1" class="btn btn-sm btn-primary" style="font-size: 12px;">Confirm parameters</button>
+              <button id="confirmButton1" class="btn btn-sm btn-primary" style="font-size: 1.4vh;">Confirm parameters</button>
             </div>
             <div class="col-2 d-flex justify-content-center align-items-center" id="counterContainer"></div>
           </div>
@@ -225,9 +226,9 @@
       </div>
 
       <div class="row mt-3 justify-content-center align-items-center ">
-        <a href="/compare" id="compare_button" class="mx-5 btn btn-primary" style="width:10%" hidden target="_blank">Compare</a>
-        <button type="button" id="zoom_button" class="mx-5 btn btn-primary" style="width:10%">Zoom</button>
-        <button type="button" id="reset_button" class="mx-5 btn btn-danger" style="width:10%">Reset</button>
+        <a href="/compare" id="compare_button" class="mx-5 btn btn-primary" style="width:10%; font-size: 1.4vh" hidden target="_blank">Compare</a>
+        <button type="button" id="zoom_button" class="mx-5 btn btn-primary" style="width:10%; font-size: 1.4vh">Zoom</button>
+        <button type="button" id="reset_button" class="mx-5 btn btn-danger" style="width:10%; font-size: 1.4vh">Reset</button>
       </div>
       </div>
     </div>

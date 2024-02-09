@@ -1,17 +1,14 @@
 import pandas as pd
 from sklearn.manifold import MDS
-#A
 import matplotlib
 matplotlib.use('Agg')
-#
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from joblib import Parallel, delayed
-# Abbiamo usato mds con dissimilarity matrix calcolata su euclidian distance perchè:
-# MDS directly works with a dissimilarity matrix and attempts to preserve those dissimilarities in the lower-dimensional space.
-# Quindi a noi interessava che youtuber simili fossero vicini, visto che gli youtuber si trovano in genere in "fasce" di popolarità ben distinte sui numeri
 
+# Abbiamo usato mds con dissimilarity matrix calcolata su euclidian distance perchè:
+# MDS directly works with a dissimilarity matrix and attempts to preserve those dissimilarities in the lower-dimensional space (mitiga false positives). E poi per usare checkbox
 # Per prima cosa si portano tutti i valori da stringhe a interi, dopo ci sarà normalizzazione
 def convert_to_int(value):
     if isinstance(value, str):  

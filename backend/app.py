@@ -27,6 +27,7 @@ def perform_mds():
     except Exception as e:
         error_message = f"An error occurred: {e}\n"
         error_message += traceback.format_exc()  # Add the traceback information
+        print(error_message)
         return f"Error: {error_message}"
 
 if __name__ == '__main__':
