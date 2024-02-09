@@ -366,14 +366,12 @@ class Histogram {
       const startIndex = Math.floor(this.xScaleIsto.invert(x0));
       const endIndex = Math.ceil(this.xScaleIsto.invert(x1));
       const selectedData = this.data.slice(startIndex, endIndex);
-      console.log("SELECTED DATA",selectedData);
 
       const selectedAreaScatter = scatterTriggered==true? JSON.parse(localStorage.getItem("dataContainedInScatterArea")) : JSON.parse(localStorage.getItem("dataset"));
       
       let { youtubersInInterval: YTinterval, new_sub: sub } = this.getYoutubersInInterval(selectedData);
       //compute the subset
       //in this case is the subset i have selected by the brush
-      console.log("SUB",sub)
 
       sessionStorage.setItem("NoSub"+this.label,JSON.stringify(sub));
 
@@ -416,14 +414,12 @@ class Histogram {
   checkIntersectionWithScatter = (subset) => {
     const subScatter = JSON.parse(localStorage.getItem("dataContainedInScatterArea"));
     //const afterHistos = JSON.parse(localStorage.getItem("datasetAfterHisto"));
-    console.log("Check int",subset);
     const newVersion = subScatter.filter((data) => {
       const foundChannel = subset.find(item => item['Youtube channel'] === data["Youtube channel"]) 
       if (foundChannel){
         return data;
       }
     });
-    console.log("Result int",newVersion);
     localStorage.setItem("datasetAfterScatter",newVersion);
     return newVersion;
   }
@@ -582,8 +578,7 @@ class Histogram {
           (item) => item.intervallo === matchedInterval.intervallo
         )
       ) {
-          if(matchedInterval.start > 19000000 ) {
-          console.log("start grater",influencer);}
+          
         resultArray.push({
           intervallo: matchedInterval.intervallo,
           frequenza: matchedInterval.frequenza,
@@ -673,8 +668,7 @@ class Histogram {
     })
 
     let new_sub = db.filter(item => {
-      console.log(item[find])
-      if( youtubersInInterval.some(i => i === item["youtuber name"]) && parseKMBtoNumber(item[find]) < end){
+      if( youtubersInInterval.some(i => i === item["youtuber name"]) && parseKMBtoNumber(item[find]) <= end){
         return item;
       }
     })

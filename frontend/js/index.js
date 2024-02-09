@@ -532,7 +532,7 @@ function getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersS
 function cleanData(dataset) {
   dataset=JSON.parse(dataset);
   const uniqueChannels = {};
-  const cleanedData = dataset.filter(item => {
+  let cleanedData = dataset.filter(item => {
     const channelName = item["Youtube channel"];
     const youtuberName = item["youtuber name"];
     const Comments = item["Avg. comments"];
@@ -556,7 +556,17 @@ function cleanData(dataset) {
     return false;
   });
 
+
+  cleanedData = removeDuplicatesNames(cleanedData);
+
   return cleanedData;
+}
+
+function removeDuplicatesNames(dataset) {
+  let seen = {};
+  return dataset.filter(function(item) {
+    return seen.hasOwnProperty(item["youtuber name"]) ? false : (seen[item["youtuber name"]] = true);
+  });
 }
 
 //clean the data for the scatterplot
