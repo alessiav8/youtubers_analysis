@@ -30,6 +30,7 @@ def calculate_dissimilarity_matrix(features_scaled,likes,comments,views,follower
     squared_diff = diff_matrix ** 2
     sum_squared_diff = np.sum(squared_diff, axis=-1)
     dissimilarity_matrix = np.sqrt(sum_squared_diff)
+    print("First 5 rows of diff matrix:\n", diff_matrix[:5, :])
     return dissimilarity_matrix
 
 def create_scatter_plot(csv_path,likes,comments,views,followers):
