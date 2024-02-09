@@ -31,6 +31,19 @@ document.addEventListener("DOMContentLoaded", function() {
       });
   });
 
+  /*function triggerColorChange(type) {
+    const intersection= JSON.parse(localStorage.getItem("datasetAfterHisto"));
+    const dataHisto= formatData(JSON.parse(localStorage.getItem("dataset")),type,sessionStorage.getItem(type+"Scale"));
+
+    const dataToPass = 
+    const selectedLikes = this.findIntervalsForCategory(
+      intersection,
+      histogramLikes.data,
+      "Likes"
+    );
+    histogramLikes.colorIsto(d3.select("#isto_like"), selectedLikes);
+  }*/
+
   var buttonsLog = document.querySelectorAll(".logbottom");
   buttonsLog.forEach(function(button) {
       button.addEventListener("click", function() {
@@ -66,13 +79,13 @@ function removeDiv(div){
 }
 
 function reRenderHisto(type,scale_type){
-  console.log("ReRenderHisto",type,scale_type);
   //data considered by the Histo
   const data = JSON.parse(localStorage.getItem("dataset"+type)) ? JSON.parse(localStorage.getItem("dataset"+type)) : JSON.parse(localStorage.getItem("dataset"));
   //data selected in the histo
-  const to_color = localStorage.getItem("filteredOnHistos") == "true" ? JSON.parse(sessionStorage.getItem("NoSub"+type)) : false;
-
-  console.log("filtered?",localStorage.getItem("filteredOnHistos"),"to_color",to_color);
+  let to_color = localStorage.getItem("filteredOnHistos") == "true" ? JSON.parse(sessionStorage.getItem("NoSub"+type)) : false;
+  if(localStorage.getItem("scatterTriggered") == "true"){
+    to_color = JSON.parse(localStorage.getItem("datasetAfterHisto"))
+  }
   let id;
   if(type=="Likes") id="isto_like";
   else if(type=="Comments") id="isto_comment";
