@@ -644,8 +644,6 @@ function recomputeIntersection(selection){
           sessionStorage.getItem("NoSub"+histos[i])
         ));
     }
-
-    console.log("dynamicDatabases: ", dynamicDatabases);
     
     // Trovare l'intersezione tra tutti i dataset
     var intersection = selection.filter((item) => {
@@ -657,15 +655,9 @@ function recomputeIntersection(selection){
       }
     });
 
-    console.log("afterHistos: " + JSON.parse(localStorage.getItem("datasetAfterHisto")));
     localStorage.setItem("datasetAfterHisto", JSON.stringify(intersection));
-    console.log("DBComments: ",JSON.parse(sessionStorage.getItem("datasetComments")));
-   
-
-
-
-
-    console.log("Intersection from recomputing");
+    localStorage.setItem("datasetAfterScatter", JSON.stringify(intersection));
+    updateText();
     return intersection;
 }
 
@@ -761,7 +753,7 @@ function renderScatterPlot(data) {
     }
   }
   function brushedend_scatter_plot() {
-    console.log("Call from brushened scatte")
+    console.log("Call from brushened scatter")
     const event = d3.event;
     if (event && event.selection) {
 
@@ -775,15 +767,18 @@ function renderScatterPlot(data) {
           yScale(d.y) >= selection[0][1] &&
           yScale(d.y) <= selection[1][1]  
       );
+
+      //all the data i selected in the scatter
       const selectedScatter = actualDB.filter((d) => {
         if(Data.some(item => item.label === d["Youtube channel"])){
           return d;
         }}
       )
+
       recomputeIntersection(selectedScatter);
+      //ho applicato dei filtri su histos?
       const jsonData = JSON.parse(localStorage.getItem("filteredOnHistos")) == true ? JSON.parse(localStorage.getItem("datasetAfterHisto")) : JSON.parse(localStorage.getItem("dataset"))
       
-      console.log("datasetAfterHisto",JSON.parse(localStorage.getItem("datasetAfterHisto")),"\n datasetAfterScatter",JSON.parse(localStorage.getItem("datasetAfterScatter")))
       //qui vengono mappati i dati selezionati e ti restituisce l'array con
       //le label e la posizione dei punti selezionati
 
@@ -799,12 +794,17 @@ function renderScatterPlot(data) {
 
 
       localStorage.setItem("dataContainedInScatterArea",JSON.stringify(selectedScatter));
+      
       const datasetAfterHisto = JSON.parse(localStorage.getItem("datasetAfterHisto"));
 
       // Filter items from "datasetAfterScatter" based on the YouTube channel in selectedData
-      const filteredDataset = datasetAfterHisto.filter(item =>
+      //const filteredDataset = datasetAfterHisto.filter(item =>
+      const filteredDataset = jsonData.filter(item =>
         selectedData.some(selectedItem => selectedItem.label === item["Youtube channel"])
       );
+
+      console.log("jsonData: ",jsonData, "filteredDataset: ",filteredDataset,"afterHisto: ", datasetAfterHisto);
+
 
       // Save the filtered dataset in localStorage
       localStorage.setItem("datasetAfterScatter", JSON.stringify(filteredDataset));
@@ -909,6 +909,6 @@ function colorScatterPlot(component, selectedData) {
   });
 }
 
-export { colorScatterPlot, parseKMBtoNumber }
+export { colorScatterPlot, parseKMBtoNumber,recomputeIntersection}
 export { Data };
 

@@ -1,4 +1,4 @@
-import { parseKMBtoNumber, colorScatterPlot } from "./index.js";
+import { parseKMBtoNumber, colorScatterPlot, recomputeIntersection } from "./index.js";
 import { Data } from './index.js';
 import { updateText } from './index.js';
 const minFontSize = Math.max(7.2, window.innerHeight * 0.01);
@@ -222,7 +222,7 @@ class Histogram {
       .scaleLinear()
       .domain([0, this.max])
       .range([this.height_isto, 0]);
-      
+
     this.xAxisIsto = d3.axisBottom(this.xScaleIsto);
     this.yAxisIsto = d3.axisLeft(this.yScaleIsto);
 
@@ -251,9 +251,10 @@ class Histogram {
 
     // Check if the parsed data is an array
     if (Array.isArray(originalDataset)) {
-      return originalDataset.filter((data) =>
+      const sub = originalDataset.filter((data) =>
         youtuberNamesSubset.includes(data["youtuber name"])
       );
+
     } else {
       console.error(
         "Invalid data format in localStorage. Please provide an array."
@@ -262,8 +263,6 @@ class Histogram {
     }
   };
 
-  //given two intervals check the intersection
-  checkInterval = (interval1, interval2) => {};
 
   //this function compute the intersection of the selected database and
   //the currently database stored in the localStorage
@@ -282,44 +281,17 @@ class Histogram {
         const my_db = "db" + variable;
         // Associo il valore della sessionStorage all'oggetto dynamicDatabases
         dynamicDatabases[my_db] = JSON.parse(
-          sessionStorage.getItem("dataset" + histos[i])
+          sessionStorage.getItem("NoSub" + histos[i])
         );
       }
     }
 
-    //compare the current selection with the original database
-    const db2Map = new Map(
-      db2.map((item) => [
-        `${item["Youtube channel"]} - ${item["youtuber name"]}`,
-        item,
-      ])
-    );
-    const db3Map = new Map(
-      dynamicDatabases.db3.map((item) => [
-        `${item["Youtube channel"]} - ${item["youtuber name"]}`,
-        item,
-      ])
-    );
-    const db4Map = new Map(
-      dynamicDatabases.db4.map((item) => [
-        `${item["Youtube channel"]} - ${item["youtuber name"]}`,
-        item,
-      ])
-    );
-    const db5Map = new Map(
-      dynamicDatabases.db5.map((item) => [
-        `${item["Youtube channel"]} - ${item["youtuber name"]}`,
-        item,
-      ])
-    );
-
-    // Trovare l'intersezione tra tutti i dataset
-    var intersection = db.filter((item) => {
-      const key = `${item["Youtube channel"]} - ${item["youtuber name"]}`;
-      return (
-        db2Map.has(key) && db3Map.has(key) && db4Map.has(key) && db5Map.has(key)
-      );
-    });
+    var intersection = db.filter(item=>{
+      if(dynamicDatabases.db3.some(int=>int["Youtube channel"]==item["Youtube channel"])&& dynamicDatabases.db4.some(int=>int["Youtube channel"]==item["Youtube channel"])&& 
+      dynamicDatabases.db5.some(int=>int["Youtube channel"]==item["Youtube channel"])&& db2.some(int=>int["Youtube channel"]==item["Youtube channel"])){
+        return item;
+      }
+    })
 
     const parentDiv = document.getElementById("ScatterPlotContainer");
     const parentDivRect = parentDiv.getBoundingClientRect();
@@ -370,7 +342,7 @@ class Histogram {
     });
 
     localStorage.setItem("datasetAfterHisto", JSON.stringify(intersection));
-    localStorage.setItem("datasetAfterScatter", JSON.stringify(commonItems));
+    localStorage.setItem("datasetAfterScatter", JSON.stringify(intersection));
     updateText()
 
     return commonItems;
@@ -387,35 +359,30 @@ class Histogram {
 
   brushedend_insto_likes = () => {
     if (d3.event.selection) {
+      //signal the fact that the histo has been filtered
       localStorage.setItem("filteredOnHistos", true);
-
       const scatterTriggered = localStorage.getItem("scatterTriggered") && JSON.parse(localStorage.getItem("scatterTriggered")) == true ? true : false;
-
       const [x0, x1] = d3.event.selection;
       const startIndex = Math.floor(this.xScaleIsto.invert(x0));
       const endIndex = Math.ceil(this.xScaleIsto.invert(x1));
       const selectedData = this.data.slice(startIndex, endIndex);
+      console.log("SELECTED DATA",selectedData);
 
-      //const selectedAreaScatter = JSON.parse(localStorage.getItem("dataContainedInScatterArea"));
-      //this will trigger the color of the scatterplot
-
-      let YTinterval = this.getYoutubersInInterval(selectedData);
-
+      const selectedAreaScatter = scatterTriggered==true? JSON.parse(localStorage.getItem("dataContainedInScatterArea")) : JSON.parse(localStorage.getItem("dataset"));
+      
+      let { youtubersInInterval: YTinterval, new_sub: sub } = this.getYoutubersInInterval(selectedData);
       //compute the subset
-      let sub = this.getSubsetByYoutuberNames(YTinterval);
+      //in this case is the subset i have selected by the brush
+      console.log("SUB",sub)
+
       sessionStorage.setItem("NoSub"+this.label,JSON.stringify(sub));
 
       //if it was applied a filter by the use of the scatter
       //i compute the intersection between what i selected in the scatter and what i selected in the histo 
-      if(scatterTriggered==true) {
-        sub = this.checkIntersectionWithScatter(sub);
-      }
-
+      sub = recomputeIntersection(selectedAreaScatter);
       sessionStorage.setItem("dataset" + this.label, JSON.stringify(sub));
-      this.intersectFunction(sub);
+      //this.intersectFunction(sub);
       let intersection = JSON.parse(localStorage.getItem("datasetAfterHisto"));
-
-      //if (scatterTriggered==true) intersection = this.checkIntersectionWithScatter(selectedAreaScatter);
 
 
       if (intersection.length == 0) {
@@ -440,7 +407,6 @@ class Histogram {
       //to color the scatterplot i pass the array of youtube channels
       const set_names = this.names(intersection);
       this.colorScatterP(set_names);
-
       this.reRenderHistos(intersection);
     }
   };
@@ -449,14 +415,16 @@ class Histogram {
   //Points to color
   checkIntersectionWithScatter = (subset) => {
     const subScatter = JSON.parse(localStorage.getItem("dataContainedInScatterArea"));
+    //const afterHistos = JSON.parse(localStorage.getItem("datasetAfterHisto"));
     console.log("Check int",subset);
-    const newVersion =subScatter.filter((data) => {
-      const foundChannel = subset.find(item => item['Youtube channel'] === data["Youtube channel"]);
+    const newVersion = subScatter.filter((data) => {
+      const foundChannel = subset.find(item => item['Youtube channel'] === data["Youtube channel"]) 
       if (foundChannel){
         return data;
       }
     });
     console.log("Result int",newVersion);
+    localStorage.setItem("datasetAfterScatter",newVersion);
     return newVersion;
   }
 
@@ -470,13 +438,13 @@ class Histogram {
     ];
 
     for (let i in histograms) {
-     // if (histograms[i] != this.id) {
         if (histograms[i] == "isto_view") {
           const histogramViews = new Histogram(
             this.originalDB,
             "isto_view",
             "#IstoViews",
-            "Views",sessionStorage.getItem("ViewsScale")
+            "Views",
+            sessionStorage.getItem("ViewsScale")
           );
           const selectedViews = this.findIntervalsForCategory(
             intersection,
@@ -505,7 +473,8 @@ class Histogram {
             this.originalDB,
             "isto_like",
             "#IstoLikes",
-            "Likes",sessionStorage.getItem("LikesScale")
+            "Likes",
+            sessionStorage.getItem("LikesScale")
           );
           const selectedLikes = this.findIntervalsForCategory(
             intersection,
@@ -518,7 +487,8 @@ class Histogram {
             this.originalDB,
             "isto_follower",
             "#IstoFollowers",
-            "Followers",sessionStorage.getItem("FollowersScale")
+            "Followers",
+            sessionStorage.getItem("FollowersScale")
           );
           const selectedFollowers = this.findIntervalsForCategory(
             intersection,
@@ -530,12 +500,7 @@ class Histogram {
             selectedFollowers
           );
         }
-      } /*else {
-        if(calledFrom!= "scatter"){
-        this.colorIsto(d3.select("#" + this.id), selectedData);
-        }
-      }*/
-    //}
+      }
   };
 
   brushed_insto_likes = () => {};
@@ -611,13 +576,14 @@ class Histogram {
         const endValue = parseFloat(interval.end);
         return categoryValue >= startValue && categoryValue <= endValue;
       });
-
       if (
         matchedInterval &&
         !resultArray.some(
           (item) => item.intervallo === matchedInterval.intervallo
         )
       ) {
+          if(matchedInterval.start > 19000000 ) {
+          console.log("start grater",influencer);}
         resultArray.push({
           intervallo: matchedInterval.intervallo,
           frequenza: matchedInterval.frequenza,
@@ -626,7 +592,6 @@ class Histogram {
         });
       }
     });
-
     return resultArray;
   };
 
@@ -694,19 +659,28 @@ class Histogram {
 
     const { start, end } = this.getMaxRange(interval);
 
-    const youtubersInInterval = db
+    let youtubersInInterval = db
       .filter((data) => {
         const likes = parseKMBtoNumber(data[find]);
         return likes >= start && likes <= end;
       })
       .map((data) => data["youtuber name"]);
 
-    const subsetData = db.filter((data) => {
-      const likes = parseKMBtoNumber(data["Avg. likes"]);
-      return likes >= start && likes <= end;
-    });
-    //localStorage.setItem("dataset", JSON.stringify(subsetData));
-    return youtubersInInterval;
+    youtubersInInterval.filter(item=>{
+      if(!db.some(i => i["youtuber name"] === item["youtuber name"] && parseKMBtoNumber(i[find]) > end) ){
+        return item;
+      }
+    })
+
+    let new_sub = db.filter(item => {
+      console.log(item[find])
+      if( youtubersInInterval.some(i => i === item["youtuber name"]) && parseKMBtoNumber(item[find]) < end){
+        return item;
+      }
+    })
+
+    console.log("NEW SUB",new_sub)
+    return {youtubersInInterval, new_sub};
   };
 
   updateTheDataset = (dataset) => {};
