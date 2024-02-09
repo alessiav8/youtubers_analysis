@@ -41,6 +41,12 @@
       .form-check-label {
         font-size: 10px; 
       }
+      .small-button {
+        height: 30px; 
+        font-size: 14px; 
+        padding: 5px 10px;
+        margin: 5px;
+    }
     </style>
   </head>
   <body>
@@ -80,7 +86,7 @@
 
           <div class="my-3" id="category">
             <div class="form-group border p-3">
-              <label for="scrollableCategory">Select Category</label>
+              <label for="scrollableCategory" style="font-size: 14px">Select Category</label>
               <div id="scrollableCategory" style="height: 10vh; overflow-y: auto;">
               </div>
             </div>
@@ -88,38 +94,38 @@
 
           <div class="my-3" id="country">
             <div class="form-group border p-3">
-              <label for="scrollableCountry">Select Country</label>
+              <label for="scrollableCountry" style="font-size: 14px">Select Country</label>
               <div id="scrollableCountry" style="height: 10vh; overflow-y: auto;">
               </div>
             </div>
           </div>
 
-          <button id="confirmButton" class="btn btn-sm  btn-primary">Confirm filters</button>
+          <button id="confirmButton" class="btn btn-sm  btn-primary" style="font-size: 12px">Confirm filters</button>
 
         </div>
 
       
         <div class="col-10 border" id="ScatterPlotContainer">
           <div class="row my-5 text-center" id="loadingMessage">Loading data...</div>
-          <div class="row mb-3" id="mdsParam" style="display: none;">
+          <div class="row mb-3" id="mdsParam" style="display: none;  text-align: center;">
             <div class="col-2">
-              <label for="sliderA">Likes:<br></label>
+              <label for="sliderA" style="font-size: 12px">Likes:<br></label>
               <input type="checkbox" class="form-check-input sliders" id="sliderA" checked>
             </div>
             <div class="col-2">
-              <label for="sliderB">Comments:<br></label>
+              <label for="sliderB" style="font-size: 12px">Comments:<br></label>
               <input type="checkbox" class="form-check-input sliders" id="sliderB" checked>
             </div>
             <div class="col-2">
-              <label for="sliderC">Views:<br></label>
+              <label for="sliderC" style="font-size: 12px">Views:<br></label>
               <input type="checkbox" class="form-check-input sliders" id="sliderC" checked>
             </div>
             <div class="col-2">
-              <label for="sliderD">Followers:<br></label>
+              <label for="sliderD" style="font-size: 12px">Followers:<br></label>
               <input type="checkbox" class="form-check-input sliders" id="sliderD" checked>
             </div>            
             <div class="col-2 d-flex justify-content-center align-items-center">
-              <button id="confirmButton1" class="btn btn-sm btn-primary">Confirm parameters</button>
+              <button id="confirmButton1" class="btn btn-sm btn-primary" style="font-size: 12px;">Confirm parameters</button>
             </div>
             <div class="col-2 d-flex justify-content-center align-items-center" id="counterContainer"></div>
           </div>
