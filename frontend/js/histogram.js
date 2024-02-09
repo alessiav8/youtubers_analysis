@@ -70,8 +70,9 @@ function reRenderHisto(type,scale_type){
   //data considered by the Histo
   const data = JSON.parse(localStorage.getItem("dataset"+type)) ? JSON.parse(localStorage.getItem("dataset"+type)) : JSON.parse(localStorage.getItem("dataset"));
   //data selected in the histo
-  const to_color = JSON.parse(localStorage.getItem("NoSub"+type)) ? JSON.parse(localStorage.getItem("NoSub"+type)) : data;
+  const to_color = localStorage.getItem("filteredOnHistos") == "true" ? JSON.parse(sessionStorage.getItem("NoSub"+type)) : false;
 
+  console.log("filtered?",localStorage.getItem("filteredOnHistos"),"to_color",to_color);
   let id;
   if(type=="Likes") id="isto_like";
   else if(type=="Comments") id="isto_comment";
@@ -79,24 +80,14 @@ function reRenderHisto(type,scale_type){
   else if(type=="Followers") id="isto_follower";
 
   const Isto= "#Isto"+type;
-  const histo = new Histogram(data, id, Isto, type, scale_type);
+  const histo = new Histogram(data, id, Isto, type, scale_type,JSON.parse(localStorage.getItem("NoSub"+type)));
   histo.renderIsto()
 
-
-  /*const histogramViews = new Histogram(
-    this.originalDB,
-    "isto_view",
-    "#IstoViews",
-    "Views"
-  );
-  const selectedViews = this.findIntervalsForCategory(
-    intersection,
-    histogramViews.data,
-    "Views"
-  );
-  histogramViews.colorIsto(d3.select("#isto_view"), selectedViews);
-
-  histo.colorIsto(d3.select("#"+id,to_color));*/
+  //const format_to_color=formatData(to_color, type, scale_type);
+  if(to_color!=false){
+    const format_to_color= histo.findIntervalsForCategory(to_color, formatData(data,type,scale_type), type);
+    histo.colorIsto(d3.select("#"+id), format_to_color);
+  }
 }
 
 function formatData(data, type, scale_type) {
@@ -231,7 +222,7 @@ class Histogram {
       .scaleLinear()
       .domain([0, this.max])
       .range([this.height_isto, 0]);
-
+      
     this.xAxisIsto = d3.axisBottom(this.xScaleIsto);
     this.yAxisIsto = d3.axisLeft(this.yScaleIsto);
 
@@ -241,7 +232,6 @@ class Histogram {
     this.yAxisIsto.tickSize(5);
 
     this.xAxisIsto.tickValues([]);
-
     this.label = label;
     this.originalIntervals = this.data.map((d) => ({ ...d }));
   }
@@ -908,34 +898,6 @@ class Histogram {
       return start;
     }
 
-    /*this function handle the click on the histogram outside/inside.
-    const container_isto = document.getElementById("Isto" + this.label);
-    const self = this; // Store reference to the outer 'this'
-
-    container_isto.addEventListener("click", function (event) {
-      const isClicInsideIstogramma = event.target.id === "histo";
-      const touchX = event.clientX;
-      const touchY = event.clientY;
-      console.log("Touch coordinates:", touchX, touchY);
-
-      const boundingBox = container_isto.getBoundingClientRect(); 
-      if (
-        touchX >= boundingBox.left &&
-        touchX <= boundingBox.right &&
-        touchY >= boundingBox.top &&
-        touchY <= boundingBox.bottom
-      ) {
-        //touch over the area not inside the column
-        const totalDB = JSON.parse(localStorage.getItem("dataset"));
-        sessionStorage.setItem("dataset" + this.label, totalDB);
-        const intersection = self.intersectFunction(totalDB);
-       // self.reRenderHistos(intersection, formatData(intersection)); 
-        console.log(intersection)
-        console.log("inside");
-      } else {//touch over the column
-        console.log("outside");
-      }
-    });*/
   }
 }
 

@@ -43,6 +43,15 @@ function reSetRadios(value){
   document.getElementById("ScaleFollowers").style.display=value;
 }
 
+//reset the check to log and not to linear scale
+function checkedRadios(){
+  const arrayHistos=["linear_likes","linear_comments","linear_views","linear_followes","log_likes","log_comments","log_views","log_followers"];
+  for(let i=0; i<4; i++){
+    document.getElementById(arrayHistos[i]).checked=false;
+    document.getElementById(arrayHistos[i+4]).checked=true;
+  }
+}
+
 function handleRadioButtonChange() {
   updateTextBefore()
   temp=false
@@ -177,6 +186,8 @@ function renderHisto() {
   h_followers.renderIsto()
 
   reSetRadios("block");
+  checkedRadios();
+
 }
 
 function confirmFilters() {
@@ -388,7 +399,10 @@ zoom_button.addEventListener("click", function () {
   showLoadingMessage();
   saveLocalStorageZoom();
   disableRadioButtons();
+  localStorage.setItem("scatterTriggered",false);
+  localStorage.setItem("filteredOnHistos",false);
   reSetRadios("none")
+
   temp=true
   
   const serverEndpoint = '/generateExcel';
