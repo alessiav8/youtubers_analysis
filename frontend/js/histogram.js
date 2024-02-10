@@ -231,9 +231,13 @@ class Histogram {
       .domain([0, this.data.length])
       .range([0, this.width_isto]);
 
-    this.yScaleIsto = d3
+    /*this.yScaleIsto = d3
       .scaleLinear()
       .domain([0, this.max])
+      .range([this.height_isto, 0]);*/
+
+      this.yScaleIsto = d3.scaleLinear()
+      .domain([0, d3.max(this.data, d => d.frequenza)]) 
       .range([this.height_isto, 0]);
 
     this.xAxisIsto = d3.axisBottom(this.xScaleIsto);
@@ -608,30 +612,83 @@ class Histogram {
   //datas is the subset of data you want to color formatted as the set of intervals selected
   //data is the entire dataset
   colorIsto = (component, datas) => {
-    component
-      .selectAll("rect")
-      .data(this.data)
-      .style("fill", (d) => {
-        if (datas.length === 0) {
-          return "gray";
-        }
-        return datas.includes(d) ||
-          datas.find((obj) => JSON.stringify(obj) === JSON.stringify(d))
-          ? "steelblue"
-          : "gray";
-      })
-      .attr("x", (d, i) => this.xScaleIsto(i))
-      .attr("width", this.width_isto / this.data.length - 1)
-      .attr("y", (d) => {
-        const y = Math.max(0, this.yScaleIsto(d.frequenza)); // Set a minimum value of 0
-        return isNaN(y) ? 0 : y;
-      })
+    const dataSelected = JSON.parse(localStorage.getItem('datasetAfterHisto'));
+    console.log("dataSelected",dataSelected);
+    
+    /*const grayRectangles = component.selectAll("rectt") 
+        .data(this.data)
+        .enter()
+        .append("rect")
+        .style("fill", "rgb(128,128,128,0.2)")
+        .attr("x", (d, i) => this.xScaleIsto(i))
+        .attr("width", this.width_isto / this.data.length - 1)
+        .attr("y",(d) => {
+          const y = this.yScaleIsto(d.frequenza)
+          return isNaN(y) ? 0 : Math.max(0, y);
+         })    
+        .attr("height", (d) => {
+            const y = this.yScaleIsto(d.frequenza);
+            console.log(this.label,"\nHeight gray",this.height_isto-y,"\y",y,"\naltezza",this.height_isto);
+            return isNaN(y) ? 0 : this.height_isto - y;
+        });
+*/
+    component.selectAll("rect.blue-rect").remove();
+    
+    const blueRectangles = component.selectAll("rect.blue-rect") 
+        .data(this.data)
+        .enter()
+        .append("rect")
+        .attr("class", "blue-rect")
+        .style("fill", (d) => {
+            if (datas.length === 0) {
+                return "gray";
+            }
+            return datas.includes(d) ||
+                datas.find((obj) => JSON.stringify(obj) === JSON.stringify(d))
+                ? "rgb(33, 150, 255)"
+                : "gray";
+        })
+        .attr("x", (d, i) => this.xScaleIsto(i))
+        .attr("width", this.width_isto / this.data.length - 1)
+        .attr("y",(d) => {
+          const percentage = this.calculateHeight(d, this.label, dataSelected, this.height_isto);
+          const y = this.yScaleIsto(d.frequenza);
+          return isNaN(percentage) ? 0 : this.height_isto - (this.height_isto - y) * percentage; 
+      })  
+        .attr("height", (d) => {
+            const percentage = this.calculateHeight(d, this.label, dataSelected, this.height_isto);
+            const y = this.yScaleIsto(d.frequenza);
+            return isNaN(percentage) ? 0 : (this.height_isto-y) * percentage;
+        });
+    
 
-      .attr("height", (d) => {
-        const y = this.yScaleIsto(d.frequenza);
-        return isNaN(y) ? 0 : this.height_isto - y;
-      });
   };
+
+   calculateHeight=(d, label, subset, totalHeight) =>{
+    const totalInstances=d.frequenza;
+    if (totalInstances === 0) return 0;
+
+    let realNumberInstancer=0;
+
+    const start = parseFloat(d.start);
+    const end = parseFloat(d.end);
+    let find;
+    if (label == "Likes") {
+      find = "Avg. likes";
+    } else if (label == "Comments") {
+      find = "Avg. comments";
+    } else if (label == "Views") {
+      find = "Avg. views";
+    } else if (label == "Followers") {
+      find = "Followers";
+    }
+    for (let i=0;i<subset.length;i++){
+      if(parseKMBtoNumber(subset[i][find]) >= start && parseKMBtoNumber(subset[i][find]) <=end ){
+        realNumberInstancer++;
+      }
+    }
+    return realNumberInstancer/totalInstances;
+}
 
   //get a set of intervals return the minimum start and the maximum end of the interval
   getMaxRange = (interval) => {
@@ -774,7 +831,7 @@ class Histogram {
       .data(this.data)
       .enter()
       .append("rect")
-      .style("fill", "gray")
+      .style("fill", "rgb(128,128,128,0.7)")
       .attr("x", (d, i) => this.xScaleIsto(i))
       .attr("width", this.width_isto / this.data.length - 1)
       .attr("y", (d) => {
@@ -843,6 +900,8 @@ class Histogram {
       .attr("x", this.width_isto / 2 - 100)
       .attr("y", this.height_isto + this.margin.top + this.margin.bottom - 30);
 
+    
+
     const brushX = d3
       .brushX()
       .extent([
@@ -878,6 +937,8 @@ class Histogram {
 
       return start;
     }
+
+   
 
   }
 }
