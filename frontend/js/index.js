@@ -902,7 +902,7 @@ function colorScatterPlot(component, selectedData) {
 
     return selectedData.length > 0
       ? isPointInsideSelection(d, selectedData)
-        ? "steelblue"
+        ? "rgb(33, 150, 255)"
         : "gray"
       : "gray";
   });

@@ -616,7 +616,7 @@ class Histogram {
     
     component
       .selectAll("rect.gray-rect") 
-      .style("fill", "rgb(128, 128, 128, 0.1)"); 
+      .style("fill", "rgb(128, 128, 128, 0.2)"); 
 
     component.selectAll("rect.blue-rect").remove();
     
@@ -768,7 +768,7 @@ class Histogram {
     circles.attr("fill", (d) => {
       return youtubers.length > 0
         ? this.isPointInsideSelection(d, youtubers)
-          ? "steelblue"
+          ? "rgb(33, 150, 255)"
           : "gray"
         : "gray";
     });
