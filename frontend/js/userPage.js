@@ -182,7 +182,7 @@ fetch(`/getData/${username1}`)
 
     return null;
   })
-  .style('stroke', 'blue') // Set the color of the lines (adjust as needed)
+  .style('stroke', 'rgb(33, 150, 255)') // Set the color of the lines (adjust as needed)
   .style('display', (d, i, nodes) => {
     const currentPointVisible = typeof d !== 'undefined' && nodes[i].style.display !== 'none';
 
