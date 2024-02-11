@@ -26,6 +26,7 @@ def convert_to_int(value):
 # è quindi solo una fancy way di fare euclidian, fancy perchè così si può fare faster calculations con numpy arrays
 def calculate_dissimilarity_matrix(features_scaled,likes,comments,views,followers):
 
+
     diff_matrix = features_scaled[:, np.newaxis, :] - features_scaled
     squared_diff = diff_matrix ** 2
     sum_squared_diff = np.sum(squared_diff, axis=-1)
