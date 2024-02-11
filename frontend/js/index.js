@@ -29,7 +29,6 @@ window.addEventListener('beforeunload', function (event) {
  localStorage.setItem("scatterTriggered",false);
  localStorage.setItem("filteredOnHistos",false);
  reSetRadios("none")
-
 });
 
 
@@ -216,6 +215,8 @@ function renderHisto() {
 
 function confirmFilters() {
   showLoadingMessage();
+  reSetRadios("none")
+
 
   //quando il pulsante confirm viene premuto, la variabile in localStorage dataset viene modificata in base ai filtri tolti o aggiunti e vengono ri-renderizzati istogrammi e scatter
   //in base a quanto contenuto nella variabile dataset.
@@ -267,6 +268,8 @@ function confirmFilters() {
 
       console.log('Selected cat:', selectedCategories);
       console.log('Selected country:', selectedCountries);
+      localStorage.setItem("scatterTriggered",false);
+      localStorage.setItem("filteredOnHistos",false);
     } catch (error) {
       console.error('Error parsing JSON from localStorage:', error);
       // Handle the error as needed
