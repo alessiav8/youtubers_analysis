@@ -613,25 +613,11 @@ class Histogram {
   //data is the entire dataset
   colorIsto = (component, datas) => {
     const dataSelected = JSON.parse(localStorage.getItem('datasetAfterHisto'));
-    console.log("dataSelected",dataSelected);
     
-    /*const grayRectangles = component.selectAll("rectt") 
-        .data(this.data)
-        .enter()
-        .append("rect")
-        .style("fill", "rgb(128,128,128,0.2)")
-        .attr("x", (d, i) => this.xScaleIsto(i))
-        .attr("width", this.width_isto / this.data.length - 1)
-        .attr("y",(d) => {
-          const y = this.yScaleIsto(d.frequenza)
-          return isNaN(y) ? 0 : Math.max(0, y);
-         })    
-        .attr("height", (d) => {
-            const y = this.yScaleIsto(d.frequenza);
-            console.log(this.label,"\nHeight gray",this.height_isto-y,"\y",y,"\naltezza",this.height_isto);
-            return isNaN(y) ? 0 : this.height_isto - y;
-        });
-*/
+    component
+      .selectAll("rect.gray-rect") 
+      .style("fill", "rgb(128, 128, 128, 0.1)"); 
+
     component.selectAll("rect.blue-rect").remove();
     
     const blueRectangles = component.selectAll("rect.blue-rect") 
@@ -660,7 +646,8 @@ class Histogram {
             const y = this.yScaleIsto(d.frequenza);
             return isNaN(percentage) ? 0 : (this.height_isto-y) * percentage;
         });
-    
+        const brushContainer = component.select(".brush").remove();
+        component.node().appendChild(brushContainer.node());
 
   };
 
@@ -789,7 +776,6 @@ class Histogram {
 
   //this function handle the renderization of the histogram
   renderIsto() {
-    console.log(this.data,this.label)
     const histo = d3
       .select(this.container)
       .append("svg")
@@ -831,6 +817,7 @@ class Histogram {
       .data(this.data)
       .enter()
       .append("rect")
+      .attr("class", "gray-rect")
       .style("fill", "rgb(128,128,128,0.7)")
       .attr("x", (d, i) => this.xScaleIsto(i))
       .attr("width", this.width_isto / this.data.length - 1)
