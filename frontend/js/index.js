@@ -79,18 +79,28 @@ function handleRadioButtonChange() {
 
   // Function to update the sum and counter container
   function updateSum() {
-    likesSlider=document.getElementById("sliderA").checked
-    commentsSlider=document.getElementById("sliderB").checked
-    viewsSlider=document.getElementById("sliderC").checked
-    followersSlider=document.getElementById("sliderD").checked
-  }
+    document.getElementById("confirmButton1").disabled = false;
+    const likesSlider = document.getElementById("sliderA").checked;
+    const commentsSlider = document.getElementById("sliderB").checked;
+    const viewsSlider = document.getElementById("sliderC").checked;
+    const followersSlider = document.getElementById("sliderD").checked;
 
-  // Attach event listener to sliders
-  const checkboxes = document.querySelectorAll('.sliders');
-  checkboxes.forEach(function (checkbox) {
-    checkbox.addEventListener('change', updateSum);
-  });
+    // Check if any checkbox is checked
+    const anyChecked = likesSlider || commentsSlider || viewsSlider || followersSlider;
 
+    if (!anyChecked) {
+        // If no checkbox is checked, check the checkbox associated with the provided ID again
+        document.getElementById("confirmButton1").disabled = true;
+    }
+}
+
+// Attach event listener to sliders
+const checkboxes = document.querySelectorAll('.sliders');
+checkboxes.forEach(function (checkbox) {
+    checkbox.addEventListener('change', function() {
+        updateSum();
+    });
+});
 export function updateText(){
     // Check if the element with id "counter" already exists
   const len=JSON.parse(localStorage.getItem("datasetAfterScatter")).length
