@@ -2,6 +2,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get('username');
 const username1 = window.location.pathname.split('/').pop();
 console.log(username1)
+var monthPosition=[];
 
 
 //const username = window.location.pathname.split('/').pop();
@@ -53,6 +54,30 @@ fetch(`/getData/${username1}`)
 
     //Setting the title of the page
     const youtuber_name=youtuberData[0]["youtuber name"];
+    
+    var startMonth
+    
+    for (let i = 0; i < youtuberData.length; i++) {
+      const startMonth=youtuberData[i]["month"];
+        switch (startMonth.toLowerCase()) {
+          case "june":
+            monthPosition[i] = 0;
+            break;
+          case "september":
+            monthPosition[i] = 1;
+            break;
+          case "november":
+            monthPosition[i] = 2;
+            break;
+          case "december":
+            monthPosition[i] = 3;
+            break;
+          default:
+            // Handle unexpected input
+            console.log("Invalid start month");
+        }
+      }
+
     const youtuber_name_field=document.getElementById('youtuber_name_field');
     youtuber_name_field.innerHTML="Youtuber: " + youtuber_name;
     //
@@ -128,7 +153,7 @@ fetch(`/getData/${username1}`)
       .data(data)
       .enter()
       .append('circle')
-      .attr('cx', (d, i) => xScale(["June", "September", "November", "December"][i]) + xScale.bandwidth() / 2)
+      .attr('cx', (d, i) => xScale(["June", "September", "November", "December"][monthPosition[i]]) + xScale.bandwidth() / 2)
       .attr('cy', d => yScale(d))
       .attr('r', 5)
       .style('display', d => (typeof d === 'undefined' ? 'none' : ''))
@@ -143,7 +168,7 @@ fetch(`/getData/${username1}`)
       .enter()
       .append('line')
       .attr('x1', (d, i) => {
-        const xValue = ["June", "September", "November", "December"][i];
+        const xValue = ["June", "September", "November", "December"][monthPosition[i]];
         return typeof d !== 'undefined' ? xScale(xValue) + xScale.bandwidth() / 2 : null;
       })
       .attr('y1', d => typeof d !== 'undefined' ? yScale(d) : null)
@@ -158,7 +183,7 @@ fetch(`/getData/${username1}`)
           }
 
           if (j < data.length) {
-            const nextXValue = ["June", "September", "November", "December"][j];
+            const nextXValue = ["June", "September", "November", "December"][monthPosition[i+1]];
             return xScale(nextXValue) + xScale.bandwidth() / 2;
           }
         }

@@ -61,6 +61,7 @@ function checkedRadios(){
 }
 
 function handleRadioButtonChange() {
+  compare_button.setAttribute("hidden", true);
   updateTextBefore()
   temp=false
   var checkedRadioButton = document.querySelector('input[name="monthOption"]:checked');

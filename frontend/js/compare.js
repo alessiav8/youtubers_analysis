@@ -1,8 +1,13 @@
+
 const dataset = JSON.parse(localStorage.getItem("dataset"));
 const usernames = dataset.map(item => item["Youtube channel"]);
-const colours = ["blue","red","green","brown","black"]
+const colours = ["blue","red","green","fuchsia","black"]
 var username;
 var [followersTotal, likesTotal, commentsTotal, viewsTotal] = [[], [], [], []];
+var monthPosition=[];
+var asd=[]
+var countDisplay=0
+
 
 //crea 4 array di array (1 per ogni grafico), ognuno contiene k youtuber e per ogni youtuber 4 campi per i mesi
 //il fetch va loopato e i dati inseriti negli array di array. La chiamata a scatter plot creation va fatta fuori dal loop
@@ -49,11 +54,36 @@ function formatNumber(value) {
 var [followers, likes, comments, views] = [[], [], [], []];
 
 
-
+var c=0
+var value
 const fetchPromises = usernames.map(currentUsername => {
   return fetch(`/getData/${currentUsername}`)
     .then(response => response.json())
     .then(data => {
+      asd=[]
+      for (let i = 0; i < data.length; i++) {
+        const startMonth=data[i]["month"];
+          switch (startMonth.toLowerCase()) {
+            case "june":
+              asd[i] = 0;
+              break;
+            case "september":
+              asd[i] = 1;
+              break;
+            case "november":
+              asd[i] = 2;
+              break;
+            case "december":
+              asd[i] = 3;
+              break;
+            default:
+              // Handle unexpected input
+              console.log("Invalid start month");
+          }
+          //console.log("asd: "+asd)
+        }
+      monthPosition[c]=asd
+      c++
       // Process data and push to respective arrays
       const followers = data.map(entry => convertToInt(entry["Followers"]));
       const likes = data.map(entry => convertToInt(entry["Avg. likes"]));
@@ -67,6 +97,7 @@ const fetchPromises = usernames.map(currentUsername => {
     })
     .catch(error => console.error('Error fetching data:', error));
 });
+
   
 Promise.all(fetchPromises)
   .then(() => {
@@ -76,8 +107,21 @@ Promise.all(fetchPromises)
     createScatterPlot(commentsTotal, 'Comments', "#container2");
     createScatterPlot(viewsTotal, 'Views', "#container2");
     createLegend(usernames, colours)
+    //console.log("monthPosition: "+monthPosition)
+
   })
   .catch(error => console.error('Error:', error));
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -124,19 +168,20 @@ Promise.all(fetchPromises)
       .attr('transform', `translate(${margin.left},${margin.top})`);
     
     //console.log("data:"+data)
+    var k=0
     data.forEach(currentData => {
       console.log(counter+":"+currentData)
       svg.selectAll('circle'+counter)
       .data(currentData)
       .enter()
       .append('circle')
-      .attr('cx', (d, i) => xScale(["June", "September", "November", "December"][i]) + xScale.bandwidth() / 2)
+      .attr('cx', (d, i) => xScale(["June", "September", "November", "December"][monthPosition[k][i]]) + xScale.bandwidth() / 2)
       .attr('cy', d => yScale(d))
       .attr('r', 5)
       .style('display', d => (typeof d === 'undefined' ? 'none' : ''))
+      .style('fill', colours[counter])
       .on('mouseover', (d, i) => handleMouseOver(d,i,label,currentData))  // Add mouseover event listener
       .on('mouseout', handleMouseOut);  // Add mouseout event listener
-
 
 
       // start line
@@ -145,7 +190,7 @@ Promise.all(fetchPromises)
       .enter()
       .append('line')
       .attr('x1', (d, i) => {
-        const xValue = ["June", "September", "November", "December"][i];
+        const xValue = ["June", "September", "November", "December"][monthPosition[k][i]];
         return typeof d !== 'undefined' ? xScale(xValue) + xScale.bandwidth() / 2 : null;
       })
       .attr('y1', d => typeof d !== 'undefined' ? yScale(d) : null)
@@ -163,7 +208,7 @@ Promise.all(fetchPromises)
           }
           //console.log("j dopo:"+j)
           if (j < currentData.length) {
-            const nextXValue = ["June", "September", "November", "December"][j];
+            const nextXValue = ["June", "September", "November", "December"][monthPosition[k][i+1]];
             return xScale(nextXValue) + xScale.bandwidth() / 2;
           }
         }
@@ -207,6 +252,7 @@ Promise.all(fetchPromises)
   });
   //end line
   counter=counter+1
+  k++
 
 });
 
@@ -231,8 +277,11 @@ Promise.all(fetchPromises)
       .text('Count');
 
   
-      
+  countDisplay++    
   }
+
+
+
   
   function handleMouseOver(d, i, label, data) {
     const xValue = ["June", "September", "November", "December"][i];
