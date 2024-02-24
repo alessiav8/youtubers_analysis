@@ -84,10 +84,10 @@ function handleRadioButtonChange() {
   // Function to update the sum and counter container
   function updateSum() {
     document.getElementById("confirmButton1").disabled = false;
-    const likesSlider = document.getElementById("sliderA").checked;
-    const commentsSlider = document.getElementById("sliderB").checked;
-    const viewsSlider = document.getElementById("sliderC").checked;
-    const followersSlider = document.getElementById("sliderD").checked;
+    likesSlider = document.getElementById("sliderA").checked;
+    commentsSlider = document.getElementById("sliderB").checked;
+    viewsSlider = document.getElementById("sliderC").checked;
+    followersSlider = document.getElementById("sliderD").checked;
 
     // Check if any checkbox is checked
     const anyChecked = likesSlider || commentsSlider || viewsSlider || followersSlider;
