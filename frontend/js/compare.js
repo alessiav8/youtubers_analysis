@@ -170,7 +170,7 @@ Promise.all(fetchPromises)
     //console.log("data:"+data)
     var k=0
     data.forEach(currentData => {
-      console.log(counter+":"+currentData)
+      //console.log(counter+":"+currentData)
       svg.selectAll('circle'+counter)
       .data(currentData)
       .enter()

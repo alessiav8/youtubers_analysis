@@ -68,7 +68,6 @@ document.addEventListener("DOMContentLoaded", function() {
           removeDiv("#IstoFollowers");
           reRenderHisto("Followers", "log");
         }
-          console.log("Hai cliccato su un log!");
       });
   });
 });
@@ -219,7 +218,7 @@ class Histogram {
     this.originalDB = data;
     this.id = id;
     this.container = container;
-    this.margin = { top: 20, right: 40, bottom: 50, left: 40 };
+    this.margin = { top: 20, right: 44, bottom: 50, left: 44 };
     this.max = d3.max(this.data, (d) => d.frequenza);
     const parentDiv = document.getElementById("mainContainer");
     const parentDivRect = parentDiv.getBoundingClientRect();
@@ -240,18 +239,21 @@ class Histogram {
       .domain([0, d3.max(this.data, d => d.frequenza)]) 
       .range([this.height_isto, 0]);
 
-    this.xAxisIsto = d3.axisBottom(this.xScaleIsto);
-    this.yAxisIsto = d3.axisLeft(this.yScaleIsto);
+      this.xAxisIsto = d3.axisBottom(this.xScaleIsto);
+      this.yAxisIsto = d3.axisLeft(this.yScaleIsto);
 
-    this.yAxisIsto.tickFormat(d3.format(".0f"));
+      const maxFrequenza = d3.max(this.data, d => d.frequenza);
+      const tickValuesY = d3.ticks(0, Math.ceil(maxFrequenza), Math.min(10, Math.ceil(maxFrequenza))); // Genera tick interi
+      this.yAxisIsto.tickValues(tickValuesY);
 
-    this.xAxisIsto.tickSize(5);
-    this.yAxisIsto.tickSize(5);
+      this.yAxisIsto.tickFormat(d3.format(".0f"));
+      this.xAxisIsto.tickSize(5);
+      this.yAxisIsto.tickSize(5);
 
-    this.xAxisIsto.tickValues([]);
-    this.label = label;
-    this.originalIntervals = this.data.map((d) => ({ ...d }));
-  }
+      this.xAxisIsto.tickValues([]);
+      this.label = label;
+      this.originalIntervals = this.data.map((d) => ({ ...d }));
+    }
 
  
   getSubsetByYoutuberNames = (youtuberNamesSubset) => {
@@ -730,7 +732,6 @@ class Histogram {
       }
     })
 
-    console.log("NEW SUB",new_sub)
     return {youtubersInInterval, new_sub};
   };
 

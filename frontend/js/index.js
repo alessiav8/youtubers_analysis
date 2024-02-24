@@ -4,6 +4,7 @@ import Histogram from "./histogram.js"
 const reset_button = document.getElementById("reset_button");
 const compare_button = document.getElementById("compare_button");
 const zoom_button = document.getElementById("zoom_button");
+const zoom_back_button = document.getElementById("back_zoom_button");
 const confirm_button = document.getElementById("confirmButton");
 const confirm_button1 = document.getElementById("confirmButton1");
 const ScatterPlotContainer = document.getElementById("ScatterPlotContainer")
@@ -31,6 +32,9 @@ window.addEventListener('beforeunload', function (event) {
  reSetRadios("none")
 });
 
+window.addEventListener('unload', function(event) {
+  localStorage.removeItem("datasetBeforeZoom");
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   showLoadingMessage();
@@ -171,9 +175,10 @@ function saveLocalStorageStart() {
 function saveLocalStorageZoom() {
   const jsonData=JSON.parse(localStorage.getItem("datasetAfterScatter"))
   if (jsonData.length < 6) compare_button.removeAttribute("hidden");
-  localStorage.setItem("datasetFull", JSON.stringify(jsonData));
-  localStorage.setItem("dataset", JSON.stringify(jsonData));
-  localStorage.setItem("datasetAfterHisto", JSON.stringify(jsonData));
+  //edit
+  localStorage.setItem("datasetFull", JSON.stringify(cleanData(JSON.stringify(jsonData))));
+  localStorage.setItem("dataset", JSON.stringify(cleanData(JSON.stringify(jsonData))));
+  localStorage.setItem("datasetAfterHisto",JSON.stringify(cleanData(JSON.stringify(jsonData))));
 }
 
 
@@ -289,8 +294,7 @@ function confirmFilters() {
     console.log('Dataset or datasetFull not found in localStorage');
     // Handle the absence of the dataset or datasetFull as needed
   }
-  console.log('Original datasetUNO:', dataset);
-  console.log('Filtered datasetUNO:', filteredDataset);
+ 
 
   removeSVGElements();
   temp=true
@@ -338,6 +342,7 @@ function parseKMBtoNumber(str) {
 
   return numericPart;
 }
+
 function extractCategories(data) {
   // Assuming your category data is present in a "Category" column
   const categoryColumn = "Category"; // Adjust this based on your actual column name
@@ -429,25 +434,71 @@ function renderFilter(categories, container) {
   });
 }
 
+function setPreviousDataset(prevDataset) {
+  let dataBefore = localStorage.getItem('datasetBeforeZoom') ? JSON.parse(localStorage.getItem('datasetBeforeZoom')) : [];
+  console.log("dataBefore",dataBefore)
 
-reset_button.addEventListener("click", function () {
-  location.reload();
-})
-zoom_button.addEventListener("click", function () {
+  dataBefore.push(prevDataset);
+  console.log("PUSH another one",dataBefore)
+  localStorage.setItem('datasetBeforeZoom', JSON.stringify(dataBefore));
+  return;
+}
+function showBackZoomButton(){
+  let color;
+  if(JSON.parse(localStorage.getItem('datasetBeforeZoom'))===null || JSON.parse(localStorage.getItem('datasetBeforeZoom')).length == 0){
+    color="gray";
+  }
+  else{
+    color="currentColor";
+  }
+  const parentDiv = document.getElementById("back_zoom_button");
+  var svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svgElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  svgElement.setAttribute("width", "25");
+  svgElement.setAttribute("height", "20");
+  svgElement.setAttribute("fill", color);
+  svgElement.setAttribute("class", "bi bi-arrow-left");
+  svgElement.setAttribute("viewBox", "0 0 16 16");
+  var pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  pathElement.setAttribute("fill-rule", "evenodd");
+  pathElement.setAttribute("d", "M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8");
+  svgElement.appendChild(pathElement);
+  parentDiv.appendChild(svgElement);
+}
+
+zoom_back_button.addEventListener("click", function(){
+  let datasetBeforeZoom;
+
+  if(JSON.parse(localStorage.getItem("datasetBeforeZoom"))){
+    let datasetBeforeZoomSet = JSON.parse(localStorage.getItem("datasetBeforeZoom"));
+    if(datasetBeforeZoomSet.length >= 1 ){
+      localStorage.setItem("datasetBeforeZoom", JSON.stringify(datasetBeforeZoomSet.slice(0, -1)));
+      datasetBeforeZoom = datasetBeforeZoomSet.pop();
+    }
+    else{
+      datasetBeforeZoom = datasetBeforeZoomSet;
+      localStorage.removeItem("datasetBeforeZoom");
+    }
+  }
+  else{
+     datasetBeforeZoom = [];
+     datasetBeforeZoom.push(JSON.parse(localStorage.getItem("datasetFull")));
+  }
+
+  localStorage.setItem("dataset", JSON.stringify(datasetBeforeZoom));
   updateTextBefore()
   removeSVGElements();
   showLoadingMessage();
-  saveLocalStorageZoom();
   disableRadioButtons();
   localStorage.setItem("scatterTriggered",false);
   localStorage.setItem("filteredOnHistos",false);
-  reSetRadios("none")
-
-  temp=true
+  reSetRadios("none");
+  temp=true;
   
   const serverEndpoint = '/generateExcel';
   const datasetString = localStorage.getItem("dataset");
   var datasetAsd = JSON.parse(datasetString);
+  console.log("DatasetASD: ",datasetAsd)
   if (datasetAsd.length < 6) compare_button.removeAttribute("hidden");
 
 
@@ -465,6 +516,7 @@ zoom_button.addEventListener("click", function () {
       }
       // If the response is 'OK', log a message or perform other actions
       console.log('Server responded with OK');
+      showBackZoomButton();
     })
     .catch(error => {
       console.error('Error during the request:', error);
@@ -473,6 +525,62 @@ zoom_button.addEventListener("click", function () {
     setTimeout(() => {
       renderFilters();
       showLoadingMessage();
+      getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersSlider);
+    }, 500);
+});
+
+reset_button.addEventListener("click", function () {
+  location.reload();
+  localStorage.removeItem('datasetBeforeZoom');
+
+})
+
+zoom_button.addEventListener("click", function () {
+  console.log("dataZoom set",JSON.parse(localStorage.getItem("datasetBeforeZoom")));
+
+  setPreviousDataset(JSON.parse(localStorage.getItem("dataset")));
+
+  updateTextBefore()
+  removeSVGElements();
+  showLoadingMessage();
+  saveLocalStorageZoom();
+  disableRadioButtons();
+  localStorage.setItem("scatterTriggered",false);
+  localStorage.setItem("filteredOnHistos",false);
+  reSetRadios("none");
+  temp=true;
+  
+  const serverEndpoint = '/generateExcel';
+  const datasetString = localStorage.getItem("dataset");
+  var datasetAsd = JSON.parse(datasetString);
+
+  if (datasetAsd.length < 6) compare_button.removeAttribute("hidden");
+
+
+  // Make a POST request to the server
+  fetch(serverEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ dataset: datasetString }),
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      // If the response is 'OK', log a message or perform other actions
+      console.log('Server responded with OK');
+      showBackZoomButton();
+    })
+    .catch(error => {
+      console.error('Error during the request:', error);
+    });
+
+    setTimeout(() => {
+      renderFilters();
+      showLoadingMessage();
+      //localStorage.removeItem('datasetBeforeZoom');
       getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersSlider);
     }, 500);
   
@@ -513,7 +621,7 @@ function getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersS
   requestOptions = {
     method: "GET",
     headers: {
-      month: "temp",
+      month: "june",
       likes: likesSlider,
       comments: commentsSlider,
       views: viewsSlider,
@@ -522,13 +630,14 @@ function getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersS
   };
 }
 
+
   fetch("http://127.0.0.1:5000/data", requestOptions)
     .then((response) => response.json())
     .then((data) => {
+      console.log("Response with data",data);
       hideLoadingMessage();
       Data=intersectCleanedDataScatteData(data); 
       renderScatterPlot(Data);
-      console.log("logg", data.length);  // Check the length
       enableRadioButtons();
       renderHisto();
 
@@ -586,11 +695,21 @@ function removeDuplicatesNames(dataset) {
 //clean the data for the scatterplot
 function intersectCleanedDataScatteData(data){
   const dataset=JSON.parse(localStorage.getItem("dataset"));
+
   const uniqueChannels = new Set();
-  const filteredData = data.filter(item => {
+  let filteredData = data.filter(item => {
     if (!uniqueChannels.has(item["label"])) {
-      uniqueChannels.add(item["label"]);
-      return true;
+      let channel=dataset.find(d => d["Youtube channel"] === item["label"]);
+      try{
+        const name=channel["youtuber name"];
+        if(dataset.filter(d => d["youtuber name"] === name).length <= 1 && dataset.filter(d => d["Youtube channel"] === item["label"]).length <= 1 ){
+          uniqueChannels.add(item["label"]);
+          return true;
+        }
+      } 
+      catch{
+        console.error(item)
+      }      
     }
     return false;
   });
@@ -604,7 +723,6 @@ function callChangeInHistograms(filteredDataset){
   const h = new Histogram(dataset2,"","","","log");
   //const intersect = h.intersectFunction(filteredDataset)
   h.reRenderHistos(filteredDataset);
-  console.log("callChangeInHistograms","\n Actual db", dataset2, "filteredData",filteredDataset);
 
   //
 }
@@ -777,7 +895,6 @@ function renderScatterPlot(data) {
     }
   }
   function brushedend_scatter_plot() {
-    console.log("Call from brushened scatter")
     const event = d3.event;
     if (event && event.selection) {
 
@@ -827,7 +944,6 @@ function renderScatterPlot(data) {
         selectedData.some(selectedItem => selectedItem.label === item["Youtube channel"])
       );
 
-      console.log("jsonData: ",jsonData, "filteredDataset: ",filteredDataset,"afterHisto: ", datasetAfterHisto);
 
 
       // Save the filtered dataset in localStorage
@@ -838,7 +954,6 @@ function renderScatterPlot(data) {
       localStorage.setItem("pt2y", selection[1][1]);
       localStorage.setItem("pt1y", selection[0][1]);
 
-      //console.log("dataset after Histo",datasetAfterHisto,"saved in afterScatter", filteredDataset, "Selected Area",selectedScatter);
       colorScatterPlot(circles, selectedData);
       callChangeInHistograms(filteredDataset);
 

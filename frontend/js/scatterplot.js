@@ -122,7 +122,6 @@ class ScatterPlot {
             this.yScale(d.y) >= selection[0][1] &&
             this.yScale(d.y) <= selection[1][1]
         );
-        console.log("Selected Data:", selectedData);
         this.colorScatterPlot(selectedData, "black");
       }
     }
