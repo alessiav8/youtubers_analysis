@@ -436,11 +436,11 @@ function renderFilter(categories, container) {
 
 function setPreviousDataset(prevDataset) {
   let dataBefore = localStorage.getItem('datasetBeforeZoom') ? JSON.parse(localStorage.getItem('datasetBeforeZoom')) : [];
-  console.log("dataBefore",dataBefore)
 
-  dataBefore.push(prevDataset);
-  console.log("PUSH another one",dataBefore)
-  localStorage.setItem('datasetBeforeZoom', JSON.stringify(dataBefore));
+  if(JSON.parse(localStorage.getItem('scatterTriggered')) || JSON.parse(localStorage.getItem('filteredOnHistos'))){
+    dataBefore.push(prevDataset);
+    localStorage.setItem('datasetBeforeZoom', JSON.stringify(dataBefore));
+  }
   return;
 }
 function showBackZoomButton(){
@@ -536,8 +536,6 @@ reset_button.addEventListener("click", function () {
 })
 
 zoom_button.addEventListener("click", function () {
-  console.log("dataZoom set",JSON.parse(localStorage.getItem("datasetBeforeZoom")));
-
   setPreviousDataset(JSON.parse(localStorage.getItem("dataset")));
 
   updateTextBefore()
