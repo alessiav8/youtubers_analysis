@@ -626,7 +626,7 @@ function getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersS
   requestOptions = {
     method: "GET",
     headers: {
-      month: "june",
+      month: "temp",
       likes: likesSlider,
       comments: commentsSlider,
       views: viewsSlider,
