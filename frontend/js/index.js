@@ -161,6 +161,7 @@ function saveLocalStorageStart() {
       localStorage.setItem("dataset", JSON.stringify(cleanData(JSON.stringify(jsonData))));
       localStorage.setItem("datasetAfterHisto", JSON.stringify(cleanData(JSON.stringify(jsonData))));
       localStorage.setItem("datasetAfterScatter", JSON.stringify(cleanData(JSON.stringify(jsonData))));
+      localStorage.setItem("dataContainedInScatterArea", JSON.stringify(cleanData(JSON.stringify(jsonData))));
       localStorage.setItem("datasetFull", JSON.stringify(cleanData(JSON.stringify(jsonData))));
       totalAmount=JSON.parse(localStorage.getItem("datasetAfterScatter")).length
       localStorage.setItem("pt1x", 0);
@@ -474,6 +475,7 @@ zoom_back_button.addEventListener("click", function(){
     if(datasetBeforeZoomSet.length >= 1 ){
       localStorage.setItem("datasetBeforeZoom", JSON.stringify(datasetBeforeZoomSet.slice(0, -1)));
       datasetBeforeZoom = datasetBeforeZoomSet.pop();
+      if(datasetBeforeZoom.length > 5) compare_button.setAttribute("hidden", true);
     }
     else{
       datasetBeforeZoom = datasetBeforeZoomSet;
@@ -486,6 +488,11 @@ zoom_back_button.addEventListener("click", function(){
   }
 
   localStorage.setItem("dataset", JSON.stringify(datasetBeforeZoom));
+  localStorage.setItem("datasetAfterScatter", JSON.stringify(datasetBeforeZoom));
+  localStorage.setItem("datasetAfterHisto", JSON.stringify(datasetBeforeZoom));
+  localStorage.setItem("datasetFull", JSON.stringify(datasetBeforeZoom));
+  localStorage.setItem("dataContainedInScatterArea", JSON.stringify(datasetBeforeZoom));
+
   updateTextBefore()
   removeSVGElements();
   showLoadingMessage();
