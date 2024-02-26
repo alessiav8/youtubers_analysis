@@ -34,6 +34,7 @@ window.addEventListener('beforeunload', function (event) {
 
 window.addEventListener('unload', function(event) {
   localStorage.removeItem("datasetBeforeZoom");
+  reSetRadios("none")
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -63,8 +64,80 @@ function checkedRadios(){
   }
 }
 
+//this is what the arrow to recover from the zoom does
+//zoom_back_button.addEventListener("click", function(){
+  window.backZoomFunction = function() {
+    let datasetBeforeZoom;
+  
+    if(JSON.parse(localStorage.getItem("datasetBeforeZoom"))){
+      let datasetBeforeZoomSet = JSON.parse(localStorage.getItem("datasetBeforeZoom"));
+      if(datasetBeforeZoomSet.length >= 1 ){
+        localStorage.setItem("datasetBeforeZoom", JSON.stringify(datasetBeforeZoomSet.slice(0, -1)));
+        datasetBeforeZoom = datasetBeforeZoomSet.pop();
+        if(datasetBeforeZoom.length > 5) compare_button.setAttribute("hidden", true);
+      }
+      else{
+        datasetBeforeZoom = datasetBeforeZoomSet;
+        localStorage.removeItem("datasetBeforeZoom");
+      }
+    }
+    else{
+       datasetBeforeZoom = [];
+       datasetBeforeZoom.push(JSON.parse(localStorage.getItem("datasetFull")));
+    }
+  
+    localStorage.setItem("dataset", JSON.stringify(datasetBeforeZoom));
+    localStorage.setItem("datasetAfterScatter", JSON.stringify(datasetBeforeZoom));
+    localStorage.setItem("datasetAfterHisto", JSON.stringify(datasetBeforeZoom));
+    localStorage.setItem("datasetFull", JSON.stringify(datasetBeforeZoom));
+    localStorage.setItem("dataContainedInScatterArea", JSON.stringify(datasetBeforeZoom));
+  
+    updateTextBefore()
+    removeSVGElements();
+    showLoadingMessage();
+    disableRadioButtons();
+    localStorage.setItem("scatterTriggered",false);
+    localStorage.setItem("filteredOnHistos",false);
+    reSetRadios("none");
+    temp=true;
+    
+    const serverEndpoint = '/generateExcel';
+    const datasetString = localStorage.getItem("dataset");
+    var datasetAsd = JSON.parse(datasetString);
+    console.log("DatasetASD: ",datasetAsd)
+    if (datasetAsd.length < 6) compare_button.removeAttribute("hidden");
+  
+  
+    // Make a POST request to the server
+    fetch(serverEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ dataset: datasetString }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        // If the response is 'OK', log a message or perform other actions
+        console.log('Server responded with OK');
+        showBackZoomButton();
+      })
+      .catch(error => {
+        console.error('Error during the request:', error);
+      });
+  
+      setTimeout(() => {
+        renderFilters();
+        showLoadingMessage();
+        getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersSlider);
+      }, 500);
+  };
+
 function handleRadioButtonChange() {
   compare_button.setAttribute("hidden", true);
+  reSetRadios("none");
   updateTextBefore()
   temp=false
   var checkedRadioButton = document.querySelector('input[name="monthOption"]:checked');
@@ -73,6 +146,7 @@ function handleRadioButtonChange() {
   saveLocalStorageStart();
   disableRadioButtons();
   removeSVGElements();
+  showBackZoomButton();
   setTimeout(() => {
     renderFilters();
     getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersSlider);
@@ -444,10 +518,16 @@ function setPreviousDataset(prevDataset) {
   }
   return;
 }
+
+
+//this handle the show of the back arrow to recover from the zoom
 function showBackZoomButton(){
+  console.log("show back");
   let color;
+  let clickable = true;
   if(JSON.parse(localStorage.getItem('datasetBeforeZoom'))===null || JSON.parse(localStorage.getItem('datasetBeforeZoom')).length == 0){
     color="gray";
+    clickable = false;
   }
   else{
     color="currentColor";
@@ -460,6 +540,13 @@ function showBackZoomButton(){
   svgElement.setAttribute("fill", color);
   svgElement.setAttribute("class", "bi bi-arrow-left");
   svgElement.setAttribute("viewBox", "0 0 16 16");
+
+
+  if (clickable) {
+    svgElement.setAttribute("onclick", "backZoomFunction()");
+    svgElement.style.cursor = "pointer"; 
+  }
+
   var pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
   pathElement.setAttribute("fill-rule", "evenodd");
   pathElement.setAttribute("d", "M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8");
@@ -467,74 +554,6 @@ function showBackZoomButton(){
   parentDiv.appendChild(svgElement);
 }
 
-zoom_back_button.addEventListener("click", function(){
-  let datasetBeforeZoom;
-
-  if(JSON.parse(localStorage.getItem("datasetBeforeZoom"))){
-    let datasetBeforeZoomSet = JSON.parse(localStorage.getItem("datasetBeforeZoom"));
-    if(datasetBeforeZoomSet.length >= 1 ){
-      localStorage.setItem("datasetBeforeZoom", JSON.stringify(datasetBeforeZoomSet.slice(0, -1)));
-      datasetBeforeZoom = datasetBeforeZoomSet.pop();
-      if(datasetBeforeZoom.length > 5) compare_button.setAttribute("hidden", true);
-    }
-    else{
-      datasetBeforeZoom = datasetBeforeZoomSet;
-      localStorage.removeItem("datasetBeforeZoom");
-    }
-  }
-  else{
-     datasetBeforeZoom = [];
-     datasetBeforeZoom.push(JSON.parse(localStorage.getItem("datasetFull")));
-  }
-
-  localStorage.setItem("dataset", JSON.stringify(datasetBeforeZoom));
-  localStorage.setItem("datasetAfterScatter", JSON.stringify(datasetBeforeZoom));
-  localStorage.setItem("datasetAfterHisto", JSON.stringify(datasetBeforeZoom));
-  localStorage.setItem("datasetFull", JSON.stringify(datasetBeforeZoom));
-  localStorage.setItem("dataContainedInScatterArea", JSON.stringify(datasetBeforeZoom));
-
-  updateTextBefore()
-  removeSVGElements();
-  showLoadingMessage();
-  disableRadioButtons();
-  localStorage.setItem("scatterTriggered",false);
-  localStorage.setItem("filteredOnHistos",false);
-  reSetRadios("none");
-  temp=true;
-  
-  const serverEndpoint = '/generateExcel';
-  const datasetString = localStorage.getItem("dataset");
-  var datasetAsd = JSON.parse(datasetString);
-  console.log("DatasetASD: ",datasetAsd)
-  if (datasetAsd.length < 6) compare_button.removeAttribute("hidden");
-
-
-  // Make a POST request to the server
-  fetch(serverEndpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ dataset: datasetString }),
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      // If the response is 'OK', log a message or perform other actions
-      console.log('Server responded with OK');
-      showBackZoomButton();
-    })
-    .catch(error => {
-      console.error('Error during the request:', error);
-    });
-
-    setTimeout(() => {
-      renderFilters();
-      showLoadingMessage();
-      getDataAndRenderGraph(likesSlider,commentsSlider,viewsSlider,followersSlider);
-    }, 500);
-});
 
 reset_button.addEventListener("click", function () {
   location.reload();
