@@ -1004,12 +1004,15 @@ function renderScatterPlot(data) {
   .attr("r", 4)
   .attr("fill", "gray")
   .attr("pointer-events", "all")
-  .on("mouseover", mouseover)
+  .on("mouseover",  mouseover)
 
- /* old mouseover function
+
   function mouseover(event) {
-  const xPosition = xScale(event.x) + 400;
-  const yPosition = yScale(event.y) + 200;
+    const svg = d3.select("#mds"); // Select the SVG element with id "mds"
+    const svgRect = svg.node().getBoundingClientRect();
+    const [mouseX, mouseY] = d3.mouse(this); // Get current circle's position
+    const xPosition = mouseX + svgRect.left + 10; // Add SVG offset and an additional offset
+    const yPosition = mouseY + svgRect.top - 30;
   tooltip
     .transition()
     .duration(200)
@@ -1019,28 +1022,19 @@ function renderScatterPlot(data) {
 
   tooltip.html(`<strong>${event.label}</strong>`);
 }
- */
- function mouseover(event) {
-  const tooltipContainer = document.getElementById('tooltipContainer');
-  const rect = tooltipContainer.getBoundingClientRect();
-  
-  const xPosition = rect.left + rect.width / 10;
-  const yPosition = rect.top;
-  
-  
-  tooltip
-    .transition()
-    .duration(200)
-    .style("opacity", 0.9)
-    .style("left", xPosition + "px")
-    .style("top", yPosition + "px");
 
-  tooltip.html(`<strong>${event.label}</strong>`);
-}
+  
+  
 
 
 circles.on("mouseout", () => {
-  tooltip.transition().duration(500).style("opacity", 0);
+  const rightPosition = window.innerWidth - 200;
+  const bottomPosition = window.innerHeight - 200;
+  tooltip.transition().duration(500)
+    .style("opacity", 0)
+    .on("end", () => {
+      tooltip.style("left", rightPosition + "px").style("top", bottomPosition + "px");
+    });
 });
 
 circles.on("click", (d) => {
