@@ -1006,10 +1006,28 @@ function renderScatterPlot(data) {
   .attr("pointer-events", "all")
   .on("mouseover", mouseover)
 
- //mouseover function
- function mouseover(event) {
+ /* old mouseover function
+  function mouseover(event) {
   const xPosition = xScale(event.x) + 400;
   const yPosition = yScale(event.y) + 200;
+  tooltip
+    .transition()
+    .duration(200)
+    .style("opacity", 0.9)
+    .style("left", xPosition + "px")
+    .style("top", yPosition + "px");
+
+  tooltip.html(`<strong>${event.label}</strong>`);
+}
+ */
+ function mouseover(event) {
+  const tooltipContainer = document.getElementById('tooltipContainer');
+  const rect = tooltipContainer.getBoundingClientRect();
+  
+  const xPosition = rect.left + rect.width / 10;
+  const yPosition = rect.top;
+  
+  
   tooltip
     .transition()
     .duration(200)
