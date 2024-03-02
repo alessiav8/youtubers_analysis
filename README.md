@@ -10,5 +10,5 @@ pip install -r requirements.txt
 
 ###Run
 npm install
-npm run start <!-- to run from windows>
-npm run start-mac <!-- to run from mac>
+npm run start (to run from windows)
+npm run start-mac (to run from mac)
