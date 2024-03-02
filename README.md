@@ -8,7 +8,7 @@ This project, created by Alessia Volpi and Matteo Simonetti, serves as the final
 #In order to install the required dependencies in the file requirements for the backend use this:
 pip install -r requirements.txt 
 
-
-#Run
+###Run
 npm install
-npm run start
+npm run start <!-- to run from windows>
+npm run start-mac <!-- to run from mac>
