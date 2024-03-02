@@ -1,14 +1,14 @@
-
+<!DOCTYPE html>
+<html>
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scatterplot with D3.js</title>
-    <script src="https://d3js.org/d3.v5.min.js"></script>    
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" />
     <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-
     <script type="module" src="../js/index.js"></script>
     <style>
       body {
@@ -19,229 +19,397 @@
         font-size: 1.6vh;
         margin: 0;
         overflow-y: auto;
-        margin-right:0;
+        margin-right: 0;
       }
-      
-     
-      
+
       #loadingMessage {
         display: none;
       }
-    
+
       .vertical-text {
-        writing-mode: tb-rl; 
-        transform: rotate(-180deg); 
+        writing-mode: tb-rl;
+        transform: rotate(-180deg);
         font-family: Arial, sans-serif;
-        font-size: 1.2vh; 
-    }
+        font-size: 1.2vh;
+      }
 
       .form-check-input[type="radio"] {
-        width: 12px; 
-        height: 12px; 
+        width: 12px;
+        height: 12px;
       }
       .form-check-label {
-        font-size: 1.4vh;  
+        font-size: 1.4vh;
       }
       .small-button {
-        height: 30px; 
-        font-size: 1.4vh; 
+        height: 30px;
+        font-size: 1.4vh;
         padding: 5px 10px;
         margin: 5px;
-    }
+      }
     </style>
   </head>
   <body>
-    <div class="container" id="mainContainer">
-      <div class="row">
-        
-      <div class="container mb-1" style="width: 100%; height: 40%;">
+
+    <div class="container" id="mainContainer" style="width: 100%; heigth: 100%">
+      <div class="container mb-1" style="width: 100%; height: 40%">
         <div class="row">
-          <h3 class="mt-2">Find your Youtuber!</h3>
+          <h3 class="" style="font-size: 3vh">Find your Youtuber!</h3>
         </div>
-      <div class="row text-center" id="monthSelector">
-        <div class="col" id="colZoomBack">
-          <a id="back_zoom_button" href="javascript:void(0);">
-            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="20" fill="gray" class="bi bi-arrow-left" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
-            </svg>
-          </a>
-        </div>
-        <div class="col">
-          <label class="radio-inline">
-              <input type="radio" name="monthOption" value="june" checked> June 2022
-          </label>
-        </div>
-        <div class="col">
-            <label class="radio-inline">
-                <input type="radio" name="monthOption" value="september"> September 2022
-            </label>
-        </div>
-        <div class="col">
-            <label class="radio-inline">
-                <input type="radio" name="monthOption" value="november"> November 2022
-            </label>
-        </div>
-        <div class="col">
-            <label class="radio-inline">
-                <input type="radio" name="monthOption" value="december"> December 2022
-            </label>
+        <div class="row text-center" id="monthSelector">
+          <div class="col" id="colZoomBack">
+            <a id="back_zoom_button" href="javascript:void(0);"
+              ><svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="25"
+                height="20"
+                fill="gray"
+                class="bi bi-arrow-left"
+                viewbox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"
+                ></path></svg
+            ></a>
+          </div>
+          <div class="col">
+            <label class="radio-inline"
+              ><input type="radio" name="monthOption" value="june" checked />
+              June 2022</label
+            >
+          </div>
+          <div class="col">
+            <label class="radio-inline"
+              ><input type="radio" name="monthOption" value="september" />
+              September 2022</label
+            >
+          </div>
+          <div class="col">
+            <label class="radio-inline"
+              ><input type="radio" name="monthOption" value="november" />
+              November 2022</label
+            >
+          </div>
+          <div class="col">
+            <label class="radio-inline"
+              ><input type="radio" name="monthOption" value="december" />
+              December 2022</label
+            >
+          </div>
         </div>
       </div>
 
-      <div class="row mt-3">
-        <div class="col-2 text-center justify-content-between " id="Filters">
+      <div class="container" style="width: 100%; height:100%">
 
-          <div class="my-3" id="category">
-            <div class="form-group border p-3">
-              <label for="scrollableCategory" style="font-size: 1.4vh">Select Category</label>
-              <div id="scrollableCategory" style="height: 10vh; overflow-y: auto;">
+        <div class="row" style="width: 100%; height: 100%">
+
+          <div class="col" style="width: 15%">
+
+            <div class="col text-center justify-content-between" id="Filters">
+              <div class="my-3" id="category">
+                <div class="form-group border p-3">
+                  <label for="scrollableCategory" style="font-size: 1.5vh"
+                    >Select Category</label
+                  >
+                  <div
+                    id="scrollableCategory"
+                    style="height: 25vh; overflow-y: auto"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="my-3" id="country">
+                <div class="form-group border p-3">
+                  <label for="scrollableCountry" style="font-size: 1.5vh"
+                    >Select Country</label
+                  >
+                  <div
+                    id="scrollableCountry"
+                    style="height: 25vh; overflow-y: auto"
+                  ></div>
+                </div>
+              </div>
+
+              <button
+                id="confirmButton"
+                class="btn btn-sm btn-primary"
+                style="font-size: 1.4vh"
+              >
+                Confirm filters
+              </button>
+
+            </div>
+          </div>
+
+          <div class="col" style="width: 85%">
+            <div class="row mt-3">
+              <div class="col border" id="ScatterPlotContainer" style="height:100%; margin-bottom:0.5vh">
+                <div class="row my-5 text-center" id="loadingMessage">
+                  Loading data...
+                </div>
+
+                
+                <div
+                  class="row mb-3"
+                  id="mdsParam"
+                  style="display: none; text-align: center"
+                >
+                  <div class="col-2">
+                    <label for="sliderA" style="font-size: 1.4vh"
+                      >Likes:<br
+                    /></label>
+                    <input
+                      type="checkbox"
+                      class="form-check-input sliders"
+                      id="sliderA"
+                      checked
+                    />
+                  </div>
+                  <div class="col-2">
+                    <label for="sliderB" style="font-size: 1.4vh"
+                      >Comments:<br
+                    /></label>
+                    <input
+                      type="checkbox"
+                      class="form-check-input sliders"
+                      id="sliderB"
+                      checked
+                    />
+                  </div>
+                  <div class="col-2">
+                    <label for="sliderC" style="font-size: 1.4vh"
+                      >Views:<br
+                    /></label>
+                    <input
+                      type="checkbox"
+                      class="form-check-input sliders"
+                      id="sliderC"
+                      checked
+                    />
+                  </div>
+                  <div class="col-2">
+                    <label for="sliderD" style="font-size: 1.4vh"
+                      >Followers:<br
+                    /></label>
+                    <input
+                      type="checkbox"
+                      class="form-check-input sliders"
+                      id="sliderD"
+                      checked
+                    />
+                  </div>
+                  <div
+                    class="col-2 d-flex justify-content-center align-items-center"
+                  >
+                    <button
+                      id="confirmButton1"
+                      class="btn btn-sm btn-primary"
+                      style="font-size: 1.4vh"
+                    >
+                      Confirm parameters
+                    </button>
+                  </div>
+                  <div
+                    class="col-2 d-flex justify-content-center align-items-center"
+                    id="counterContainer"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div
+                class="row"
+                id="IstoContainer"
+                style="width: 145vh; margin-right: 10vh"
+              >
+                <div class="col-3">
+                  <div class="row" id="IstoLikes"></div>
+                  <div class="container" id="ScaleLikes" style="display: none">
+                    <div class="row justify-content-center" style="margin-left:1vh">
+                      <div class="col-auto">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input linearbottom"
+                            type="radio"
+                            name="LikesOption"
+                            id="linear_likes"
+                            value="linear"
+                          />
+                          <label class="form-check-label" for="linear_likes"
+                            >Linear scale</label
+                          >
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input logbottom"
+                            type="radio"
+                            name="LikesOption"
+                            id="log_likes"
+                            value="log"
+                            checked
+                          />
+                          <label class="form-check-label" for="log_likes"
+                            >Log scale</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="row" id="IstoComments"></div>
+                  <div
+                    class="container"
+                    id="ScaleComments"
+                    style="display: none"
+                  >
+                    <div class="row justify-content-center" style="margin-left:1vh">
+                      <div class="col-auto">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input linearbottom"
+                            type="radio"
+                            name="CommentsOption"
+                            id="linear_comments"
+                            value="linear"
+                          />
+                          <label class="form-check-label" for="linear_comments"
+                            >Linear scale</label
+                          >
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input logbottom"
+                            type="radio"
+                            name="CommentsOption"
+                            id="log_comments"
+                            value="log"
+                            checked
+                          />
+                          <label class="form-check-label" for="log_comments"
+                            >Log scale</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="row" id="IstoViews"></div>
+                  <div class="container" id="ScaleViews" style="display: none">
+                    <div class="row justify-content-center" style="margin-left:1vh">
+                      <div class="col-auto">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input linearbottom"
+                            type="radio"
+                            name="ViewsOption"
+                            id="linear_views"
+                            value="linear"
+                          />
+                          <label class="form-check-label" for="linear_views"
+                            >Linear scale</label
+                          >
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input logbottom"
+                            type="radio"
+                            name="ViewsOption"
+                            id="log_views"
+                            value="log"
+                            checked
+                          />
+                          <label class="form-check-label" for="log_views"
+                            >Log scale</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="row" id="IstoFollowers"></div>
+                  <div
+                    class="container"
+                    id="ScaleFollowers"
+                    style="display: none"
+                  >
+                    <div class="row justify-content-center" style="margin-left:1vh">
+                     
+                      <div class="col-auto">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input linearbottom"
+                            type="radio"
+                            name="FollowersOption"
+                            id="linear_followes"
+                            value="linear"
+                          />
+                          <label class="form-check-label" for="linear_followes"
+                            >Linear scale</label
+                          >
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input logbottom"
+                            type="radio"
+                            name="FollowersOption"
+                            id="log_followers"
+                            value="log"
+                            checked
+                          />
+                          <label class="form-check-label" for="log_followers"
+                            >Log 
+                            scale</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-          <div class="my-3" id="country">
-            <div class="form-group border p-3">
-              <label for="scrollableCountry" style="font-size: 1.4vh">Select Country</label>
-              <div id="scrollableCountry" style="height: 10vh; overflow-y: auto;">
-              </div>
-            </div>
-          </div>
-
-          <button id="confirmButton" class="btn btn-sm  btn-primary" style="font-size: 1.4vh">Confirm filters</button>
-
         </div>
-
-      
-        <div class="col-10 border" id="ScatterPlotContainer">
-          <div class="row my-5 text-center" id="loadingMessage">Loading data...</div>
-          <div class="row mb-3" id="mdsParam" style="display: none;  text-align: center;">
-            <div class="col-2">
-              <label for="sliderA" style="font-size: 1.4vh">Likes:<br></label>
-              <input type="checkbox" class="form-check-input sliders" id="sliderA" checked>
-            </div>
-            <div class="col-2">
-              <label for="sliderB" style="font-size: 1.4vh">Comments:<br></label>
-              <input type="checkbox" class="form-check-input sliders" id="sliderB" checked>
-            </div>
-            <div class="col-2">
-              <label for="sliderC" style="font-size: 1.4vh">Views:<br></label>
-              <input type="checkbox" class="form-check-input sliders" id="sliderC" checked>
-            </div>
-            <div class="col-2">
-              <label for="sliderD" style="font-size: 1.4vh">Followers:<br></label>
-              <input type="checkbox" class="form-check-input sliders" id="sliderD" checked>
-            </div>            
-            <div class="col-2 d-flex justify-content-center align-items-center">
-              <button id="confirmButton1" class="btn btn-sm btn-primary" style="font-size: 1.4vh;">Confirm parameters</button>
-            </div>
-            <div class="col-2 d-flex justify-content-center align-items-center" id="counterContainer"></div>
-          </div>
-        </div>
-
-        
       </div>
-    </div>
-  </div>
-
-  <div class="row">
-   
-
-
-
-      <div class="row"id="IstoContainer">
-
-        <div class="col-3" >
-          <div class="row" id="IstoLikes">
-            
-          </div>
-          <div class="container" id="ScaleLikes" style="display:none;">
-            <div class="row justify-content-center">
-              <div class="col-auto">
-                <div class="form-check">
-                  <input class="form-check-input linearbottom" type="radio" name="LikesOption" id="linear_likes" value="linear">
-                  <label class="form-check-label" for="linear_likes">Linear</label>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-check">
-                  <input class="form-check-input logbottom" type="radio" name="LikesOption" id="log_likes" value="log" checked>
-                  <label class="form-check-label" for="log_likes">Log</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-3" >
-          <div class="row" id="IstoComments"></div>
-          <div class="container" id="ScaleComments" style="display:none;">
-            <div class="row justify-content-center">
-              <div class="col-auto">
-                <div class="form-check">
-                  <input class="form-check-input linearbottom" type="radio" name="CommentsOption" id="linear_comments" value="linear">
-                  <label class="form-check-label" for="linear_comments">Linear</label>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-check">
-                  <input class="form-check-input logbottom" type="radio" name="CommentsOption" id="log_comments" value="log" checked>
-                  <label class="form-check-label" for="log_comments">Log</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-3" >
-          <div class="row" id="IstoViews"></div>
-          <div class="container" id="ScaleViews" style="display:none;">
-            <div class="row justify-content-center">
-              <div class="col-auto">
-                <div class="form-check">
-                  <input class="form-check-input linearbottom" type="radio" name="ViewsOption" id="linear_views" value="linear">
-                  <label class="form-check-label" for="linear_views">Linear</label>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-check">
-                  <input class="form-check-input logbottom" type="radio" name="ViewsOption" id="log_views" value="log" checked>
-                  <label class="form-check-label" for="log_views">Log</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-3" >
-          <div class="row" id="IstoFollowers"></div>
-          <div class="container" id="ScaleFollowers" style="display:none;">
-            <div class="row justify-content-center">
-              <div class="col-auto">
-                <div class="form-check">
-                  <input class="form-check-input linearbottom" type="radio" name="FollowersOption" id="linear_followes" value="linear">
-                  <label class="form-check-label" for="linear_followes">Linear</label>
-                </div>
-              </div>
-              <div class="col-auto">
-                <div class="form-check">
-                  <input class="form-check-input logbottom" type="radio" name="FollowersOption" id="log_followers" value="log" checked>
-                  <label class="form-check-label" for="log_followers">Log</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div class="row mt-3 justify-content-center align-items-center">
+        <a
+          href="/compare"
+          id="compare_button"
+          class="mx-5 btn btn-primary"
+          style="width: 10%; font-size: 1.4vh"
+          hidden=""
+          target="_blank"
+          >Compare</a
+        >
+        <button
+          type="button"
+          id="zoom_button"
+          class="mx-5 btn btn-primary"
+          style="width: 10%; font-size: 1.4vh"
+        >
+          Zoom
+        </button>
+        <button
+          type="button"
+          id="reset_button"
+          class="mx-5 btn btn-danger"
+          style="width: 10%; font-size: 1.4vh"
+        >
+          Reset
+        </button>
       </div>
-
-      <div class="row mt-3 justify-content-center align-items-center ">
-        <a href="/compare" id="compare_button" class="mx-5 btn btn-primary" style="width:10%; font-size: 1.4vh" hidden target="_blank">Compare</a>
-        <button type="button" id="zoom_button" class="mx-5 btn btn-primary" style="width:10%; font-size: 1.4vh">Zoom</button>
-        <button type="button" id="reset_button" class="mx-5 btn btn-danger" style="width:10%; font-size: 1.4vh">Reset</button>
-      </div>
-      </div>
-    </div>
-
-
     </div>
     <script type="module" src="../js/histogram.js"></script>
-
-</body>
+  </body>
 </html>

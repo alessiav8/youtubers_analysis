@@ -1,7 +1,7 @@
 import { parseKMBtoNumber, colorScatterPlot, recomputeIntersection } from "./index.js";
 import { Data } from './index.js';
 import { updateText } from './index.js';
-const minFontSize = Math.max(7.2, window.innerHeight * 0.01);
+const minFontSize = Math.max(6.4, window.innerHeight * 0.000000005);
 
 document.addEventListener("DOMContentLoaded", function() {
   var buttonsLinear = document.querySelectorAll(".linearbottom");
@@ -205,7 +205,7 @@ function formatData(data, type, scale_type) {
 
   return formattedData;
 }
-const margin = { top: 20, right: 20, bottom: 70, left: 70 };
+const margin = { top: 20, right: 20, bottom: 70, left: 20 };
 
 const parentDiv = document.getElementById("IstoContainer");
 const pixels = (window.innerHeight * 25) / 100;
@@ -218,12 +218,12 @@ class Histogram {
     this.originalDB = data;
     this.id = id;
     this.container = container;
-    this.margin = { top: 20, right: 44, bottom: 50, left: 44 };
+    this.margin = { top: 20, right: 70, bottom: 50, left: 30};
     this.max = d3.max(this.data, (d) => d.frequenza);
     const parentDiv = document.getElementById("mainContainer");
     const parentDivRect = parentDiv.getBoundingClientRect();
     this.width_isto =
-      parentDivRect.width / 4 - this.margin.left - this.margin.right;
+      (parentDivRect.width / 4 - this.margin.left - this.margin.right) - 30 ;
     this.height_isto = pixels - this.margin.top - this.margin.bottom;
     this.xScaleIsto = d3
       .scaleLinear()
@@ -315,7 +315,7 @@ class Histogram {
     const parentDiv = document.getElementById("ScatterPlotContainer");
     const parentDivRect = parentDiv.getBoundingClientRect();
   
-    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    const margin = { top: 20, right: 20, bottom: 30, left: 20 };
     const width = (parentDivRect.width/12)*11 - margin.left - margin.right;
     const height = (parentDivRect.height/15)*14 - margin.top - margin.bottom;
     
@@ -861,8 +861,8 @@ class Histogram {
       .text((d, i) => (i === 5 ? formatLabel(d.end, i)  : ""))
       .attr("x", (d, i) =>
         i === 5
-          ? this.xScaleIsto(i) - 12 + (this.width_isto / this.data.length - 1)
-          : this.xScaleIsto(i) + (this.width_isto / this.data.length - 1) / 2
+          ? this.xScaleIsto(i) - 12 + (this.width_isto / this.data.length - 1) + 5
+          : (this.xScaleIsto(i) + (this.width_isto / this.data.length - 1) / 2) + 5
       )
       .attr("y", (d, i) => this.height_isto + this.margin.top)
       .attr("font-size", minFontSize + "px");
@@ -883,9 +883,9 @@ class Histogram {
       .append("text")
       .attr("transform", `translate(${this.width_isto / 2})`)
       .style("text-anchor", "middle")
-      .style("font-size", minFontSize + "px")
+      .style("font-size", 8 + "px")
       .text(this.label)
-      .attr("x", this.width_isto / 2 - 100)
+      .attr("x", this.width_isto / 2 -80)
       .attr("y", this.height_isto + this.margin.top + this.margin.bottom - 30);
 
     

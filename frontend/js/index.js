@@ -463,6 +463,8 @@ function renderFilter(categories, container) {
   allCheckboxLabel.setAttribute("for", idd);
   allCheckboxLabel.textContent = "All";
   allCheckboxLabel.style.marginLeft = "0.5vh"; // Adjust the spacing as needed
+  allCheckboxLabel.style.fontSize = "1.2vh";
+  allCheckboxDiv.style.marginBottom = "5px";
 
   // Add event listener to toggle all other checkboxes
   allCheckboxInput.addEventListener("change", function () {
@@ -484,7 +486,7 @@ function renderFilter(categories, container) {
     const checkboxDiv = document.createElement("div");
     checkboxDiv.classList.add("custom-control", "custom-checkbox");
     checkboxDiv.style.display = "flex"; // Use flexbox
-
+    checkboxDiv.style.marginBottom = "0.1vh";
     const checkboxInput = document.createElement("input");
     checkboxInput.type = "checkbox";
     checkboxInput.classList.add("custom-control-input");
@@ -496,6 +498,8 @@ function renderFilter(categories, container) {
     checkboxLabel.setAttribute("for", category); // Should match the checkbox ID
     checkboxLabel.textContent = category; // You may want to modify this based on your category data
     checkboxLabel.style.marginLeft = "0.5vh"; // Adjust the spacing as needed
+    checkboxLabel.style.fontSize = "1.2vh";
+
 
     checkboxDiv.appendChild(checkboxInput);
     checkboxDiv.appendChild(checkboxLabel);
@@ -838,7 +842,9 @@ function renderScatterPlot(data) {
 
   const margin = { top: 20, right: 20, bottom: 30, left: 40 };
   const width = (parentDivRect.width/12)*11 - margin.left - margin.right;
-  const height = (parentDivRect.height/15)*14 - margin.top - margin.bottom;
+  const height = (parentDivRect.height/15)*93 - margin.top - margin.bottom;
+
+  console.log("parentRect",parentDivRect,"parent",parentDiv,"width",width,"height",height);
 
 
   const scatter_plot = d3
@@ -860,23 +866,6 @@ function renderScatterPlot(data) {
     
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale);
-
-    
-    /*se ci sono problemi:
-        const xExtent = d3.extent(data, (d) => d.x);
-      const yExtent = d3.extent(data, (d) => d.y);
-
-      const maxExtent = [
-        Math.min(xExtent[0], yExtent[0]),
-        Math.max(xExtent[1], yExtent[1]),
-      ];
-
-      const xScale = d3.scaleLinear().domain(maxExtent).range([0, width]);
-      const yScale = d3.scaleLinear().domain(maxExtent).range([height, 0]);
-
-      const xAxis = d3.axisBottom(xScale);
-    const yAxis = d3.axisLeft(yScale);
-    */
     
   
   const tooltip = d3
