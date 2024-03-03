@@ -304,7 +304,7 @@ function renderHisto() {
 
 }
 
-function confirmFilters() {
+function confirmFilters(extra=false) {
   showLoadingMessage();
   reSetRadios("none")
 
@@ -371,7 +371,7 @@ function confirmFilters() {
   }
  
 
-  removeSVGElements();
+  removeSVGElements(extra);
   temp=true
   
   const serverEndpoint = '/generateExcel';
@@ -619,14 +619,16 @@ confirm_button.addEventListener("click", function () {
 })
 confirm_button1.addEventListener("click", function () {
   updateTextBefore()
-  confirmFilters();
+  confirmFilters(true);
 })
 
 
-function removeSVGElements() {
+function removeSVGElements(extra=false) {
+  if (extra) console.log("asddd")
   // Select and remove SVG elements with ID "mds"
   const svgElements = document.querySelectorAll('svg');
   svgElements.forEach((svgElem) => {
+    if (!(extra && svgElem.id === "back_zoom_svg")) 
     svgElem.parentNode.removeChild(svgElem);
   });
 }
