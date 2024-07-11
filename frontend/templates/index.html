@@ -46,9 +46,10 @@
         padding: 5px 10px;
         margin: 5px;
       }
-      .custom-control-input:checked ~ .custom-control-label::before {
-    background-color: #0275d8 !important; /* Change background color to blue */
-}
+      .custom-control-input:checked + .custom-control-label::before {
+        background-color: #007bff; /* Colore blu dei bottoni primari di Bootstrap */
+        border-color: #007bff; /* Colore del bordo */
+      }
     </style>
   </head>
   <body>
@@ -415,5 +416,6 @@
       </div>
     </div>
     <script type="module" src="../js/histogram.js"></script>
+    
   </body>
 </html>
